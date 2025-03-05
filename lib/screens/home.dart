@@ -123,7 +123,7 @@ class _HomeState extends State<Home> {
       String message = responseData["message"] ?? "Unknown error occurred";
 
       if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
-        _saveNotification("Good morning! Check-in successful");
+        _saveNotification("Check-in successful");
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Check-in success"), backgroundColor: Colors.green),
@@ -463,13 +463,13 @@ Future<void> _selectCheckoutTime(BuildContext context) async {
                       ],
                     ),
                     verticalSpacing(10),
-                    actionButton(
+                  /*  actionButton(
         context,
         onPressed: () async {
           await _selectCheckoutTime(context);
         },
         text: 'Set Checkout Reminder',
-      ),
+      ),*/
                   ],
                 ),
               ),
