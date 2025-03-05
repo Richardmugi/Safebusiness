@@ -51,7 +51,9 @@ dependencies:
 
 
 
+
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.3
   flutter_test:
     sdk: flutter
 
@@ -64,6 +66,11 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/logo.png"
+  remove_alpha_ios: true
 
 # The following section is specific to Flutter packages.
 flutter:
