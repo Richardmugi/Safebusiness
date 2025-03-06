@@ -94,7 +94,7 @@ class _HomeState extends State<Home> {
       branchLongitude!,
     );
 
-    if (distanceInMeters < 20) {
+    if (distanceInMeters > 500) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("You are too far from your branch to check in"), backgroundColor: Colors.red),

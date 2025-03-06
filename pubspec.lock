@@ -221,6 +221,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  geohash_plus:
+    dependency: "direct main"
+    description:
+      name: geohash_plus
+      sha256: "2735f559b1ee1ee04ff44f771efb98666ab42410b4bbf89773b950b7418995db"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   geolocator:
     dependency: "direct main"
     description:
