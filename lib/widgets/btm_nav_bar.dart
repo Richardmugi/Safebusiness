@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:safebusiness/screens/company.dart';
 import 'package:safebusiness/screens/home.dart';
 import 'package:safebusiness/screens/nofications.dart';
+import 'package:safebusiness/screens/reports.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../screens/profile.dart';
+
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -53,7 +55,9 @@ class _DefaultHomePageState extends State<BottomNavBar> {
   final List<Widget> _pages = [
     const Home(),
     const Notifications(),
-    const Profile()
+    Report(),
+    const Profile(),
+    TilePage()
   ];
 
   @override
@@ -106,10 +110,26 @@ class _DefaultHomePageState extends State<BottomNavBar> {
           ),
           BottomNavigationBarItem(
             icon: ImageIcon(
+              AssetImage('assets/icons/chart.png'),
+              size: 30,
+            ),
+            label: 'Reports',
+            backgroundColor: Color(0xff40c4ff),
+          ),
+          BottomNavigationBarItem(
+            icon: ImageIcon(
               AssetImage('assets/icons/user-avatar.png'),
               size: 30,
             ),
             label: 'Profile',
+            backgroundColor: Color(0xff40c4ff),
+          ),
+          BottomNavigationBarItem(
+            icon: ImageIcon(
+              AssetImage('assets/icons/boy.png'),
+              size: 30,
+            ),
+            label: 'My Company',
             backgroundColor: Color(0xff40c4ff),
           ),
         ],

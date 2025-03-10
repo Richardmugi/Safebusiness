@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 /*import 'package:safebusiness/screens/Auth/create_account.dart';*/
 //import 'package:safebusiness/screens/Auth/forgot_password.dart';
 import 'package:safebusiness/screens/Auth/login_page.dart';
-import 'package:safebusiness/screens/reports.dart';
 
 class RouteHelper {
   static final FluroRouter router = FluroRouter();
@@ -35,9 +34,9 @@ class RouteHelper {
   /*static final Handler _createAccountHandler = Handler(
       handlerFunc: (BuildContext? context, Map<String, dynamic> params) =>
           const CreateAccount());*/
-  static final Handler _reportsHandler = Handler(
+  /*static final Handler _reportsHandler = Handler(
       handlerFunc: (BuildContext? context, Map<String, dynamic> params) =>
-          const Report());
+          const Report());*/
   static final Handler _loginHandler = Handler(
       handlerFunc: (BuildContext? context, Map<String, dynamic> params) =>
           const LoginPage());
@@ -48,8 +47,8 @@ class RouteHelper {
   static void setupRouter() {
     /*router.define(createAccount,
         handler: _createAccountHandler, transitionType: TransitionType.fadeIn);*/
-    router.define(reports,
-        handler: _reportsHandler, transitionType: TransitionType.fadeIn);
+  /*  router.define(reports,
+        handler: _reportsHandler, transitionType: TransitionType.fadeIn);*/
     router.define(login,
         handler: _loginHandler, transitionType: TransitionType.fadeIn);
     /*router.define(forgotPassword,

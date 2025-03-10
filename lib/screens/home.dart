@@ -9,8 +9,7 @@ import 'package:safebusiness/widgets/sized_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:add_2_calendar/add_2_calendar.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -53,7 +52,9 @@ class _HomeState extends State<Home> {
   Future<void> _saveNotification(String message) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> notifications = prefs.getStringList('notifications') ?? [];
-    String timestamp = DateFormat('hh:mm a EEE MMM d, y').format(DateTime.now());
+    String timestamp = DateFormat(
+      'hh:mm a EEE MMM d, y',
+    ).format(DateTime.now());
     notifications.insert(0, "$message - $timestamp");
     await prefs.setStringList('notifications', notifications);
   }
@@ -65,7 +66,10 @@ class _HomeState extends State<Home> {
     if (userPosition == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Unable to determine location"), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text("Unable to determine location"),
+          backgroundColor: Colors.red,
+        ),
       );
       _saveNotification("Check-in failed: Unable to determine location");
       return;
@@ -75,10 +79,15 @@ class _HomeState extends State<Home> {
     double userLongitude = userPosition.longitude;
 
     var branchLocation = await _getBranchLocation(companyEmail);
-    if (branchLocation == null || branchLocation['latitude'] == null || branchLocation['longitude'] == null) {
+    if (branchLocation == null ||
+        branchLocation['latitude'] == null ||
+        branchLocation['longitude'] == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Branch location not found"), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text("Branch location not found"),
+          backgroundColor: Colors.red,
+        ),
       );
       _saveNotification("Check-in failed: Branch location not found");
       return;
@@ -94,16 +103,21 @@ class _HomeState extends State<Home> {
       branchLongitude!,
     );
 
-    if (distanceInMeters > 500) {
+    if (distanceInMeters > 5000) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("You are too far from your branch to check in"), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text("You are too far from your branch to check in"),
+          backgroundColor: Colors.red,
+        ),
       );
       _saveNotification("Check-in failed: Too far from branch");
       return;
     }
 
-    var url = Uri.parse('http://65.21.59.117/safe-business-api/public/api/v1/employeeClockIn');
+    var url = Uri.parse(
+      'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockIn',
+    );
 
     try {
       var response = await http.post(
@@ -126,13 +140,19 @@ class _HomeState extends State<Home> {
         _saveNotification("Check-in successful");
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Check-in success"), backgroundColor: Colors.green),
+          SnackBar(
+            content: Text("Check-in success"),
+            backgroundColor: Colors.green,
+          ),
         );
       } else {
         _saveNotification("Check-in failed: $message");
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Check-in failed: $message"), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text("Check-in failed: $message"),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } catch (e) {
@@ -242,57 +262,6 @@ class _HomeState extends State<Home> {
     }
   }
 
-
-Future<void> _addCheckoutReminder(DateTime checkoutTime) async {
-  final Event event = Event(
-    title: 'Checkout Reminder',
-    description: 'Don’t forget to check out!',
-    startDate: checkoutTime,
-    endDate: checkoutTime.add(const Duration(minutes: 30)), // Optional: Event duration
-    iosParams: const IOSParams(reminder: Duration(minutes: 30)), // Reminder 30 minutes before the event
-    androidParams: const AndroidParams(
-      emailInvites: [], // Optional: Add email invites if needed
-    ),
-  );
-
-  await Add2Calendar.addEvent2Cal(event);
-}
-
-Future<void> _selectCheckoutTime(BuildContext context) async {
-  DateTime now = DateTime.now();
-  DateTime? selectedTime = await showDatePicker(
-    context: context,
-    initialDate: now,
-    firstDate: now,
-    lastDate: DateTime(now.year + 1),
-  );
-
-  if (selectedTime != null) {
-    TimeOfDay? selectedHour = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(selectedTime),
-    );
-
-    if (selectedHour != null) {
-      // Combine the selected date and time
-      DateTime checkoutDateTime = DateTime(
-        selectedTime.year,
-        selectedTime.month,
-        selectedTime.day,
-        selectedHour.hour,
-        selectedHour.minute,
-      );
-
-      // Add the reminder to the calendar
-      await _addCheckoutReminder(checkoutDateTime);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Checkout reminder set for ${DateFormat.jm().format(checkoutDateTime)}")),
-      );
-    }
-  }
-}
-
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -303,7 +272,9 @@ Future<void> _selectCheckoutTime(BuildContext context) async {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                margin: const EdgeInsets.all(16.0), // Adjust the value as needed
+                margin: const EdgeInsets.all(
+                  16.0,
+                ), // Adjust the value as needed
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.38,
                 decoration: const ShapeDecoration(
@@ -334,7 +305,8 @@ Future<void> _selectCheckoutTime(BuildContext context) async {
                             image: AssetImage('assets/images/image 15.png'),
                             fit: BoxFit.fill,
                           ),
-                          borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.only(left: 30, right: 30),
                           child: Row(
@@ -394,10 +366,7 @@ Future<void> _selectCheckoutTime(BuildContext context) async {
                       bottom: -50,
                       left: 0,
                       right: 0,
-                      child: SizedBox(
-                        width: 119,
-                        height: 119,
-                      ),
+                      child: SizedBox(width: 119, height: 119),
                     ),
                   ],
                 ),
@@ -408,7 +377,8 @@ Future<void> _selectCheckoutTime(BuildContext context) async {
                   left: 24,
                   right: 24,
                   top: 30,
-                  bottom: 15),
+                  bottom: 15,
+                ),
                 child: Column(
                   children: [
                     Row(
@@ -420,16 +390,22 @@ Future<void> _selectCheckoutTime(BuildContext context) async {
                             final scannedEmail = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const QRCodeScanner(isReturningUser: true),
+                                builder:
+                                    (context) => const QRCodeScanner(
+                                      isReturningUser: true,
+                                    ),
                               ),
                             );
 
-                            if (scannedEmail != null && isValidEmail(scannedEmail)) {
+                            if (scannedEmail != null &&
+                                isValidEmail(scannedEmail)) {
                               _clockin(employeeEmail, companyEmail);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("Invalid QR code! No company email found."),
+                                  content: Text(
+                                    "Invalid QR code! No company email found.",
+                                  ),
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -443,16 +419,22 @@ Future<void> _selectCheckoutTime(BuildContext context) async {
                             final scannedEmail = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const QRCodeScanner(isReturningUser: true),
+                                builder:
+                                    (context) => const QRCodeScanner(
+                                      isReturningUser: true,
+                                    ),
                               ),
                             );
 
-                            if (scannedEmail != null && isValidEmail(scannedEmail)) {
+                            if (scannedEmail != null &&
+                                isValidEmail(scannedEmail)) {
                               _clockout(employeeEmail, companyEmail);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("Invalid QR code! No company email found."),
+                                  content: Text(
+                                    "Invalid QR code! No company email found.",
+                                  ),
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -462,17 +444,61 @@ Future<void> _selectCheckoutTime(BuildContext context) async {
                         ),
                       ],
                     ),
-                    verticalSpacing(10),
-                  /*  actionButton(
-        context,
-        onPressed: () async {
-          await _selectCheckoutTime(context);
-        },
-        text: 'Set Checkout Reminder',
-      ),*/
                   ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 15,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: Text(
+                        'Categories',
+                        style: GoogleFonts.poppins(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    _buildCategoryBox(
+      context,
+      title: 'Travels',
+      image: 'assets/images/travel.jpeg', // Replace with your image path
+      onTap: () => _launchURL('https://www.safaribookings.com/'),
+    ),
+    _buildCategoryBox(
+      context,
+      title: 'Hangouts',
+      image: 'assets/images/hangouts.jpg', // Replace with your image path
+      onTap: () => _launchURL('https://your-hangouts-link.com'),
+    ),
+    _buildCategoryBox(
+      context,
+      title: 'Vacations',
+      image: 'assets/images/vacations.webp', // Replace with your image path
+      onTap: () => _launchURL('https://your-vacations-link.com'),
+    ),
+    _buildCategoryBox(
+      context,
+      title: 'Food',
+      image: 'assets/images/food.jpg', // Replace with your image path
+      onTap: () => _launchURL('https://your-food-link.com'),
+    ),
+  ],
+),
+                  ],
+                ),
+              ),
+
               Padding(
                 padding: const EdgeInsets.only(left: 24, right: 24, bottom: 5),
                 child: Text(
@@ -527,6 +553,58 @@ Future<void> _selectCheckoutTime(BuildContext context) async {
       ),
     );
   }
+
+  // Helper method to build a category box with an image
+Widget _buildCategoryBox(BuildContext context, {required String title, required String image, required VoidCallback onTap}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      width: MediaQuery.of(context).size.width * 0.2, // Adjust width as needed
+      height: MediaQuery.of(context).size.height * 0.1, // Adjust width as neede
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        image: DecorationImage(
+          image: AssetImage(image), // Use the provided image
+          fit: BoxFit.cover, // Ensure the image covers the container
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.6), // Semi-transparent background
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10),
+              ),
+            ),
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+// Helper method to launch URLs
+void _launchURL(String url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
 
   Widget _headerText(String title) {
     return Text(
