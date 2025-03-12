@@ -1,88 +1,135 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class TilePage extends StatelessWidget {
-  const TilePage({super.key});
-
+class QuickActionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Quick Actions',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView( // Make the body scrollable
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              verticalSpacing(25),
+              Padding(
+                padding: const EdgeInsets.only(left: 24),
+                child: Text(
+                  'Quick Actions',
+                  style: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.2,
-               children: [
-  _buildTile('Jobs', 'assets/images/congs.png', 'Access company vacancies here', context),
-  _buildTile('Leave', 'assets/images/congs.png', 'Apply for leave here', context),
-  _buildTile('Advance', 'assets/images/congs.png', 'Request salary advances easily', context),
-],
+              verticalSpacing(5.0),
+              customDivider(thickness: 3, color: Color(0xFFD9D9D9)),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    buildActionContainer(
+                      label: 'Jobs',
+                      icon: Icons.work_outline,
+                      description: 'Access company vacancies here',
+                      color: Colors.blueAccent,
+                      context: context,
+                    ),
+                    verticalSpacing(20.0),
+                    buildActionContainer(
+                      label: 'Leave',
+                      icon: Icons.calendar_today,
+                      description: 'Apply for leave here',
+                      color: Colors.greenAccent,
+                      context: context,
+                    ),
+                    verticalSpacing(20.0),
+                    buildActionContainer(
+                      label: 'Advance',
+                      icon: Icons.attach_money,
+                      description: 'Request salary advances easily',
+                      color: Colors.orangeAccent,
+                      context: context,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTile(String title, String imagePath, String description, BuildContext context) {
+  Widget buildActionContainer({
+    required String label,
+    required IconData icon,
+    required String description,
+    required Color color,
+    required BuildContext context,
+  }) {
     return Container(
+      width: MediaQuery.of(context).size.width - 24, // Full width minus left and right padding (16 + 16)
+      padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
+        color: color,
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(imagePath, height: 60),
-          SizedBox(height: 12),
+          Icon(icon, size: 40, color: Colors.white),
+          verticalSpacing(10.0),
           Text(
-            title,
+            label,
             style: GoogleFonts.poppins(
+              color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 12),
+          verticalSpacing(5.0),
           Text(
-          description,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-        ),
-        SizedBox(height: 10),
+            description,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+          ),
+          verticalSpacing(10.0),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              // Add your button action here
+              print('$label button pressed');
+            },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              foregroundColor: color,
+              backgroundColor: Colors.white, // Button background color
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: Text("Open"),
+            child: Text(
+              'Open',
+              style: TextStyle(color: color),
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget verticalSpacing(double height) {
+    return SizedBox(height: height);
+  }
+
+  Widget customDivider({required double thickness, required Color color}) {
+    return Container(
+      height: thickness,
+      color: color,
+      margin: EdgeInsets.symmetric(horizontal: 24),
     );
   }
 }

@@ -25,6 +25,7 @@ class _HomeState extends State<Home> {
   String employeeName = "";
   String employeeEmail = "";
   String companyEmail = "";
+  String companyName = "";
 
   bool isValidEmail(String input) {
     final RegExp emailRegex = RegExp(
@@ -46,6 +47,7 @@ class _HomeState extends State<Home> {
       employeeName = prefs.getString('employeeName') ?? "N/A";
       employeeEmail = prefs.getString('email') ?? "N/A";
       companyEmail = prefs.getString('companyEmail') ?? "N/A";
+      companyName = prefs.getString('companyName') ?? "N/A";
     });
   }
 
@@ -276,7 +278,7 @@ class _HomeState extends State<Home> {
                   16.0,
                 ), // Adjust the value as needed
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.38,
+                height: MediaQuery.of(context).size.height * 0.3,
                 decoration: const ShapeDecoration(
                   color: mainColor,
                   shape: RoundedRectangleBorder(
@@ -316,8 +318,8 @@ class _HomeState extends State<Home> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   verticalSpacing(30),
-                                  _headerText('Employee ID'),
-                                  _headerTextBold(employeeId),
+                                  _headerText('Company Name'),
+                                  _headerTextBold(companyName),
                                   verticalSpacing(20),
                                   _headerText('Employee Name'),
                                   _headerTextBold(employeeName),
@@ -327,22 +329,16 @@ class _HomeState extends State<Home> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   verticalSpacing(30),
+                                    _headerText('Employee ID'),
+                                  _headerTextBold(employeeId),
                                   SizedBox(
                                     width: 59,
                                     height: 36,
-                                    child: Image.asset(
+                                   /* child: Image.asset(
                                       'assets/images/logo.png',
-                                    ),
+                                    ),*/
                                   ),
                                   verticalSpacing(5),
-                                  Text(
-                                    'Nard Concepts',
-                                    style: GoogleFonts.poppins(
-                                      color: const Color(0xFF646464),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
                                 ],
                               ),
                             ],
@@ -350,18 +346,18 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                     ),
-                    Positioned(
+                   /* Positioned(
                       bottom: 10,
                       right: 80,
                       child: SizedBox(
                         width: 55,
                         height: 55,
-                        child: Image.asset(
+                       child: Image.asset(
                           'assets/icons/qr-code2.png',
                           color: Colors.white,
                         ),
                       ),
-                    ),
+                    ),*/
                     Positioned(
                       bottom: -50,
                       left: 0,
@@ -447,58 +443,54 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
+              verticalSpacing(5),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 15,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: Text(
-                        'Categories',
-                        style: GoogleFonts.poppins(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    _buildCategoryBox(
-      context,
-      title: 'Travels',
-      image: 'assets/images/travel.jpeg', // Replace with your image path
-      onTap: () => _launchURL('https://www.safaribookings.com/'),
-    ),
-    _buildCategoryBox(
-      context,
-      title: 'Hangouts',
-      image: 'assets/images/hangouts.jpg', // Replace with your image path
-      onTap: () => _launchURL('https://your-hangouts-link.com'),
-    ),
-    _buildCategoryBox(
-      context,
-      title: 'Vacations',
-      image: 'assets/images/vacations.webp', // Replace with your image path
-      onTap: () => _launchURL('https://your-vacations-link.com'),
-    ),
-    _buildCategoryBox(
-      context,
-      title: 'Food',
-      image: 'assets/images/food.jpg', // Replace with your image path
-      onTap: () => _launchURL('https://your-food-link.com'),
-    ),
-  ],
-),
-                  ],
+                padding: const EdgeInsets.only(left: 24, right: 24, bottom: 5),
+                child: Text(
+                  'Categories',
+                  style: GoogleFonts.poppins(
+                    color: black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
+SingleChildScrollView(
+  scrollDirection: Axis.horizontal, // Enable horizontal scrolling
+  child: Row(
+    children: [
+      _buildCategoryBox(
+        context,
+        title: 'Travels',
+        image: 'assets/images/travel.jpeg',
+        onTap: () => _launchURL('https://www.safaribookings.com/'),
+      ),
+      _buildCategoryBox(
+        context,
+        title: 'Hangouts',
+        image: 'assets/images/hangouts.jpg',
+        onTap: () => _launchURL('https://your-hangouts-link.com'),
+      ),
+      _buildCategoryBox(
+        context,
+        title: 'Vacations',
+        image: 'assets/images/vacations.webp',
+        onTap: () => _launchURL('https://your-vacations-link.com'),
+      ),
+      _buildCategoryBox(
+        context,
+        title: 'Food',
+        image: 'assets/images/food.jpg',
+        onTap: () => _launchURL('https://your-food-link.com'),
+      ),
+    ].map((widget) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0), // Space between boxes
+      child: widget,
+    )).toList(),
+  ),
+),
 
+verticalSpacing(10),
               Padding(
                 padding: const EdgeInsets.only(left: 24, right: 24, bottom: 5),
                 child: Text(
@@ -555,56 +547,65 @@ class _HomeState extends State<Home> {
   }
 
   // Helper method to build a category box with an image
-Widget _buildCategoryBox(BuildContext context, {required String title, required String image, required VoidCallback onTap}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: MediaQuery.of(context).size.width * 0.2, // Adjust width as needed
-      height: MediaQuery.of(context).size.height * 0.1, // Adjust width as neede
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        image: DecorationImage(
-          image: AssetImage(image), // Use the provided image
-          fit: BoxFit.cover, // Ensure the image covers the container
+  Widget _buildCategoryBox(
+    BuildContext context, {
+    required String title,
+    required String image,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width:
+            MediaQuery.of(context).size.width * 0.2, // Adjust width as needed
+        height:
+            MediaQuery.of(context).size.height * 0.1, // Adjust width as neede
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          image: DecorationImage(
+            image: AssetImage(image), // Use the provided image
+            fit: BoxFit.cover, // Ensure the image covers the container
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(
+                  0.6,
+                ), // Semi-transparent background
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(10),
+                  bottomRight: Radius.circular(10),
+                ),
+              ),
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.6), // Semi-transparent background
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10),
-              ),
-            ),
-            child: Text(
-              title,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-// Helper method to launch URLs
-void _launchURL(String url) async {
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
-    throw 'Could not launch $url';
+    );
   }
-}
+
+  // Helper method to launch URLs
+  void _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   Widget _headerText(String title) {
     return Text(

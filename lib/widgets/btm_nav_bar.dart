@@ -57,7 +57,7 @@ class _DefaultHomePageState extends State<BottomNavBar> {
     const Notifications(),
     Report(),
     const Profile(),
-    TilePage()
+    QuickActionsPage()
   ];
 
   @override
