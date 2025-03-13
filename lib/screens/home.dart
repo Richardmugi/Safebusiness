@@ -105,7 +105,7 @@ class _HomeState extends State<Home> {
       branchLongitude!,
     );
 
-    if (distanceInMeters > 5000) {
+    if (distanceInMeters > 500) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -317,15 +317,18 @@ class _HomeState extends State<Home> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  verticalSpacing(30),
+                                  verticalSpacing(10),
                                   _headerText('Company Name'),
                                   _headerTextBold(companyName),
-                                  verticalSpacing(20),
+                                  verticalSpacing(5),
                                   _headerText('Employee Name'),
                                   _headerTextBold(employeeName),
+                                  verticalSpacing(5),
+                                   _headerText('Employee ID'),
+                                  _headerTextBold(employeeId),
                                 ],
                               ),
-                              Column(
+                       /*       Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   verticalSpacing(30),
@@ -340,7 +343,7 @@ class _HomeState extends State<Home> {
                                   ),
                                   verticalSpacing(5),
                                 ],
-                              ),
+                              ),*/
                             ],
                           ),
                         ),

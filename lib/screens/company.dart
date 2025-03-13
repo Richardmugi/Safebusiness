@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class QuickActionsPage extends StatelessWidget {
+  const QuickActionsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
