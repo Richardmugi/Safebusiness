@@ -14,6 +14,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -46,10 +47,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     // Firebase Cloud Messaging (FCM) - Required for push notifications
     implementation("com.google.firebase:firebase-messaging")
-
-    // WorkManager (for background notification scheduling)
     implementation("androidx.work:work-runtime:2.8.1")
     // Add other dependencies here
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }
 
 flutter {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:safebusiness/screens/announcements.dart';
+import 'package:safebusiness/screens/jobs.dart';
 
 class QuickActionsPage extends StatelessWidget {
   const QuickActionsPage({super.key});
@@ -32,17 +34,17 @@ class QuickActionsPage extends StatelessWidget {
                 child: Column(
                   children: [
                     buildActionContainer(
-                      label: 'Jobs',
-                      icon: Icons.work_outline,
-                      description: 'Access company vacancies here',
+                      label: 'Announcements',
+                      icon: Icons.notifications,
+                      description: 'Check your announcements here',
                       color: Colors.blueAccent,
                       context: context,
                     ),
                     verticalSpacing(20.0),
                     buildActionContainer(
-                      label: 'Leave',
-                      icon: Icons.calendar_today,
-                      description: 'Apply for leave here',
+                      label: 'Jobs',
+                      icon: Icons.work_outline,
+                      description: 'Access company vacancies here',
                       color: Colors.greenAccent,
                       context: context,
                     ),
@@ -103,8 +105,20 @@ class QuickActionsPage extends StatelessWidget {
           verticalSpacing(10.0),
           ElevatedButton(
             onPressed: () {
-              // Add your button action here
-              print('$label button pressed');
+             
+  if (label == 'Jobs') {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CompanyJobsPage()),
+    );
+  }
+
+  if (label == 'Announcements') {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AnnouncementsPage()),
+    );
+  }
             },
             style: ElevatedButton.styleFrom(
               foregroundColor: color,

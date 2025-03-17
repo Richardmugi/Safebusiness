@@ -10,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:vibration/vibration.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -21,6 +23,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController companyEmailController = TextEditingController();
+  final FlutterRingtonePlayer _ringtonePlayer = FlutterRingtonePlayer();
   String employeeId = "";
   String employeeName = "";
   String employeeEmail = "";
@@ -140,6 +143,15 @@ class _HomeState extends State<Home> {
 
       if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
         _saveNotification("Check-in successful");
+
+        // Trigger vibration
+        if (await Vibration.hasVibrator()) {
+          Vibration.vibrate(duration: 500); // Vibrate for 500ms
+        }
+
+        // Play system notification sound
+        _ringtonePlayer.playNotification();
+
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -149,6 +161,17 @@ class _HomeState extends State<Home> {
         );
       } else {
         _saveNotification("Check-in failed: $message");
+
+        // Trigger vibration for failure
+        if (await Vibration.hasVibrator()) {
+          Vibration.vibrate(duration: 200); // Short vibration for failure
+        }
+
+        // Play system alarm sound for failure
+        _ringtonePlayer.play(
+          fromAsset: "system/alarm", // Use system alarm sound
+        );
+
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -159,13 +182,23 @@ class _HomeState extends State<Home> {
       }
     } catch (e) {
       _saveNotification("Check-in error: $e");
+
+      // Trigger vibration for error
+      if (await Vibration.hasVibrator()) {
+        Vibration.vibrate(duration: 200); // Short vibration for error
+      }
+
+      // Play system ringtone for error
+      _ringtonePlayer.play(
+        fromAsset: "system/ringtone", // Use system ringtone
+      );
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
       );
     }
   }
-
   Future<Position?> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -238,7 +271,15 @@ class _HomeState extends State<Home> {
       if (response.statusCode == 200) {
         if (responseData["status"] == "SUCCESS") {
           _saveNotification("Check-out successful");
-          print("Check-out success");
+
+          // Trigger vibration
+          if (await Vibration.hasVibrator()) {
+            Vibration.vibrate(duration: 500); // Vibrate for 500ms
+          }
+
+          // Play system notification sound
+          _ringtonePlayer.playNotification();
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Check-out success"),
@@ -248,9 +289,20 @@ class _HomeState extends State<Home> {
           print("Clock-out successful!");
         } else {
           _saveNotification("Check-out failed: ${responseData["message"]}");
+
+          // Trigger vibration for failure
+          if (await Vibration.hasVibrator()) {
+            Vibration.vibrate(duration: 200); // Short vibration for failure
+          }
+
+          // Play system alarm sound for failure
+          _ringtonePlayer.play(
+            fromAsset: "system/alarm", // Use system alarm sound
+          );
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Check-out failed!"),
+              content: Text("Check-out failed! No Checkin found"),
               backgroundColor: Colors.red,
             ),
           );
@@ -319,8 +371,9 @@ class _HomeState extends State<Home> {
                                 children: [
                                   verticalSpacing(10),
                                   _headerText('Company Name'),
-                                  _headerTextBold(companyName),
-                                  verticalSpacing(5),
+                                  Expanded(
+                                    child: _headerTextBold(companyName),
+                                    ),
                                   _headerText('Employee Name'),
                                   _headerTextBold(employeeName),
                                   verticalSpacing(5),

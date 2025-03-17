@@ -54,10 +54,10 @@ class _DefaultHomePageState extends State<BottomNavBar> {
 
   final List<Widget> _pages = [
     const Home(),
-    const Notifications(),
+    QuickActionsPage(),
+    //const Notifications(),
     Report(),
     const Profile(),
-    QuickActionsPage()
   ];
 
   @override
@@ -87,7 +87,7 @@ class _DefaultHomePageState extends State<BottomNavBar> {
             icon: Stack(
               children: [
                 ImageIcon(
-                  AssetImage('assets/icons/notification.png'),
+                  AssetImage('assets/icons/company.png'),
                   size: 30,
                 ),
                 if (_hasNewNotification)
@@ -105,7 +105,7 @@ class _DefaultHomePageState extends State<BottomNavBar> {
                   ),
               ],
             ),
-            label: 'Notification',
+            label: 'My Company',
             backgroundColor: Color(0xff40c4ff),
           ),
           BottomNavigationBarItem(
@@ -124,14 +124,14 @@ class _DefaultHomePageState extends State<BottomNavBar> {
             label: 'Profile',
             backgroundColor: Color(0xff40c4ff),
           ),
-          BottomNavigationBarItem(
+          /*BottomNavigationBarItem(
             icon: ImageIcon(
-              AssetImage('assets/icons/boy.png'),
+              AssetImage('assets/icons/company.jpg'),
               size: 30,
             ),
             label: 'My Company',
             backgroundColor: Color(0xff40c4ff),
-          ),
+          ),*/
         ],
       ),
     );
