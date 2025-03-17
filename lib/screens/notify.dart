@@ -69,7 +69,7 @@ class NotificationService {
 
   static Future<void> scheduleNotifications() async {
     await _scheduleNotification(1, "Check-in Reminder", "Remember to check in!", 8, 0);
-    await _scheduleNotification(2, "Check-out Reminder", "Remember to check out!", 16, 0);
+    await _scheduleNotification(2, "Check-out Reminder", "Remember to check out!", 17, 0);
   }
 
   /// ✅ Ensure notifications use the user's local time
