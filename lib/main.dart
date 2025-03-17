@@ -12,11 +12,11 @@ import 'helpers/route_helper.dart';
 Future<void> main() async {
   print('Initializing app...');
   WidgetsFlutterBinding.ensureInitialized();
-  /*print('WidgetsFlutterBinding initialized.');
+  print('WidgetsFlutterBinding initialized.');
   await NotificationService.init();
   print('NotificationService initialized.');
   NotificationService.scheduleNotifications();
-  print('Notifications scheduled.');*/
+  print('Notifications scheduled.');
   runApp(const MyApp());
 }
 
