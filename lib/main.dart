@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:safebusiness/screens/notify.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:safebusiness/providers/dark_theme_provider.dart';
 import 'package:safebusiness/screens/Auth/login_page.dart';
@@ -10,13 +9,6 @@ import 'package:safebusiness/utils/dark_theme_styles.dart';
 import 'helpers/route_helper.dart';
 
 Future<void> main() async {
-  print('Initializing app...');
-  WidgetsFlutterBinding.ensureInitialized();
-  print('WidgetsFlutterBinding initialized.');
-  await NotificationService.init();
-  print('NotificationService initialized.');
-  NotificationService.scheduleNotifications();
-  print('Notifications scheduled.');
   runApp(const MyApp());
 }
 

@@ -1,4 +1,4 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -30,40 +30,44 @@ class _NotificationsState extends State<Notifications> {
     });
   }
 
-
-Future<void> _addMorningMessage() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<String> existingMessages = prefs.getStringList('notifications') ?? [];
-  
-  DateTime now = DateTime.now();
-  String todayDate = DateFormat('yyyy-MM-dd').format(now); // Store only the date (not time)
-  
-  String? lastMessageDate = prefs.getString('lastMorningMessageDate'); // Retrieve last stored date
-
-  if (now.hour >= 8 && now.hour <= 10) {
-    // Check if message was already added today
-    if (lastMessageDate == todayDate) {
-      return; // Exit the function, since message is already added today
-    }
-
-    String morningMessage =
-        "Good morning! Please check in today - ${DateFormat('hh:mm a EEE MMM d, y').format(now)}";
+  Future<void> _addMorningMessage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> existingMessages = prefs.getStringList('notifications') ?? [];
     
-    existingMessages.insert(0, morningMessage);
-    await prefs.setStringList('notifications', existingMessages);
-    await prefs.setString('lastMorningMessageDate', todayDate); // Store today's date
-    await prefs.setBool('hasNewNotification', true); // Mark as new notification
+    DateTime now = DateTime.now();
+    String todayDate = DateFormat('yyyy-MM-dd').format(now);
+    String? lastMessageDate = prefs.getString('lastMorningMessageDate');
 
-    setState(() {
-      notifications = existingMessages;
-    });
+    if (now.hour >= 8 && now.hour <= 10) {
+      if (lastMessageDate == todayDate) {
+        return;
+      }
+
+      String morningMessage =
+          "Good morning! Please check in today - ${DateFormat('hh:mm a EEE MMM d, y').format(now)}";
+      
+      existingMessages.insert(0, morningMessage);
+      await prefs.setStringList('notifications', existingMessages);
+      await prefs.setString('lastMorningMessageDate', todayDate);
+      await prefs.setBool('hasNewNotification', true);
+
+      setState(() {
+        notifications = existingMessages;
+      });
+    }
   }
-}
-
 
   Future<void> _clearNewNotificationFlag() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasNewNotification', false);
+  }
+
+  Future<void> _deleteNotification(int index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      notifications.removeAt(index);
+    });
+    await prefs.setStringList('notifications', notifications);
   }
 
   @override
@@ -105,7 +109,10 @@ Future<void> _addMorningMessage() async {
                     child: ListView.builder(
                       itemCount: notifications.length,
                       itemBuilder: (context, index) {
-                        return messageBody(bodyText: notifications[index]);
+                        return messageBody(
+                          bodyText: notifications[index],
+                          onDelete: () => _deleteNotification(index),
+                        );
                       },
                     ),
                   ),
@@ -115,7 +122,7 @@ Future<void> _addMorningMessage() async {
     );
   }
 
-  Widget messageBody({required String bodyText}) {
+  Widget messageBody({required String bodyText, required VoidCallback onDelete}) {
     return Padding(
       padding: const EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 10),
       child: Column(
@@ -127,7 +134,7 @@ Future<void> _addMorningMessage() async {
                 width: 18,
                 height: 17,
                 decoration: ShapeDecoration(
-                  color: Colors.blue, // Replace with mainColor if needed
+                  color: Colors.blue,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(9)),
                 ),
@@ -142,14 +149,25 @@ Future<void> _addMorningMessage() async {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    bodyText,
-                    maxLines: 3,
-                    style: GoogleFonts.poppins(
-                      color: const Color(0xFF646464),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          bodyText,
+                          maxLines: 3,
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFF646464),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: onDelete,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -160,4 +178,4 @@ Future<void> _addMorningMessage() async {
       ),
     );
   }
-}*/
+}

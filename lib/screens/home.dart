@@ -328,7 +328,7 @@ class _HomeState extends State<Home> {
               Container(
                 margin: const EdgeInsets.all(
                   16.0,
-                ), // Adjust the value as needed
+                ),// Adjust the value as needed
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.3,
                 decoration: const ShapeDecoration(
@@ -369,14 +369,14 @@ class _HomeState extends State<Home> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  verticalSpacing(10),
-                                  _headerText('Company Name'),
+                                  verticalSpacing(30),
+                                 /* _headerText('Company Name'),
                                   Expanded(
                                     child: _headerTextBold(companyName),
-                                    ),
+                                    ),*/
                                   _headerText('Employee Name'),
                                   _headerTextBold(employeeName),
-                                  verticalSpacing(5),
+                                  verticalSpacing(20),
                                    _headerText('Employee ID'),
                                   _headerTextBold(employeeId),
                                 ],

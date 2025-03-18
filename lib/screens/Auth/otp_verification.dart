@@ -9,6 +9,9 @@ import 'package:safebusiness/utils/dimensions.dart';
 import 'package:safebusiness/widgets/action_button.dart';
 import 'package:safebusiness/widgets/sized_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
+import 'dart:math';
 
 class OtpVerification extends StatefulWidget {
   const OtpVerification({super.key});
@@ -33,46 +36,42 @@ class _OtpVerificationState extends State<OtpVerification> {
     await prefs.setBool('completedOTP', true);
   }
 
-  Future<void> generateAndSaveOtp() async {
-  // Generate a 4-digit OTP
+  Future<void> generateAndSendOtp() async {
   Random random = Random();
-  int otp = random.nextInt(9000) + 1000; // 4-digit OTP (between 1000-9999)
-  _generatedOtp = otp.toString();
+  int otp = random.nextInt(9000) + 1000; // Generate a 4-digit OTP
+  String generatedOtp = otp.toString();
 
-  // Save OTP in SharedPreferences for verification
+  // Save OTP in SharedPreferences
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setString('otp', _generatedOtp!);
+  // Retrieve stored email
+  String? email = prefs.getString('email') ?? "N/A";
+  await prefs.setString('otp', generatedOtp);
 
-  // Show OTP in a pop-up dialog
-  if (mounted) { // Ensure the widget is still in the tree before showing the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Your OTP Code"),
-          content: Text(
-            "Your OTP is $_generatedOtp",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-              },
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
+  // SMTP Server Configuration (Use your own SMTP settings)
+  String username = 'nardconcepts1@gmail.com'; // Your email
+  String password = 'hona yzax gkyc rwei'; // Your email app password (use App Passwords for security)
+  
+  final smtpServer = gmail(username, password); // Use Gmail's SMTP server
+  
+  // Email Message
+  final message = Message()
+    ..from = Address(username, 'Safebusiness') // Sender info
+    ..recipients.add(email) // Recipient email
+    ..subject = 'Your OTP Code for Safebusiness'
+    ..text = 'Your OTP code is: $generatedOtp\nPlease enter this code in the app to proceed.';
+
+  try {
+    final sendReport = await send(message, smtpServer);
+    print('OTP sent successfully: ${sendReport.toString()}');
+  } catch (e) {
+    print('Failed to send OTP: $e');
   }
 }
 
   @override
   void initState() {
     super.initState();
-    generateAndSaveOtp(); // Generate and save OTP when the screen is initialized
+    generateAndSendOtp(); // Generate and save OTP when the screen is initialized
     _startTimer();
   }
 
@@ -196,7 +195,7 @@ class _OtpVerificationState extends State<OtpVerification> {
                         ..onTap = () {
                           if (_start == 0) {
                             // Resend OTP logic
-                            generateAndSaveOtp(); // Generate new OTP
+                            generateAndSendOtp(); // Generate new OTP
                             setState(() {
                               _start = 60; // Reset timer
                             });

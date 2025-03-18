@@ -212,6 +212,13 @@ void initState() {
         context,
         MaterialPageRoute(builder: (context) => const OtpVerification()),
       );
+
+      print('Registered email: ${responseData['email']}');
+
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('email', responseData['email'] ?? "N/A");
+
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(responseData["message"])));
     }
