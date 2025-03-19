@@ -8,7 +8,7 @@ import 'package:safebusiness/screens/splash.dart';
 import 'package:safebusiness/utils/dark_theme_styles.dart';
 import 'helpers/route_helper.dart';
 
-Future<void> main() async {
+void main(){
   runApp(const MyApp());
 }
 

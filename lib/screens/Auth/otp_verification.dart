@@ -11,7 +11,7 @@ import 'package:safebusiness/widgets/sized_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
-import 'dart:math';
+
 
 class OtpVerification extends StatefulWidget {
   const OtpVerification({super.key});
@@ -76,18 +76,24 @@ class _OtpVerificationState extends State<OtpVerification> {
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (_start > 0) {
-        setState(() {
-          _start--;
-        });
-      } else {
-        setState(() {
-          _timer?.cancel(); // Stop the timer when it reaches 0
-        });
-      }
-    });
-  }
+  _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+    if (_start > 0) {
+      setState(() {
+        _start--;
+      });
+    } else {
+      setState(() {
+        _timer?.cancel(); // Stop the timer when it reaches 0
+      });
+
+      // Invalidate OTP when timer reaches 0
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('otp');
+      print("OTP expired. Tap resend otp");
+    }
+  });
+}
+
 
   @override
   void dispose() {
@@ -132,7 +138,7 @@ class _OtpVerificationState extends State<OtpVerification> {
               Transform.scale(
                   scale: 1.2,
                   child: Image.asset(
-                    'assets/icons/safe-biz-cropped.png',
+                    'assets/icons/logo.png',
                   )),
               verticalSpacing(MediaQuery.of(context).size.height * 0.06),
               Text(

@@ -104,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
             verticalSpacing(MediaQuery.of(context).size.height * 0.17),
             Transform.scale(
               scale: 1.2,
-              child: Image.asset('assets/icons/safe-biz-cropped.png'),
+              child: Image.asset('assets/icons/logo.png'),
             ),
             verticalSpacing(MediaQuery.of(context).size.height * 0.06),
             Text(
