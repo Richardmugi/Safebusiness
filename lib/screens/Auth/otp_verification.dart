@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math';  // Import for random OTP generation
+import 'dart:math'; // Import for random OTP generation
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,7 +11,6 @@ import 'package:safebusiness/widgets/sized_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
-
 
 class OtpVerification extends StatefulWidget {
   const OtpVerification({super.key});
@@ -28,7 +27,7 @@ class _OtpVerificationState extends State<OtpVerification> {
 
   bool loading = false;
   Timer? _timer;
-  int _start = 60; // Countdown starts from 60 seconds
+  int _start = 150; // Countdown starts from 60 seconds
   String? _generatedOtp;
 
   Future<void> saveOTPCompletion() async {
@@ -37,36 +36,38 @@ class _OtpVerificationState extends State<OtpVerification> {
   }
 
   Future<void> generateAndSendOtp() async {
-  Random random = Random();
-  int otp = random.nextInt(9000) + 1000; // Generate a 4-digit OTP
-  String generatedOtp = otp.toString();
+    Random random = Random();
+    int otp = random.nextInt(9000) + 1000; // Generate a 4-digit OTP
+    String generatedOtp = otp.toString();
 
-  // Save OTP in SharedPreferences
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  // Retrieve stored email
-  String? email = prefs.getString('email') ?? "N/A";
-  await prefs.setString('otp', generatedOtp);
+    // Save OTP in SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // Retrieve stored email
+    String? email = prefs.getString('email') ?? "N/A";
+    await prefs.setString('otp', generatedOtp);
 
-  // SMTP Server Configuration (Use your own SMTP settings)
-  String username = 'nardconcepts1@gmail.com'; // Your email
-  String password = 'hona yzax gkyc rwei'; // Your email app password (use App Passwords for security)
-  
-  final smtpServer = gmail(username, password); // Use Gmail's SMTP server
-  
-  // Email Message
-  final message = Message()
-    ..from = Address(username, 'Safebusiness') // Sender info
-    ..recipients.add(email) // Recipient email
-    ..subject = 'Your OTP Code for Safebusiness'
-    ..text = 'Your OTP code is: $generatedOtp\nPlease enter this code in the app to proceed.';
+    // SMTP Server Configuration (Use your own SMTP settings)
+    String username = 'nardconcepts1@gmail.com'; // Your email
+    String password =
+        'hona yzax gkyc rwei'; // Your email app password (use App Passwords for security)
 
-  try {
-    final sendReport = await send(message, smtpServer);
-    print('OTP sent successfully: ${sendReport.toString()}');
-  } catch (e) {
-    print('Failed to send OTP: $e');
+    final smtpServer = gmail(username, password); // Use Gmail's SMTP server
+
+    // Email Message
+    final message =
+        Message()
+          ..from = Address(username, 'Safebusiness') // Sender info
+          ..recipients.add(email) // Recipient email
+          ..subject = 'Your One-Time Passcode (OTP)'
+          ..text = 'Your verification code is $generatedOtp.Use this code within 3 minutes to proceed. Do not share this code with anyone.';
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('OTP sent successfully: ${sendReport.toString()}');
+    } catch (e) {
+      print('Failed to send OTP: $e');
+    }
   }
-}
 
   @override
   void initState() {
@@ -76,24 +77,23 @@ class _OtpVerificationState extends State<OtpVerification> {
   }
 
   void _startTimer() {
-  _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
-    if (_start > 0) {
-      setState(() {
-        _start--;
-      });
-    } else {
-      setState(() {
-        _timer?.cancel(); // Stop the timer when it reaches 0
-      });
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+      if (_start > 0) {
+        setState(() {
+          _start--;
+        });
+      } else {
+        setState(() {
+          _timer?.cancel(); // Stop the timer when it reaches 0
+        });
 
-      // Invalidate OTP when timer reaches 0
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove('otp');
-      print("OTP expired. Tap resend otp");
-    }
-  });
-}
-
+        // Invalidate OTP when timer reaches 0
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.remove('otp');
+        print("OTP expired. Tap resend otp");
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -111,7 +111,8 @@ class _OtpVerificationState extends State<OtpVerification> {
     String? savedOtp = prefs.getString('otp');
 
     // Compare the entered OTP with the saved one
-    String enteredOtp = _fieldOne.text + _fieldTwo.text + _fieldThree.text + _fieldFour.text;
+    String enteredOtp =
+        _fieldOne.text + _fieldTwo.text + _fieldThree.text + _fieldFour.text;
 
     if (savedOtp == enteredOtp) {
       // OTP is correct, proceed with verification
@@ -122,7 +123,9 @@ class _OtpVerificationState extends State<OtpVerification> {
       );
     } else {
       // OTP is incorrect, show error message
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Incorrect OTP')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Incorrect OTP')));
     }
   }
 
@@ -134,12 +137,11 @@ class _OtpVerificationState extends State<OtpVerification> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              verticalSpacing(MediaQuery.of(context).size.height * 0.17),
+              verticalSpacing(MediaQuery.of(context).size.height * 0.12),
               Transform.scale(
-                  scale: 1.2,
-                  child: Image.asset(
-                    'assets/icons/logo.png',
-                  )),
+                scale: 0.5,
+                child: Image.asset('assets/icons/checkin.png'),
+              ),
               verticalSpacing(MediaQuery.of(context).size.height * 0.06),
               Text(
                 'OTP Verification',
@@ -151,7 +153,7 @@ class _OtpVerificationState extends State<OtpVerification> {
               ),
               verticalSpacing(35),
               Text(
-                'Enter the verification code that we have just sent to your phone.',
+                'Enter the verification code that we have just sent to your email.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   color: const Color(0xFF8696BB),
@@ -161,10 +163,8 @@ class _OtpVerificationState extends State<OtpVerification> {
               ),
               verticalSpacing(MediaQuery.of(context).size.height * 0.05),
               // Display OTP on the screen for testing
-              if (_generatedOtp != null) 
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                ),
+              if (_generatedOtp != null)
+                Padding(padding: const EdgeInsets.symmetric(vertical: 10)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -197,17 +197,18 @@ class _OtpVerificationState extends State<OtpVerification> {
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          if (_start == 0) {
-                            // Resend OTP logic
-                            generateAndSendOtp(); // Generate new OTP
-                            setState(() {
-                              _start = 60; // Reset timer
-                            });
-                            _startTimer(); // Start the timer again
-                          }
-                        },
+                      recognizer:
+                          TapGestureRecognizer()
+                            ..onTap = () {
+                              if (_start == 0) {
+                                // Resend OTP logic
+                                generateAndSendOtp(); // Generate new OTP
+                                setState(() {
+                                  _start = 150; // Reset timer
+                                });
+                                _startTimer(); // Start the timer again
+                              }
+                            },
                     ),
                   ],
                 ),
@@ -226,7 +227,6 @@ class _OtpVerificationState extends State<OtpVerification> {
     );
   }
 }
-
 
 // Create an input widget that takes only one digit
 class OtpInput extends StatelessWidget {
@@ -249,22 +249,23 @@ class OtpInput extends StatelessWidget {
           maxLength: 1,
           cursorColor: black,
           decoration: InputDecoration(
-              filled: true,
-              fillColor: const Color(0xFFFAFAFA),
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: borderSideColor),
-                borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: borderSideColor),
-                borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: mainColor.withOpacity(0.2)),
-                borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-              ),
-              counterText: '',
-              hintStyle: const TextStyle(color: black, fontSize: 20.0)),
+            filled: true,
+            fillColor: const Color(0xFFFAFAFA),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: borderSideColor),
+              borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: borderSideColor),
+              borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: mainColor.withOpacity(0.2)),
+              borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+            ),
+            counterText: '',
+            hintStyle: const TextStyle(color: black, fontSize: 20.0),
+          ),
           onChanged: (value) {
             if (value.length == 1) {
               FocusScope.of(context).nextFocus();

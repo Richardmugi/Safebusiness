@@ -101,10 +101,10 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.white,
         body: Column(
           children: [
-            verticalSpacing(MediaQuery.of(context).size.height * 0.17),
+            verticalSpacing(MediaQuery.of(context).size.height * 0.12),
             Transform.scale(
-              scale: 1.2,
-              child: Image.asset('assets/icons/logo.png'),
+              scale: 0.5,
+              child: Image.asset('assets/icons/checkin.png'),
             ),
             verticalSpacing(MediaQuery.of(context).size.height * 0.06),
             Text(

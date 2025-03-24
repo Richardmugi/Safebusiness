@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:safebusiness/screens/announcements.dart';
 import 'package:safebusiness/screens/jobs.dart';
+import 'package:safebusiness/utils/color_resources.dart';
 
 class QuickActionsPage extends StatelessWidget {
   const QuickActionsPage({super.key});
@@ -21,7 +22,7 @@ class QuickActionsPage extends StatelessWidget {
                 child: Text(
                   'Quick Actions',
                   style: GoogleFonts.poppins(
-                    color: Colors.black,
+                    color: mainColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -45,7 +46,7 @@ class QuickActionsPage extends StatelessWidget {
                       label: 'Jobs',
                       icon: Icons.work_outline,
                       description: 'Access company vacancies here',
-                      color: Colors.greenAccent,
+                      color: mainColor,
                       context: context,
                     ),
                     verticalSpacing(20.0),

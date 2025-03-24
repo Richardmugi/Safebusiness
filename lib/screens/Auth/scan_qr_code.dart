@@ -82,7 +82,7 @@ class ScanQRCode extends StatelessWidget {
                 ),
               ),
             ),
-            verticalSpacing(MediaQuery.of(context).size.height * 0.18),
+            verticalSpacing(MediaQuery.of(context).size.height * 0.16),
             ActionButton(
               onPressed: () async {
                 await saveScanQRCompletion();

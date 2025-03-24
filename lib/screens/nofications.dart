@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import '../widgets/custom_divider.dart';
@@ -84,7 +85,7 @@ class _NotificationsState extends State<Notifications> {
               child: Text(
                 'Notifications',
                 style: GoogleFonts.poppins(
-                  color: Colors.black,
+                  color: mainColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -164,7 +165,7 @@ class _NotificationsState extends State<Notifications> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
+                        icon: Icon(Icons.delete, color: mainColor),
                         onPressed: onDelete,
                       ),
                     ],

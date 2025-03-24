@@ -151,7 +151,7 @@ class _LocationAccessState extends State<LocationAccess> {
                   color: darkgrey,
                 ),
               ),
-              verticalSpacing(MediaQuery.of(context).size.height * 0.18),
+              verticalSpacing(MediaQuery.of(context).size.height * 0.16),
               ActionButton(
                 onPressed: _getCurrentLocation, // Fetch location when button is pressed
                 actionText: "Turn on Location",

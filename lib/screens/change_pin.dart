@@ -142,7 +142,7 @@ class _ChangePinState extends State<ChangePin> {
                   ],
                 ),
               ),
-              verticalSpacing(40),
+              verticalSpacing(20),
 Align(
                 alignment: Alignment.center,
                 child: ActionButton(

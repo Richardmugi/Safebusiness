@@ -9,7 +9,6 @@ import 'package:safebusiness/widgets/sized_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:vibration/vibration.dart';
 
@@ -28,7 +27,7 @@ class _HomeState extends State<Home> {
   String employeeName = "";
   String employeeEmail = "";
   String companyEmail = "";
-  String companyName = "";
+  int selectedIndex = -1; // Initially, no box is selected
 
   bool isValidEmail(String input) {
     final RegExp emailRegex = RegExp(
@@ -50,7 +49,6 @@ class _HomeState extends State<Home> {
       employeeName = prefs.getString('employeeName') ?? "N/A";
       employeeEmail = prefs.getString('email') ?? "N/A";
       companyEmail = prefs.getString('companyEmail') ?? "N/A";
-      companyName = prefs.getString('companyName') ?? "N/A";
     });
   }
 
@@ -73,7 +71,7 @@ class _HomeState extends State<Home> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Unable to determine location"),
-          backgroundColor: Colors.red,
+          backgroundColor: mainColor,
         ),
       );
       _saveNotification("Check-in failed: Unable to determine location");
@@ -91,7 +89,7 @@ class _HomeState extends State<Home> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Branch location not found"),
-          backgroundColor: Colors.red,
+          backgroundColor: mainColor,
         ),
       );
       _saveNotification("Check-in failed: Branch location not found");
@@ -113,7 +111,7 @@ class _HomeState extends State<Home> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("You are too far from your branch to check in"),
-          backgroundColor: Colors.red,
+          backgroundColor: mainColor,
         ),
       );
       _saveNotification("Check-in failed: Too far from branch");
@@ -176,7 +174,7 @@ class _HomeState extends State<Home> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Check-in failed: $message"),
-            backgroundColor: Colors.red,
+            backgroundColor: mainColor,
           ),
         );
       }
@@ -195,7 +193,7 @@ class _HomeState extends State<Home> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text("Error: $e"), backgroundColor: mainColor),
       );
     }
   }
@@ -303,7 +301,7 @@ class _HomeState extends State<Home> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Check-out failed! No Checkin found"),
-              backgroundColor: Colors.red,
+              backgroundColor: mainColor,
             ),
           );
           print("Clock-out failed: ${responseData["message"]}");
@@ -327,7 +325,7 @@ class _HomeState extends State<Home> {
             children: [
               Container(
                 margin: const EdgeInsets.all(
-                  16.0,
+                  18.0,
                 ),// Adjust the value as needed
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.3,
@@ -335,10 +333,10 @@ class _HomeState extends State<Home> {
                   color: mainColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(40),
-                      topLeft: Radius.circular(40),
-                      bottomLeft: Radius.circular(40),
-                      bottomRight: Radius.circular(40),
+                      topRight: Radius.circular(30),
+                      topLeft: Radius.circular(30),
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
                     ),
                   ),
                 ),
@@ -346,9 +344,10 @@ class _HomeState extends State<Home> {
                   clipBehavior: Clip.none,
                   children: [
                     Positioned(
-                      top: 40,
-                      left: 40,
-                      right: 40,
+                      top: 30,
+                      left: 20,
+                      right: 20,
+                      bottom: 30,
                       child: Container(
                         width: MediaQuery.of(context).size.width * 0.8,
                         height: MediaQuery.of(context).size.height * 0.2,
@@ -370,10 +369,6 @@ class _HomeState extends State<Home> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   verticalSpacing(30),
-                                 /* _headerText('Company Name'),
-                                  Expanded(
-                                    child: _headerTextBold(companyName),
-                                    ),*/
                                   _headerText('Employee Name'),
                                   _headerTextBold(employeeName),
                                   verticalSpacing(20),
@@ -381,22 +376,29 @@ class _HomeState extends State<Home> {
                                   _headerTextBold(employeeId),
                                 ],
                               ),
-                       /*       Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  verticalSpacing(30),
-                                    _headerText('Employee ID'),
-                                  _headerTextBold(employeeId),
-                                  SizedBox(
+                      Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                verticalSpacing(30),
+                                SizedBox(
                                     width: 59,
                                     height: 36,
-                                   /* child: Image.asset(
-                                      'assets/images/logo.png',
-                                    ),*/
+                                    child: Transform.scale(
+              scale: 1.8,
+              child: Image.asset('assets/icons/qr-code2.png', color: mainColor,),
+            ),
+                                ),
+                                verticalSpacing(5),
+                               /* Text(
+                                  'CheckInPro',
+                                  style: GoogleFonts.poppins(
+                                    color: const Color(0xFF646464),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  verticalSpacing(5),
-                                ],
-                              ),*/
+                                )*/
+                              ],
+                            ),
                             ],
                           ),
                         ),
@@ -423,7 +425,6 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
-              //verticalSpacing(MediaQuery.of(context).size.height * 0.07),
               Padding(
                 padding: const EdgeInsets.only(
                   left: 24,
@@ -458,12 +459,12 @@ class _HomeState extends State<Home> {
                                   content: Text(
                                     "Invalid QR code! No company email found.",
                                   ),
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: mainColor,
                                 ),
                               );
                             }
                           },
-                          text: 'Check In',
+                          text: 'Check In', color: Colors.green,
                         ),
                         actionButton(
                           context,
@@ -487,77 +488,71 @@ class _HomeState extends State<Home> {
                                   content: Text(
                                     "Invalid QR code! No company email found.",
                                   ),
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: mainColor,
                                 ),
                               );
                             }
                           },
-                          text: 'Check Out',
+                          text: 'Check Out', color: Colors.blue,
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-              verticalSpacing(5),
-              Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, bottom: 5),
-                child: Text(
-                  'Categories',
-                  style: GoogleFonts.poppins(
-                    color: black,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: Text(
+            'Adverts',
+            style: GoogleFonts.poppins(
+              color: Colors.blueGrey,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildCategoryBox(
+                title: 'Travels',
+                icon: Icons.flight_takeoff,
+                color: Colors.blueAccent, index: 0, image: AssetImage('assets/images/travel.jpeg'), // Provide image,
+                
               ),
-SingleChildScrollView(
-  scrollDirection: Axis.horizontal, // Enable horizontal scrolling
-  child: Row(
-    children: [
-      _buildCategoryBox(
-        context,
-        title: 'Travels',
-        image: 'assets/images/travel.jpeg',
-        onTap: () => _launchURL('https://www.safaribookings.com/'),
-      ),
-      _buildCategoryBox(
-        context,
-        title: 'Hangouts',
-        image: 'assets/images/hangouts.jpg',
-        onTap: () => _launchURL('https://your-hangouts-link.com'),
-      ),
-      _buildCategoryBox(
-        context,
-        title: 'Vacations',
-        image: 'assets/images/vacations.webp',
-        onTap: () => _launchURL('https://your-vacations-link.com'),
-      ),
-      _buildCategoryBox(
-        context,
-        title: 'Food',
-        image: 'assets/images/food.jpg',
-        onTap: () => _launchURL('https://your-food-link.com'),
-      ),
-    ].map((widget) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0), // Space between boxes
-      child: widget,
-    )).toList(),
-  ),
-),
-
-verticalSpacing(10),
+              _buildCategoryBox(
+                title: 'Hangouts',
+                icon: Icons.people,
+                color: Colors.green, index: 1, image: AssetImage('assets/images/hangouts.jpg'), // Provide image,
+              ),
+              _buildCategoryBox(
+                title: 'Vacations',
+                icon: Icons.beach_access,
+                color: Colors.orangeAccent, index: 2, image: AssetImage('assets/images/vacations.webp'), // Provide image,
+              ),
+              _buildCategoryBox(
+                title: 'Food',
+                icon: Icons.fastfood,
+                color: Colors.pink, index: 3, image: AssetImage('assets/images/food.jpg'), // Provide image,
+              ),
+            ],
+          ),
+        ),
+        /*verticalSpacing(10),
               Padding(
                 padding: const EdgeInsets.only(left: 24, right: 24, bottom: 5),
                 child: Text(
                   'Adverts',
                   style: GoogleFonts.poppins(
-                    color: black,
+                    color: Colors.blueGrey,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
+              ),*/
+              verticalSpacing(10),
               const Padding(
                 padding: EdgeInsets.only(left: 18, right: 18, bottom: 15),
                 child: ImageCarousel(),
@@ -570,98 +565,115 @@ verticalSpacing(10),
   }
 
   InkWell actionButton(
-    BuildContext context, {
-    required Function() onPressed,
-    required String text,
-  }) {
-    return InkWell(
-      onTap: onPressed,
-      splashColor: mainColor.withOpacity(0.2),
-      highlightColor: mainColor.withOpacity(0.2),
-      child: Ink(
-        width: MediaQuery.of(context).size.width * 0.4,
-        height: 44,
-        decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 1, color: mainColor),
-            borderRadius: BorderRadius.circular(5),
-          ),
+  BuildContext context, {
+  required Function() onPressed,
+  required String text,
+  required Color color, // Add a color parameter
+}) {
+  return InkWell(
+    onTap: onPressed,
+    splashColor: color.withOpacity(0.2), // Use the passed color for splash effect
+    highlightColor: color.withOpacity(0.1), // Use the passed color for highlight effect
+    borderRadius: BorderRadius.circular(10), // Match the border radius of the container
+    child: Ink(
+      width: MediaQuery.of(context).size.width * 0.4,
+      height: 44,
+      decoration: BoxDecoration(
+        color: Colors.transparent, // Transparent background
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color, // Use the passed color for the border
+          width: 1.5,
         ),
-        child: Center(
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              color: mainColor,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1), // Use the passed color for the shadow
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.poppins(
+            color: Colors.black, // Keep text color black
+            fontSize: 14,
+            fontWeight: FontWeight.w600, // Slightly bolder text
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  // Helper method to build a category box with an image
-  Widget _buildCategoryBox(
-    BuildContext context, {
-    required String title,
-    required String image,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width:
-            MediaQuery.of(context).size.width * 0.2, // Adjust width as needed
-        height:
-            MediaQuery.of(context).size.height * 0.1, // Adjust width as neede
+  Widget _buildCategoryBox({
+  required int index,
+  required String title,
+  required IconData icon,
+  required Color color,
+  ImageProvider? image, // Make image optional
+}) {
+  bool isSelected = selectedIndex == index; // Check if this box is selected
+
+  return Expanded(
+    child: GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedIndex = index; // Update the selected index
+        });
+      },
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        height: isSelected ? 120 : 110, // Increase height when selected
+        margin: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          image: DecorationImage(
-            image: AssetImage(image), // Use the provided image
-            fit: BoxFit.cover, // Ensure the image covers the container
-          ),
+          color: isSelected ? color.withOpacity(0.8) : color, // Highlight selected box
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isSelected ? 0.3 : 0.15), // Stronger shadow for selected
+              blurRadius: isSelected ? 8 : 5,
+              offset: Offset(0, isSelected ? -2 : 4), // Lift effect
+            ),
+          ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(
-                  0.6,
-                ), // Semi-transparent background
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
+            if (image != null) 
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: image,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
+              )
+            else
+              Icon(icon, size: 32, color: Colors.white), // Show icon if no image
+
+            SizedBox(height: 8),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  // Helper method to launch URLs
-  void _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
 
   Widget _headerText(String title) {
     return Text(

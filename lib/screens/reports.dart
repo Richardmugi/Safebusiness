@@ -7,7 +7,6 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import '../widgets/custom_divider.dart';
-import '../widgets/sized_box.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
 import 'package:share_plus/share_plus.dart';
@@ -191,7 +190,7 @@ class _ReportState extends State<Report> {
                         Text(
                           'Check In Report',
                           style: GoogleFonts.poppins(
-                            color: Colors.black,
+                            color: mainColor,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -234,25 +233,7 @@ class _ReportState extends State<Report> {
                           ],
                         ),
                         verticalSpacing(15),
-                        /* Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(60),
-                            color: mainColor,
-                          ),
-                          child: const Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              child: Text(
-                                'Download',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),*/
+                        
                       ],
                     ),
                   ],
@@ -299,36 +280,39 @@ class _ReportState extends State<Report> {
   }
 
   Widget mainDataContainer(
-    BuildContext context, {
-    required String title1,
-    required String title2,
-    required String title3,
-    required String title4,
-    required String val1,
-    required String val2,
-    required String val3,
-    required String val4,
-    required Color val4Color,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(left: 24, right: 24),
-      width: MediaQuery.of(context).size.width * 0.9,
-      padding: const EdgeInsets.only(left: 10, top: 10, right: 10, bottom: 10),
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x11000000),
-            blurRadius: 8,
-            offset: Offset(0, 0),
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Column(
+  BuildContext context, {
+  required String title1,
+  required String title2,
+  required String title3,
+  required String title4,
+  required String val1,
+  required String val2,
+  required String val3,
+  required String val4,
+  required Color val4Color,
+}) {
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 24),
+    width: MediaQuery.of(context).size.width * 0.9,
+    padding: const EdgeInsets.all(10),
+    decoration: ShapeDecoration(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      shadows: const [
+        BoxShadow(
+          color: Color(0x11000000),
+          blurRadius: 8,
+          offset: Offset(0, 0),
+          spreadRadius: 1,
+        ),
+      ],
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          flex: 1,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _headerTextBold(title1),
@@ -336,8 +320,11 @@ class _ReportState extends State<Report> {
               _headerText(val1),
             ],
           ),
-          horizontalSpacing(MediaQuery.of(context).size.width * 0.067),
-          Column(
+        ),
+        horizontalSpacing(MediaQuery.of(context).size.width * 0.02),
+        Flexible(
+          flex: 1,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _headerTextBold(title2),
@@ -345,8 +332,11 @@ class _ReportState extends State<Report> {
               _headerText(val2),
             ],
           ),
-          horizontalSpacing(MediaQuery.of(context).size.width * 0.067),
-          Column(
+        ),
+        horizontalSpacing(MediaQuery.of(context).size.width * 0.02),
+        Flexible(
+          flex: 1,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _headerTextBold(title3),
@@ -354,8 +344,11 @@ class _ReportState extends State<Report> {
               _headerText(val3),
             ],
           ),
-          horizontalSpacing(MediaQuery.of(context).size.width * 0.067),
-          Column(
+        ),
+        horizontalSpacing(MediaQuery.of(context).size.width * 0.02),
+        Flexible(
+          flex: 1,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _headerTextBold(title4),
@@ -363,10 +356,19 @@ class _ReportState extends State<Report> {
               _headerText(val4, color: val4Color),
             ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
+Widget verticalSpacing(double height) {
+  return SizedBox(height: height);
+}
+
+Widget horizontalSpacing(double width) {
+  return SizedBox(width: width);
+}
 
   Widget _headerTextBold(String title) {
     return Text(
@@ -376,10 +378,11 @@ class _ReportState extends State<Report> {
         fontSize: 12,
         fontWeight: FontWeight.w700,
       ),
+      overflow: TextOverflow.ellipsis,
     );
   }
 
-  Widget _headerText(String title, {Color color = const Color(0xFF8696BB)}) {
+  Widget _headerText(String title, {Color color = const Color.fromARGB(255, 28, 32, 43)}) {
     return Text(
       title,
       style: GoogleFonts.poppins(
@@ -387,6 +390,7 @@ class _ReportState extends State<Report> {
         fontSize: 12,
         fontWeight: FontWeight.w400,
       ),
+      overflow: TextOverflow.ellipsis,
     );
   }
 

@@ -5,8 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:safebusiness/screens/Auth/login_page.dart';
 import 'package:safebusiness/screens/change_pin.dart';
 import 'package:safebusiness/utils/color_resources.dart';
-import 'package:safebusiness/widgets/custom_divider.dart';
-import 'package:safebusiness/widgets/sized_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
@@ -151,303 +149,256 @@ class _SettingsState extends State<Profile> {
 
 
   @override
-  Widget build(BuildContext context) {
-    //final themeChange = Provider.of<DarkThemeProvider>(context);
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              verticalSpacing(25),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerTextBold("Profile"),
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.grey[50],
+    body: SafeArea(
+      child: Column(
+        children: [
+          // Profile Header Section
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
               ),
-              verticalSpacing(10.0),
-              customDivider(
-                thickness: 3,
-                indent: 0,
-                endIndent: 0,
-                color: const Color(0xFFD9D9D9),
-              ),
-              verticalSpacing(15),
-              Padding(
-                padding: const EdgeInsets.only(left: 40, right: 20),
-                child: Row(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 10,
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                /*    const CircleAvatar(
-                    radius: 38,
-                    backgroundColor: lightGrey,
-                    child: Icon(
-                      Icons.person,
-                      color: darkgrey,
-                      size: 50,
-                    ),
-                  ),*/
-                    horizontalSpacing(30),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _headerTextBold(employeeName),
-                        _headerText(email),
-                        verticalSpacing(5.0),
-                        Container(
-                          width: 81,
-                          height: 18,
-                          decoration: ShapeDecoration(
-                            color: const Color(0x89F70101),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Verified',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              horizontalSpacing(4),
-                              Container(
-                                decoration: ShapeDecoration(
-                                  color: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.check,
-                                  color: mainColor,
-                                  size: 12,
-                                ),
-                              ),
-                            ],
-                          ),
+                   /* Text(
+                      'Profile',
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),*/
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Profile Picture Section
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: mainColor, width: 2),
+                      ),
+                      child: const CircleAvatar(
+                        radius: 40,
+                        backgroundColor: lightGrey,
+                        child: Icon(
+                          Icons.person,
+                          color: darkgrey,
+                          size: 50,
                         ),
-                      ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: mainColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                Text(
+                  employeeName,
+                  style: GoogleFonts.poppins(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  email,
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Information Section
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  _buildInfoCard(
+                    title: 'Company Details',
+                    items: {
+                      'Company Name': companyName,
+                      'Company Email': companyEmail,
+                      'Branch': branchName,
+                      'Department': departmentName,
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInfoCard(
+                    title: 'Personal Details',
+                    items: {
+                      'Designation': designationName,
+                      'Employee ID': employeeId,
+                      'Phone Number': phone,
+                      'Address': address,
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  // Action Buttons
+                  _buildActionButton(
+                    icon: Icons.lock_outline,
+                    label: 'Change PIN',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ChangePin()),
+                    ),
+                  ),
+                  _buildActionButton(
+                    icon: Icons.logout,
+                    label: 'Logout',
+                    color: Colors.red,
+                    onTap: () async {
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      await prefs.clear();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                      );
+                    },
+                  ),
+                ],
               ),
-              verticalSpacing(15),
-              customDivider(
-                thickness: 2,
-                indent: 40,
-                endIndent: 40,
-                color: const Color(0xFF8696BB),
-              ),
-              verticalSpacing(15),
-              Padding(
-                padding: const EdgeInsets.only(left: 40, right: 20),
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 40, right: 20),
-                        child: InkWell(
-                          onTap: () async {
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            await prefs.clear();
-                            // Navigate to the LoginPage when the Logout button is tapped
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const LoginPage(),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: 92,
-                            height: 29,
-                            decoration: ShapeDecoration(
-                              color: const Color(0xFFF70101),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(60),
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Logout',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      horizontalSpacing(20),
-                      const VerticalDivider(
-                        color: Color(0xFF8696BB),
-                        thickness: 1,
-                      ),
-                      const Icon(
-                        Icons.star,
-                        size: 19,
-                        color: Color(0xFFEDE300),
-                      ),
-                      horizontalSpacing(5.0),
-                      Text(
-                        '4.0 (22 Reviews)',
-                        style: GoogleFonts.poppins(
-                          color: const Color(0xFF8696BB),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w400,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildInfoCard({required String title, required Map<String, String> items}) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.1),
+          spreadRadius: 2,
+          blurRadius: 8,
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: mainColor,
+          ),
+        ),
+        const Divider(height: 24),
+        ...items.entries.map((entry) => Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 120,
+                child: Text(
+                  entry.key,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[600],
                   ),
                 ),
               ),
-              verticalSpacing(30),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerTextBold("Company Name"),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerText(companyName),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerTextBold("Company Email"),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerText(companyEmail),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerTextBold("Branch"),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerText(branchName),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerTextBold("Department"),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerText(departmentName),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerTextBold("Designation"),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerText(designationName),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerTextBold("Employee ID"),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerText(employeeId),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerTextBold("Phone Number"),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerText(phone),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerTextBold("Address"),
-              ),
-              verticalSpacing(5.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 40),
-                child: _headerText(address),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 25, top: 20, right: 25),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const ChangePin(),
-                      ),
-                    );
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.refresh_outlined,
-                          color: mainColor,
-                        ),
-                      ),
-                      Text(
-                        'Update Pin',
-                        style: GoogleFonts.poppins(
-                          color: const Color(0xFFF70101),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w400,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ],
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  entry.value,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
+        )),
+      ],
+    ),
+  );
+}
 
-  Widget _headerText(String title) {
-    return Text(
-      title,
-      style: GoogleFonts.poppins(
-        color: const Color(0xFF8696BB),
-        fontSize: 10,
-        fontWeight: FontWeight.w500,
+Widget _buildActionButton({
+  required IconData icon,
+  required String label,
+  Color color = mainColor,
+  required VoidCallback onTap,
+}) {
+  return InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(8),
+    child: Container(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _headerTextBold(String title) {
-    return Text(
-      title,
-      style: GoogleFonts.poppins(
-        color: Colors.black,
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 16),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: color,
+            ),
+          ),
+          const Spacer(),
+          Icon(Icons.chevron_right, color: color, size: 20),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
