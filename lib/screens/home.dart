@@ -28,6 +28,9 @@ class _HomeState extends State<Home> {
   String employeeEmail = "";
   String companyEmail = "";
   int selectedIndex = -1; // Initially, no box is selected
+  late Future<bool> _canCheckIn;
+  late Future<bool> _canCheckOut;
+
 
   bool isValidEmail(String input) {
     final RegExp emailRegex = RegExp(
@@ -40,6 +43,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _loadEmployeeDetails();
+     _loadStates();
   }
 
   Future<void> _loadEmployeeDetails() async {
@@ -52,6 +56,11 @@ class _HomeState extends State<Home> {
     });
   }
 
+  void _loadStates() {
+    _canCheckIn = CheckInOutManager.isCheckedIn().then((value) => !value);
+    _canCheckOut = CheckInOutManager.isCheckedOut().then((value) => !value);
+  }
+
   Future<void> _saveNotification(String message) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> notifications = prefs.getStringList('notifications') ?? [];
@@ -62,141 +71,130 @@ class _HomeState extends State<Home> {
     await prefs.setStringList('notifications', notifications);
   }
 
-  Future<void> _clockin(String email, String companyEmail) async {
-    if (!mounted) return;
+  Future<bool> _clockin(String email, String companyEmail) async {
+  if (!mounted) return false;
 
-    Position? userPosition = await _determinePosition();
-    if (userPosition == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Unable to determine location"),
-          backgroundColor: mainColor,
-        ),
-      );
-      _saveNotification("Check-in failed: Unable to determine location");
-      return;
-    }
-
-    double userLatitude = userPosition.latitude;
-    double userLongitude = userPosition.longitude;
-
-    var branchLocation = await _getBranchLocation(companyEmail);
-    if (branchLocation == null ||
-        branchLocation['latitude'] == null ||
-        branchLocation['longitude'] == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Branch location not found"),
-          backgroundColor: mainColor,
-        ),
-      );
-      _saveNotification("Check-in failed: Branch location not found");
-      return;
-    }
-
-    double? branchLatitude = branchLocation['latitude'];
-    double? branchLongitude = branchLocation['longitude'];
-
-    double distanceInMeters = Geolocator.distanceBetween(
-      userLatitude,
-      userLongitude,
-      branchLatitude!,
-      branchLongitude!,
+  Position? userPosition = await _determinePosition();
+  if (userPosition == null) {
+    if (!mounted) return false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Unable to determine location, Please turn on your location"),
+        backgroundColor: mainColor,
+      ),
     );
-
-    if (distanceInMeters > 500) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("You are too far from your branch to check in"),
-          backgroundColor: mainColor,
-        ),
-      );
-      _saveNotification("Check-in failed: Too far from branch");
-      return;
-    }
-
-    var url = Uri.parse(
-      'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockIn',
-    );
-
-    try {
-      var response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "employeeEmail": email,
-          "companyEmail": companyEmail,
-          "latitude": userLatitude,
-          "longitude": userLongitude,
-        }),
-      );
-
-      var responseData = jsonDecode(response.body);
-      print("Check-in Response: $responseData");
-
-      String message = responseData["message"] ?? "Unknown error occurred";
-
-      if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
-        _saveNotification("Check-in successful");
-
-        // Trigger vibration
-        if (await Vibration.hasVibrator()) {
-          Vibration.vibrate(duration: 500); // Vibrate for 500ms
-        }
-
-        // Play system notification sound
-        _ringtonePlayer.playNotification();
-
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Check-in success"),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        _saveNotification("Check-in failed: $message");
-
-        // Trigger vibration for failure
-        if (await Vibration.hasVibrator()) {
-          Vibration.vibrate(duration: 200); // Short vibration for failure
-        }
-
-        // Play system alarm sound for failure
-        _ringtonePlayer.play(
-          fromAsset: "system/alarm", // Use system alarm sound
-        );
-
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Check-in failed: $message"),
-            backgroundColor: mainColor,
-          ),
-        );
-      }
-    } catch (e) {
-      _saveNotification("Check-in error: $e");
-
-      // Trigger vibration for error
-      if (await Vibration.hasVibrator()) {
-        Vibration.vibrate(duration: 200); // Short vibration for error
-      }
-
-      // Play system ringtone for error
-      _ringtonePlayer.play(
-        fromAsset: "system/ringtone", // Use system ringtone
-      );
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: mainColor),
-      );
-    }
+    _saveNotification("Check-in failed: Unable to determine location");
+    return false;
   }
+
+  double userLatitude = userPosition.latitude;
+  double userLongitude = userPosition.longitude;
+
+  var branchLocation = await _getBranchLocation(companyEmail);
+  if (branchLocation == null || branchLocation['latitude'] == null || branchLocation['longitude'] == null) {
+    if (!mounted) return false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Branch location not found, Please try again"),
+        backgroundColor: mainColor,
+      ),
+    );
+    _saveNotification("Check-in failed: Branch location not found");
+    return false;
+  }
+
+  double? branchLatitude = branchLocation['latitude'];
+  double? branchLongitude = branchLocation['longitude'];
+
+  double distanceInMeters = Geolocator.distanceBetween(
+    userLatitude,
+    userLongitude,
+    branchLatitude!,
+    branchLongitude!,
+  );
+
+  if (distanceInMeters > 50000) {
+    if (!mounted) return false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("You are too far from your branch to check in"),
+        backgroundColor: mainColor,
+      ),
+    );
+    _saveNotification("Check-in failed: Too far from branch");
+    return false;
+  }
+
+  var url = Uri.parse(
+    'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockIn',
+  );
+
+  try {
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "employeeEmail": email,
+        "companyEmail": companyEmail,
+        "latitude": userLatitude,
+        "longitude": userLongitude,
+      }),
+    );
+
+    var responseData = jsonDecode(response.body);
+    print("Check-in Response: $responseData");
+
+    String message = responseData["message"] ?? "Unknown error occurred";
+
+    if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
+      _saveNotification("Check-in successful");
+
+      if (await Vibration.hasVibrator()) {
+        Vibration.vibrate(duration: 500);
+      }
+      _ringtonePlayer.playNotification();
+
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Check-in success"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      return true; // Indicate success
+    } else {
+      _saveNotification("Check-in failed: $message");
+
+      if (await Vibration.hasVibrator()) {
+        Vibration.vibrate(duration: 200);
+      }
+      _ringtonePlayer.play(fromAsset: "system/alarm");
+
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Check-in failed: $message"),
+          backgroundColor: mainColor,
+        ),
+      );
+      return false; // Indicate failure
+    }
+  } catch (e) {
+    _saveNotification("Check-in error: $e");
+
+    if (await Vibration.hasVibrator()) {
+      Vibration.vibrate(duration: 200);
+    }
+    _ringtonePlayer.play(fromAsset: "system/ringtone");
+
+    if (!mounted) return false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error: $e"), backgroundColor: mainColor),
+    );
+    return false; // Indicate failure
+  }
+}
+
   Future<Position?> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -248,71 +246,60 @@ class _HomeState extends State<Home> {
     return null;
   }
 
-  Future<void> _clockout(String email, String companyEmail) async {
-    var url = Uri.parse(
-      'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockOut',
+  Future<bool> _clockout(String email, String companyEmail) async {
+  var url = Uri.parse(
+    'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockOut',
+  );
+
+  try {
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "employeeEmail": email,
+        "companyEmail": companyEmail,
+      }),
     );
 
-    try {
-      var response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "employeeEmail": email,
-          "companyEmail": companyEmail,
-        }),
-      );
+    var responseData = jsonDecode(response.body);
+    print("Check-out Response: $responseData");
 
-      var responseData = jsonDecode(response.body);
-      print("Response: $responseData");
+    if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
+      _saveNotification("Check-out successful");
 
-      if (response.statusCode == 200) {
-        if (responseData["status"] == "SUCCESS") {
-          _saveNotification("Check-out successful");
-
-          // Trigger vibration
-          if (await Vibration.hasVibrator()) {
-            Vibration.vibrate(duration: 500); // Vibrate for 500ms
-          }
-
-          // Play system notification sound
-          _ringtonePlayer.playNotification();
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Check-out success"),
-              backgroundColor: Colors.green,
-            ),
-          );
-          print("Clock-out successful!");
-        } else {
-          _saveNotification("Check-out failed: ${responseData["message"]}");
-
-          // Trigger vibration for failure
-          if (await Vibration.hasVibrator()) {
-            Vibration.vibrate(duration: 200); // Short vibration for failure
-          }
-
-          // Play system alarm sound for failure
-          _ringtonePlayer.play(
-            fromAsset: "system/alarm", // Use system alarm sound
-          );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Check-out failed! No Checkin found"),
-              backgroundColor: mainColor,
-            ),
-          );
-          print("Clock-out failed: ${responseData["message"]}");
-        }
-      } else {
-        print("HTTP error: ${response.statusCode}");
+      if (await Vibration.hasVibrator()) {
+        Vibration.vibrate(duration: 500);
       }
-    } catch (e) {
-      print("Error: $e");
+      _ringtonePlayer.playNotification();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Check-out success"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      return true; // Indicate success
+    } else {
+      _saveNotification("Check-out failed: ${responseData["message"]}");
+
+      if (await Vibration.hasVibrator()) {
+        Vibration.vibrate(duration: 200);
+      }
+      _ringtonePlayer.play(fromAsset: "system/alarm");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Check-out failed: ${responseData["message"]}"),
+          backgroundColor: mainColor,
+        ),
+      );
+      return false; // Indicate failure
     }
+  } catch (e) {
+    print("Error: $e");
+    return false; // Indicate failure
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -385,18 +372,18 @@ class _HomeState extends State<Home> {
                                     height: 36,
                                     child: Transform.scale(
               scale: 1.8,
-              child: Image.asset('assets/icons/qr-code2.png', color: mainColor,),
+              child: Image.asset('assets/icons/checkinprowhite.png'),
             ),
                                 ),
                                 verticalSpacing(5),
-                               /* Text(
+                                Text(
                                   'CheckInPro',
                                   style: GoogleFonts.poppins(
                                     color: const Color(0xFF646464),
                                     fontSize: 10,
                                     fontWeight: FontWeight.w500,
                                   ),
-                                )*/
+                                )
                               ],
                             ),
                             ],
@@ -426,80 +413,139 @@ class _HomeState extends State<Home> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(
-                  left: 24,
-                  right: 24,
-                  top: 30,
-                  bottom: 15,
-                ),
-                child: Column(
-                  children: [
-                    Row(
+                padding: const EdgeInsets.only(left: 24, right: 24, top: 30, bottom: 15),
+                child: FutureBuilder(
+                  future: Future.wait([_canCheckIn, _canCheckOut]),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    var canCheckIn = snapshot.data![0];
+                    var canCheckOut = snapshot.data![1];
+
+                    return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        actionButton(
-                          context,
-                          onPressed: () async {
-                            final scannedEmail = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => const QRCodeScanner(
-                                      isReturningUser: true,
-                                    ),
-                              ),
-                            );
+                        // Check In Button
+                        GestureDetector(
+  onTap: canCheckIn ? () async {
+  final scannedEmail = await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const QRCodeScanner(isReturningUser: true),
+    ),
+  );
 
-                            if (scannedEmail != null &&
-                                isValidEmail(scannedEmail)) {
-                              _clockin(employeeEmail, companyEmail);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Invalid QR code! No company email found.",
-                                  ),
-                                  backgroundColor: mainColor,
+  if (scannedEmail != null && isValidEmail(scannedEmail)) {
+    bool success = await _clockin(employeeEmail, companyEmail);
+    if (success) {
+      await CheckInOutManager.setCheckedIn(true); // Update shared prefs
+      setState(() {
+        _loadStates(); // Reload Future values to update UI
+      });
+    }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Invalid QR code!"),
+        backgroundColor: mainColor,
+      ),
+    );
+  }
+} : null, // Disable button when canCheckIn is false
+
+
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: MediaQuery.of(context).size.width * 0.42,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: canCheckIn ? Colors.green[600] : Colors.grey[400],
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: canCheckIn ? [
+                                BoxShadow(
+                                  color: Colors.green[800]!.withOpacity(0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
                                 ),
-                              );
-                            }
-                          },
-                          text: 'Check In', color: Colors.green,
+                              ] : null,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'CHECK IN',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                        actionButton(
-                          context,
-                          onPressed: () async {
-                            final scannedEmail = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => const QRCodeScanner(
-                                      isReturningUser: true,
-                                    ),
-                              ),
-                            );
 
-                            if (scannedEmail != null &&
-                                isValidEmail(scannedEmail)) {
-                              _clockout(employeeEmail, companyEmail);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Invalid QR code! No company email found.",
-                                  ),
-                                  backgroundColor: mainColor,
+                        // Check Out Button
+                        GestureDetector(
+  onTap: canCheckOut ? () async {
+  final scannedEmail = await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const QRCodeScanner(isReturningUser: true),
+    ),
+  );
+
+  if (scannedEmail != null && isValidEmail(scannedEmail)) {
+    bool success = await _clockout(employeeEmail, companyEmail);
+    if (success) {
+      await CheckInOutManager.setCheckedOut(true); // Update shared prefs
+      setState(() {
+        _loadStates(); // Reload Future values to update UI
+      });
+    }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Invalid QR code!"),
+        backgroundColor: mainColor,
+      ),
+    );
+  }
+} : null, // Disable button when canCheckOut is false
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: MediaQuery.of(context).size.width * 0.42,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: canCheckOut ? Colors.blue[600] : Colors.grey[400],
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: canCheckOut ? [
+                                BoxShadow(
+                                  color: Colors.blue[800]!.withOpacity(0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
                                 ),
-                              );
-                            }
-                          },
-                          text: 'Check Out', color: Colors.blue,
+                              ] : null,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'CHECK OUT',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
+
 Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: Text(
@@ -564,7 +610,7 @@ Padding(
     );
   }
 
-  InkWell actionButton(
+  /*InkWell actionButton(
   BuildContext context, {
   required Function() onPressed,
   required String text,
@@ -606,7 +652,7 @@ Padding(
       ),
     ),
   );
-}
+}*/
 
   Widget _buildCategoryBox({
   required int index,
@@ -695,5 +741,43 @@ Padding(
         fontWeight: FontWeight.w600,
       ),
     );
+  }
+}
+
+
+class CheckInOutManager {
+  static const _checkInKey = 'isCheckedIn';
+  static const _checkOutKey = 'isCheckedOut';
+
+  static Future<void> setCheckedIn(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_checkInKey, value);
+    if (value) {
+      await prefs.setBool(_checkOutKey, false);
+    }
+  }
+
+  static Future<void> setCheckedOut(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_checkOutKey, value);
+    if (value) {
+      await prefs.setBool(_checkInKey, false);
+    }
+  }
+
+  static Future<bool> isCheckedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_checkInKey) ?? false;
+  }
+
+  static Future<bool> isCheckedOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_checkOutKey) ?? false;
+  }
+
+  static Future<void> resetStates() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_checkInKey);
+    await prefs.remove(_checkOutKey);
   }
 }

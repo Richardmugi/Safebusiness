@@ -66,7 +66,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
                 shape: BoxShape.circle,
                 color: Colors.white,
                 image: DecorationImage(
-                  image: AssetImage('assets/icons/logo.png'),
+                  image: AssetImage('assets/icons/checkinpro.png'),
                   fit: BoxFit.scaleDown,
                 ),
               ),
