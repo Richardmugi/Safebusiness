@@ -366,7 +366,7 @@ class _HomeState extends State<Home> {
                       Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                verticalSpacing(30),
+                                //verticalSpacing(15),
                                 SizedBox(
                                     width: 59,
                                     height: 36,
