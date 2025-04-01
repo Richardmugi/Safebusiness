@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:safebusiness/screens/Auth/login_page.dart';
 import 'package:safebusiness/screens/change_pin.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -276,7 +275,7 @@ Widget build(BuildContext context) {
                       MaterialPageRoute(builder: (context) => const ChangePin()),
                     ),
                   ),
-                  _buildActionButton(
+                 /* _buildActionButton(
                     icon: Icons.logout,
                     label: 'Logout',
                     color: Colors.red,
@@ -288,7 +287,7 @@ Widget build(BuildContext context) {
                         MaterialPageRoute(builder: (context) => const LoginPage()),
                       );
                     },
-                  ),
+                  ),*/
                 ],
               ),
             ),
