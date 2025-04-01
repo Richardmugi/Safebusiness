@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:safebusiness/screens/Auth/login_page.dart';
-import 'package:safebusiness/screens/Auth/otp_verification.dart';
+import 'package:safebusiness/screens/Auth/otp_selection.dart';
+//import 'package:safebusiness/screens/Auth/otp_verification.dart';
 import 'package:safebusiness/screens/password_input.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:safebusiness/widgets/sized_box.dart';
@@ -208,16 +209,16 @@ void initState() {
 
     var responseData = jsonDecode(response.body);
     if (responseData["status"] == "SUCCESS") {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('email', responseData['email'] ?? "N/A");
+    await prefs.setString('phone', phoneController.text);
+
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const OtpVerification()),
+        MaterialPageRoute(builder: (context) => const OtpMethodSelection()),
       );
 
       print('Registered email: ${responseData['email']}');
-
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('email', responseData['email'] ?? "N/A");
 
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(responseData["message"])));

@@ -100,6 +100,10 @@ class _QRCodeScannerState extends State<QRCodeScanner> with SingleTickerProvider
         children: [
           MobileScanner(
             controller: cameraController,
+            errorBuilder: (context, error, child) {
+    print('Camera Error: $error');
+    return Text('Error: $error', style: TextStyle(color: Colors.red));
+  },
             onDetect: (capture) async {
               if (_navigated) return;
 

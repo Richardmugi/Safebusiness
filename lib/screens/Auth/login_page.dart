@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:safebusiness/screens/Auth/location_access.dart';
-//import 'package:safebusiness/screens/Auth/register.dart';
 import 'package:safebusiness/screens/change_pin.dart';
 import 'package:safebusiness/screens/password_input.dart';
 import 'package:safebusiness/utils/color_resources.dart';
@@ -28,41 +27,47 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  String? storedEmployeeName; // Store employee name if already logged in
+  String? storedEmployeeId;
 
-  // To store user details
-  String username = '';
-  String employeeName = '';
+  @override
+  void initState() {
+    super.initState();
+    _loadStoredUser();
+  }
+
+  Future<void> _loadStoredUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      storedEmployeeName = prefs.getString('employeeName'); // Get stored name
+      storedEmployeeId = prefs.getString('employeeid');
+    });
+  }
 
   Future<void> loginUser(String email, String password) async {
-    try {
-      var url = Uri.parse(
-        "http://65.21.59.117/safe-business-api/public/api/v1/loginUser",
-      );
+  try {
+    var url = Uri.parse("http://65.21.59.117/safe-business-api/public/api/v1/loginUser");
 
-      var response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: jsonEncode({
-          "username": emailController.text.trim(),
-          "password": passwordController.text.trim(),
-        }),
-      );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedEmail = prefs.getString('email'); // Retrieve stored email
 
-      print("Response Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json", "Accept": "application/json"},
+      body: jsonEncode({
+        "username": storedEmail ?? email, // Use stored email if available
+        "password": password.trim(),
+      }),
+    );
 
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
+    print("Response Code: ${response.statusCode}");
+    print("Response Body: ${response.body}");
 
-        if (data["status"] == "SUCCESS") {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const BottomNavBar()),
-          );
-          // Store user details in SharedPreferences
-          SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      if (data["status"] == "SUCCESS") {
+        // Store user details on first login
+        if (storedEmail == null) {
           await prefs.setString('employeeId', data['employeeId'] ?? "N/A");
           await prefs.setString('employeeName', data['name'] ?? "N/A");
           await prefs.setString('email', data['email'] ?? "N/A");
@@ -74,25 +79,31 @@ class _LoginPageState extends State<LoginPage> {
           await prefs.setInt('branchId', data['branch_id'] ?? 0);
           await prefs.setInt('departmentId', data['department_id'] ?? 0);
           await prefs.setInt('designationId', data['designation_id'] ?? 0);
-
-          print("Login successful. User details stored.");
-        } else {
-          print("Login failed! Invalid email or pin");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Login failed! Invalid email or pin"),
-              backgroundColor: Colors.red,
-            ),
-          );
-          print("Login failed: ${data['message']}");
         }
+
+
+        // Navigate to home screen
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const BottomNavBar()),
+        );
+        print("Login successful.");
       } else {
-        print("Failed to login: ${response.statusCode}");
+        _showError("Invalid email or PIN");
       }
-    } catch (e) {
-      print("Error logging in: $e");
+    } else {
+      _showError("Failed to login: ${response.statusCode}");
     }
+  } catch (e) {
+    _showError("Error logging in: $e");
   }
+}
+
+// Helper function to show errors
+void _showError(String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(message), backgroundColor: Colors.red),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -102,10 +113,7 @@ class _LoginPageState extends State<LoginPage> {
         body: Column(
           children: [
             verticalSpacing(MediaQuery.of(context).size.height * 0.12),
-            Transform.scale(
-              scale: 0.5,
-              child: Image.asset('assets/icons/checkin.png'),
-            ),
+            Transform.scale(scale: 0.5, child: Image.asset('assets/icons/checkin.png')),
             verticalSpacing(MediaQuery.of(context).size.height * 0.06),
             Text(
               'Login',
@@ -128,20 +136,29 @@ class _LoginPageState extends State<LoginPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           verticalSpacing(10),
-                          _EmailinputField("Email", emailController),
+                          
+                          // Show Employee Name if already stored, otherwise show email input
+                          storedEmployeeName == null
+                              ? _EmailinputField("Email", emailController)
+                              : Text(
+                                  "Welcome back, $storedEmployeeName",
+                                  style: GoogleFonts.poppins(
+                                    color: mainColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+
                           verticalSpacing(25),
-                          PasswordInputField(
-                            controller: passwordController,
-                            hintText: "Enter PIN",
-                          ), // Use the custom password input field
+                          PasswordInputField(controller: passwordController, hintText: "Enter PIN"),
                           verticalSpacing(22),
                           ActionButton(
                             onPressed: () {
                               loginUser(
-                                emailController.text.trim(),
+                                storedEmployeeName ?? emailController.text.trim(),
                                 passwordController.text.trim(),
                               );
-                            }, // Call the login function
+                            },
                             actionText: "Login",
                           ),
                           verticalSpacing(15),
@@ -152,69 +169,39 @@ class _LoginPageState extends State<LoginPage> {
                                 children: [
                                   TextSpan(
                                     text: 'Forgot PIN? ',
-                                    style: GoogleFonts.poppins(
-                                      color: const Color(0xFF8696BB),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                    ),
+                                    style: GoogleFonts.poppins(color: const Color(0xFF8696BB), fontSize: 14),
                                   ),
                                   TextSpan(
                                     text: 'Reset Here',
-                                    style: GoogleFonts.poppins(
-                                      color: mainColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                    recognizer:
-                                        TapGestureRecognizer()
-                                          ..onTap = () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder:
-                                                    (context) => ChangePin(),
-                                              ),
-                                            );
-                                          },
+                                    style: GoogleFonts.poppins(color: mainColor, fontSize: 14),
+                                    recognizer: TapGestureRecognizer()..onTap = () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePin()));
+                                    },
                                   ),
                                 ],
                               ),
                             ),
                           ),
                           verticalSpacing(15),
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'Don’t have an account? ',
-                                  style: GoogleFonts.poppins(
-                                    color: const Color(0xFF8696BB),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: 'SignUp',
-                                  style: GoogleFonts.poppins(
-                                    color: mainColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                  recognizer:
-                                      TapGestureRecognizer()
-                                        ..onTap = () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) => LocationAccess(),
-                                            ),
-                                          );
+                          storedEmployeeName == null
+                              ? Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Don’t have an account? ',
+                                        style: GoogleFonts.poppins(color: const Color(0xFF8696BB), fontSize: 14),
+                                      ),
+                                      TextSpan(
+                                        text: 'SignUp',
+                                        style: GoogleFonts.poppins(color: mainColor, fontSize: 14),
+                                        recognizer: TapGestureRecognizer()..onTap = () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => LocationAccess()));
                                         },
-                                ),
-                              ],
-                            ),
-                          ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(), // Hide signup option if user already exists
                         ],
                       ),
                     ),

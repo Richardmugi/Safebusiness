@@ -1,25 +1,25 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math'; // Import for random OTP generation
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:safebusiness/screens/Auth/login_page.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:safebusiness/utils/dimensions.dart';
 import 'package:safebusiness/widgets/action_button.dart';
 import 'package:safebusiness/widgets/sized_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mailer/mailer.dart';
-import 'package:mailer/smtp_server.dart';
 
-class OtpVerification extends StatefulWidget {
-  const OtpVerification({super.key});
+class OtpVerificationSms extends StatefulWidget {
+  const OtpVerificationSms({super.key});
 
   @override
-  _OtpVerificationState createState() => _OtpVerificationState();
+  _OtpVerificationSmsState createState() => _OtpVerificationSmsState();
 }
 
-class _OtpVerificationState extends State<OtpVerification> {
+class _OtpVerificationSmsState extends State<OtpVerificationSms> {
   final TextEditingController _fieldOne = TextEditingController();
   final TextEditingController _fieldTwo = TextEditingController();
   final TextEditingController _fieldThree = TextEditingController();
@@ -37,35 +37,52 @@ class _OtpVerificationState extends State<OtpVerification> {
 
   Future<void> generateAndSendOtp() async {
     Random random = Random();
-    int otp = random.nextInt(9000) + 1000; // Generate a 4-digit OTP
+    int otp = random.nextInt(9000) + 1000;
     String generatedOtp = otp.toString();
 
-    // Save OTP in SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Retrieve stored email
-    String? email = prefs.getString('email') ?? "N/A";
     await prefs.setString('otp', generatedOtp);
+    
+    // Get stored phone number
+    String? phoneNumber = prefs.getString('phone');
+    if (phoneNumber == null || phoneNumber.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Phone number not available')),
+      );
+      return;
+    }
 
-    // SMTP Server Configuration (Use your own SMTP settings)
-    String username = 'nardconcepts1@gmail.com'; // Your email
-    String password =
-        'hona yzax gkyc rwei'; // Your email app password (use App Passwords for security)
+    // Send SMS OTP
+    await _sendSmsOtp(phoneNumber, generatedOtp);
+  }
 
-    final smtpServer = gmail(username, password); // Use Gmail's SMTP server
-
-    // Email Message
-    final message =
-        Message()
-          ..from = Address(username, 'Safebusiness') // Sender info
-          ..recipients.add(email) // Recipient email
-          ..subject = 'Your One-Time Passcode (OTP)'
-          ..text = 'Your verification code is $generatedOtp.Use this code within 3 minutes to proceed. Do not share this code with anyone.';
-
+  Future<void> _sendSmsOtp(String phoneNumber, String otp) async {
+    const String smsApiUrl = "http://65.21.59.117:8003/v1/notification/sms";
+    
     try {
-      final sendReport = await send(message, smtpServer);
-      print('OTP sent successfully: ${sendReport.toString()}');
+      final response = await http.post(
+        Uri.parse(smsApiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "phoneNumber": phoneNumber,
+          "message": "Your verification code is $otp. Valid for 3 minutes.",
+          "vendor": "Ego"
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('SMS OTP sent successfully');
+      } else {
+        print('Failed to send SMS: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to send OTP')),
+        );
+      }
     } catch (e) {
-      print('Failed to send OTP: $e');
+      print('Error sending SMS: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
     }
   }
 
@@ -153,7 +170,7 @@ class _OtpVerificationState extends State<OtpVerification> {
               ),
               verticalSpacing(35),
               Text(
-                'Enter the verification code that we have just sent to your email.',
+                'Enter the verification code that we have just sent to your phone.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   color: const Color(0xFF8696BB),

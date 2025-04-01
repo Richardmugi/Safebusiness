@@ -74,7 +74,7 @@ class _HomeState extends State<Home> {
   Future<bool> _clockin(String email, String companyEmail) async {
   if (!mounted) return false;
 
-  Position? userPosition = await _determinePosition();
+  /*Position? userPosition = await _determinePosition();
   if (userPosition == null) {
     if (!mounted) return false;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -113,7 +113,7 @@ class _HomeState extends State<Home> {
     branchLongitude!,
   );
 
-  if (distanceInMeters > 50000) {
+  if (distanceInMeters < 20) {
     if (!mounted) return false;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -123,7 +123,7 @@ class _HomeState extends State<Home> {
     );
     _saveNotification("Check-in failed: Too far from branch");
     return false;
-  }
+  }*/
 
   var url = Uri.parse(
     'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockIn',
@@ -136,8 +136,8 @@ class _HomeState extends State<Home> {
       body: jsonEncode({
         "employeeEmail": email,
         "companyEmail": companyEmail,
-        "latitude": userLatitude,
-        "longitude": userLongitude,
+        //"latitude": userLatitude,
+        //"longitude": userLongitude,
       }),
     );
 
@@ -195,7 +195,7 @@ class _HomeState extends State<Home> {
   }
 }
 
-  Future<Position?> _determinePosition() async {
+ /* Future<Position?> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -244,7 +244,7 @@ class _HomeState extends State<Home> {
     }
 
     return null;
-  }
+  }*/
 
   Future<bool> _clockout(String email, String companyEmail) async {
   var url = Uri.parse(
