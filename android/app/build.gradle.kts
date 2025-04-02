@@ -32,11 +32,22 @@ android {
         versionName = "1.0"
     }
 
+    signingConfigs {
+        create("release") {
+            // Path to your keystore file
+            storeFile = file("../app/my-release-key.jks")
+            storePassword = "R1C@rd0$"
+            keyAlias = "my-key-alias"
+            keyPassword = "R1C@rd0$"
+        }
+    }
+
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+        getByName("release") {
+            // Use release signing configuration
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false // If you use ProGuard or R8, set this to true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }

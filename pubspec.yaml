@@ -72,7 +72,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icons/checkinprowhite.png"
+  image_path: "assets/icons/checkinpro.png"
   remove_alpha_ios: true
 
 # The following section is specific to Flutter packages.
