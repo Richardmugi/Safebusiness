@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.safebusiness"
+    namespace = "com.checkinpro.safebusiness"
     compileSdk = 35
     ndkVersion = "27.0.12077973"
 
@@ -23,7 +23,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.safebusiness"
+        applicationId = "com.checkinpro.safebusiness"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 21
@@ -35,7 +35,7 @@ android {
     signingConfigs {
         create("release") {
             // Path to your keystore file
-            storeFile = file("../app/my-release-key.jks")
+            storeFile = file("my-release-key.jks")
             storePassword = "R1C@rd0$"
             keyAlias = "my-key-alias"
             keyPassword = "R1C@rd0$"
@@ -44,12 +44,9 @@ android {
 
     buildTypes {
         release {
-            // Enable code shrinking (Proguard/R8)
-            minifyEnabled true
-            // Shrink unused resources
-            shrinkResources true
-            // Add your release signing config here
-            signingConfig signingConfigs.release
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs["release"]
         }
     }
 }
