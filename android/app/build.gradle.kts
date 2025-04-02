@@ -43,11 +43,13 @@ android {
     }
 
     buildTypes {
-        getByName("release") {
-            // Use release signing configuration
-            signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false // If you use ProGuard or R8, set this to true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        release {
+            // Enable code shrinking (Proguard/R8)
+            minifyEnabled true
+            // Shrink unused resources
+            shrinkResources true
+            // Add your release signing config here
+            signingConfig signingConfigs.release
         }
     }
 }
