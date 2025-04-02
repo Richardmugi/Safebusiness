@@ -3,7 +3,6 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
-    id("com.google.gms.google-services")
 }
 
 android {
@@ -53,10 +52,6 @@ android {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.22") // Ensure this matches your Kotlin version
-    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
-    implementation("com.google.firebase:firebase-analytics")
-    // Firebase Cloud Messaging (FCM) - Required for push notifications
-    implementation("com.google.firebase:firebase-messaging")
     implementation("androidx.work:work-runtime:2.8.1")
     // Add other dependencies here
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
