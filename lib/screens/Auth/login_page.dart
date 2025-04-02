@@ -9,6 +9,7 @@ import 'package:safebusiness/screens/password_input.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:safebusiness/widgets/action_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../helpers/custom_text_form_field.dart';
 import '../../widgets/btm_nav_bar.dart';
 import '../../widgets/sized_box.dart';
@@ -29,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   String? storedEmployeeName; // Store employee name if already logged in
   String? storedEmployeeId;
+  bool termsAccepted = false;
 
   @override
   void initState() {
@@ -112,7 +114,7 @@ void _showError(String message) {
         backgroundColor: Colors.white,
         body: Column(
           children: [
-            verticalSpacing(MediaQuery.of(context).size.height * 0.12),
+            verticalSpacing(MediaQuery.of(context).size.height * 0.10),
             Transform.scale(scale: 0.5, child: Image.asset('assets/icons/checkin.png')),
             verticalSpacing(MediaQuery.of(context).size.height * 0.06),
             Text(
@@ -162,6 +164,7 @@ void _showError(String message) {
                             actionText: "Login",
                           ),
                           verticalSpacing(15),
+                          _buildTermsAndConditions(),
                           Align(
                             alignment: Alignment.centerRight,
                             child: Text.rich(
@@ -232,4 +235,49 @@ void _showError(String message) {
       fillColor: filledColor,
     );
   }
+
+
+Widget _buildTermsAndConditions() {
+  return Row(
+    children: [
+      Checkbox(
+        activeColor: mainColor,
+        value: termsAccepted,
+        onChanged: (value) {
+          setState(() {
+            termsAccepted = value ?? false;
+          });
+        },
+      ),
+      Expanded(
+        child: RichText(
+          text: TextSpan(
+            style: GoogleFonts.poppins(
+              color: const Color(0xFF8696BB),
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
+            children: <TextSpan>[
+              TextSpan(text: "I agree with "),
+              TextSpan(
+                text: "privacy policy",
+                style: TextStyle(
+                  color: mainColor, // Link color
+                  decoration: TextDecoration.underline, // Underline to show it's a link
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    // Open the URL
+                    launch('https://nardconcepts.io/safe-biznes-privacy-policy/'); // Use your actual URL
+                  },
+              ),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+
 }
