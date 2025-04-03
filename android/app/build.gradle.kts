@@ -34,10 +34,10 @@ android {
     signingConfigs {
         create("release") {
             // Use environment variables for sensitive data
-            storeFile = file(System.getenv("KEYSTORE_FILE_PATH")) // Set this in Codemagic
-            storePassword = System.getenv("KEYSTORE_PASSWORD") // Set this in Codemagic
-            keyAlias = System.getenv("KEY_ALIAS") // Set this in Codemagic
-            keyPassword = System.getenv("KEY_PASSWORD") // Set this in Codemagic
+          //  storeFile = file(System.getenv("KEYSTORE_FILE_PATH"))  Set this in Codemagic
+          //  storePassword = System.getenv("KEYSTORE_PASSWORD")  Set this in Codemagic
+         //   keyAlias = System.getenv("KEY_ALIAS")  Set this in Codemagic
+         //   keyPassword = System.getenv("KEY_PASSWORD")  Set this in Codemagic
         }
     }
 
