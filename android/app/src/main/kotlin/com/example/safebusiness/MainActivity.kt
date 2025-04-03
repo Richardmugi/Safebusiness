@@ -1,4 +1,4 @@
-package com.example.safebusiness
+package com.checkinpro.safebusiness
 
 import io.flutter.embedding.android.FlutterActivity
 
