@@ -34,10 +34,10 @@ android {
     signingConfigs {
         create("release") {
             // Path to your keystore file
-            //storeFile = file("../my-release-key.jks")
-            storePassword = "R1C@rd0$"
-            keyAlias = "my-key-alias"
-            keyPassword = "R1C@rd0$"
+            //storeFile = file("my-release-key.jks")
+           // storePassword = "R1C@rd0$"
+           // keyAlias = "my-key-alias"
+           // keyPassword = "R1C@rd0$"
         }
     }
 
