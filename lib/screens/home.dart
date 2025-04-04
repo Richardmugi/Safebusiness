@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:safebusiness/screens/QRCodeScanner.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:safebusiness/widgets/carousel.dart';
 import 'package:safebusiness/widgets/sized_box.dart';
@@ -11,6 +12,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:vibration/vibration.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -27,9 +30,12 @@ class _HomeState extends State<Home> {
   String employeeName = "";
   String employeeEmail = "";
   String companyEmail = "";
+  String companyName = "";
   int selectedIndex = -1; // Initially, no box is selected
   late Future<bool> _canCheckIn;
   late Future<bool> _canCheckOut;
+  File? _imageFile;
+  String? _imagePath;
 
 
   bool isValidEmail(String input) {
@@ -44,6 +50,45 @@ class _HomeState extends State<Home> {
     super.initState();
     _loadEmployeeDetails();
      _loadStates();
+     _loadSavedImage();
+  }
+
+  /// Load the saved image path from SharedPreferences
+  Future<void> _loadSavedImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? savedPath = prefs.getString('profile_image');
+    if (savedPath != null && File(savedPath).existsSync()) {
+      setState(() {
+        _imageFile = File(savedPath);
+        _imagePath = savedPath;
+      });
+    }
+  }
+
+  /// Pick an image from the gallery and save it to app storage
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      File savedImage = await _saveImageToAppStorage(File(pickedFile.path));
+      setState(() {
+        _imageFile = savedImage;
+        _imagePath = savedImage.path;
+      });
+      _saveImagePath(savedImage.path); // Save image path in SharedPreferences
+    }
+  }
+
+  /// Save the picked image to the app's internal storage
+  Future<File> _saveImageToAppStorage(File imageFile) async {
+    final appDir = await getApplicationDocumentsDirectory(); // App's storage
+    final savedImagePath = '${appDir.path}/profile_image.jpg';
+    return imageFile.copy(savedImagePath); // Copy the image
+  }
+
+  /// Save the selected image path to SharedPreferences
+  Future<void> _saveImagePath(String path) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('profile_image', path);
   }
 
   Future<void> _loadEmployeeDetails() async {
@@ -53,6 +98,7 @@ class _HomeState extends State<Home> {
       employeeName = prefs.getString('employeeName') ?? "N/A";
       employeeEmail = prefs.getString('email') ?? "N/A";
       companyEmail = prefs.getString('companyEmail') ?? "N/A";
+      companyName = prefs.getString('companyName') ?? "N/A";
     });
   }
 
@@ -311,71 +357,63 @@ class _HomeState extends State<Home> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                margin: const EdgeInsets.all(
-                  18.0,
-                ),// Adjust the value as needed
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.3,
-                decoration: const ShapeDecoration(
-                  color: mainColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(30),
-                      topLeft: Radius.circular(30),
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30),
-                    ),
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 0.30,
+              decoration: const ShapeDecoration(
+                color: mainColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(40),
+                    bottomRight: Radius.circular(40),
                   ),
                 ),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned(
-                      top: 30,
-                      left: 20,
-                      right: 20,
-                      bottom: 30,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    top: 20,
+                    left: 20,
+                    right: 20,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
                           color: Colors.white,
                           image: const DecorationImage(
                             image: AssetImage('assets/images/image 15.png'),
                             fit: BoxFit.fill,
                           ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 30, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  verticalSpacing(30),
-                                  _headerText('Employee Name'),
-                                  _headerTextBold(employeeName),
-                                  verticalSpacing(20),
-                                   _headerText('Employee ID'),
-                                  _headerTextBold(employeeId),
-                                ],
-                              ),
-                      Column(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 30, right: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                verticalSpacing(15),
+                                _headerTextBold(companyName),
+                                verticalSpacing(10),
+                                _headerText('Employee Name'),
+                                _headerTextBold(employeeName),
+                                verticalSpacing(10),
+                                _headerText('Employee ID'),
+                                _headerTextBold(employeeId),
+                              ],
+                            ),
+                            Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                //verticalSpacing(15),
+                                //verticalSpacing(5),
                                 SizedBox(
                                     width: 59,
                                     height: 36,
-                                    child: Transform.scale(
-              scale: 1.8,
-              child: Image.asset('assets/icons/checkinprowhite.png'),
-            ),
-                                ),
-                                verticalSpacing(5),
+                                    child:
+                                        Image.asset('assets/icons/checkinprowhite.png')),
+                                //verticalSpacing(5),
                                 Text(
                                   'CheckInPro',
                                   style: GoogleFonts.poppins(
@@ -386,32 +424,61 @@ class _HomeState extends State<Home> {
                                 )
                               ],
                             ),
-                            ],
-                          ),
+                          ],
                         ),
                       ),
                     ),
-                   /* Positioned(
+                  ),
+                 /* Positioned(
                       bottom: 10,
                       right: 80,
                       child: SizedBox(
                         width: 55,
                         height: 55,
-                       child: Image.asset(
-                          'assets/icons/qr-code2.png',
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),*/
-                    Positioned(
-                      bottom: -50,
-                      left: 0,
-                      right: 0,
-                      child: SizedBox(width: 119, height: 119),
-                    ),
-                  ],
-                ),
+                        child: Image.asset('assets/icons/qr-code2.png',
+                            color: Colors.white),
+                      )),*/
+                  // put a circle avatar here
+                  Positioned(
+  bottom: -60,
+  left: 0,
+  right: 0,
+  child: GestureDetector(
+    onTap: _pickImage,
+    child: Container(
+      width: 110,
+      height: 110,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.grey[200], // Background color for the icon
+        border: Border.all(
+          color: Colors.grey.shade400,
+          width: 2,
+        ),
+        image: _imageFile != null
+            ? DecorationImage(
+                image: FileImage(_imageFile!),
+                fit: BoxFit.cover,
+              )
+            : null, // No default image
+      ),
+      child: _imageFile == null
+          ? const Center(
+              child: Icon(
+                Icons.camera_alt, // Your preferred icon
+                size: 40,
+                color: Colors.grey,
               ),
+            )
+          : null,
+    ),
+  ),
+),
+                ],
+              ),
+              key: UniqueKey(), // Forces a rebuild when the image changes
+            ),
+            verticalSpacing(MediaQuery.of(context).size.height * 0.05),
               Padding(
                 padding: const EdgeInsets.only(left: 24, right: 24, top: 30, bottom: 15),
                 child: FutureBuilder(
@@ -548,61 +615,90 @@ class _HomeState extends State<Home> {
 
 Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: Text(
-            'Adverts',
-            style: GoogleFonts.poppins(
-              color: Colors.blueGrey,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildCategoryBox(
-                title: 'Travels',
-                icon: Icons.flight_takeoff,
-                color: Colors.blueAccent, index: 0, image: AssetImage('assets/images/travel.jpeg'), // Provide image,
-                
+              Text(
+                'Adverts',
+                style: GoogleFonts.poppins(
+                  color: Colors.blueGrey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              _buildCategoryBox(
-                title: 'Hangouts',
-                icon: Icons.people,
-                color: Colors.green, index: 1, image: AssetImage('assets/images/hangouts.jpg'), // Provide image,
-              ),
-              _buildCategoryBox(
-                title: 'Vacations',
-                icon: Icons.beach_access,
-                color: Colors.orangeAccent, index: 2, image: AssetImage('assets/images/vacations.webp'), // Provide image,
-              ),
-              _buildCategoryBox(
-                title: 'Food',
-                icon: Icons.fastfood,
-                color: Colors.pink, index: 3, image: AssetImage('assets/images/food.jpg'), // Provide image,
+              Icon(
+                Icons.arrow_forward_ios, // Right arrow
+                color: Colors.blueGrey,
+                size: 16,
               ),
             ],
           ),
         ),
-        /*verticalSpacing(10),
-              Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, bottom: 5),
-                child: Text(
-                  'Adverts',
-                  style: GoogleFonts.poppins(
-                    color: Colors.blueGrey,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+
+        // Horizontal scrollable category boxes
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildCategoryBox(
+                  title: 'Travels',
+                  icon: Icons.flight_takeoff,
+                  color: Colors.blueAccent,
+                  index: 0,
+                  image: AssetImage('assets/images/travel.jpeg'),
                 ),
-              ),*/
-              verticalSpacing(10),
-              const Padding(
-                padding: EdgeInsets.only(left: 18, right: 18, bottom: 15),
-                child: ImageCarousel(),
-              ),
+                _buildCategoryBox(
+                  title: 'Hangouts',
+                  icon: Icons.people,
+                  color: Colors.green,
+                  index: 1,
+                  image: AssetImage('assets/images/hangouts.jpg'),
+                ),
+                _buildCategoryBox(
+                  title: 'Vacations',
+                  icon: Icons.beach_access,
+                  color: Colors.orangeAccent,
+                  index: 2,
+                  image: AssetImage('assets/images/vacations.webp'),
+                ),
+                // More categories can be added here
+                _buildCategoryBox(
+                  title: 'Food',
+                  icon: Icons.fastfood,
+                  color: Colors.pink,
+                  index: 3,
+                  image: AssetImage('assets/images/food.jpg'),
+                ),
+
+                _buildCategoryBox(
+                  title: 'Health',
+                  icon: Icons.fastfood,
+                  color: Colors.redAccent,
+                  index: 3,
+                  image: AssetImage('assets/images/health.jpeg'),
+                ),
+
+                _buildCategoryBox(
+                  title: 'Spirituality',
+                  icon: Icons.fastfood,
+                  color: Colors.yellowAccent,
+                  index: 3,
+                  image: AssetImage('assets/images/spiritual.jpg'),
+                ),
+                // Add more categories as needed
+              ],
+            ),
+          ),
+        ),
+
+        // Spacer or additional content if needed
+        SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
+          child: ImageCarousel(), // Custom widget for carousel (if needed)
+        ),
             ],
           ),
         ),
@@ -655,25 +751,23 @@ Padding(
 }*/
 
   Widget _buildCategoryBox({
-  required int index,
-  required String title,
-  required IconData icon,
-  required Color color,
-  ImageProvider? image, // Make image optional
-}) {
-  bool isSelected = selectedIndex == index; // Check if this box is selected
+    required int index,
+    required String title,
+    required IconData icon,
+    required Color color,
+    ImageProvider? image, // Make image optional
+  }) {
+    bool isSelected = selectedIndex == index; // Check if this box is selected
 
-  return Expanded(
-    child: GestureDetector(
+    return GestureDetector(
       onTap: () {
         setState(() {
           selectedIndex = index; // Update the selected index
         });
       },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        height: isSelected ? 120 : 110, // Increase height when selected
+      child: Container(
+        width: 110, // Limit width of each category box
+        height: 110,
         margin: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
           color: isSelected ? color.withOpacity(0.8) : color, // Highlight selected box
@@ -689,7 +783,7 @@ Padding(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (image != null) 
+            if (image != null)
               Container(
                 width: 40,
                 height: 40,
@@ -716,9 +810,8 @@ Padding(
           ],
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
 
   Widget _headerText(String title) {

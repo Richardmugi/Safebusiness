@@ -31,21 +31,11 @@ android {
         versionName = "1.0.2"
     }
 
-    signingConfigs {
-        create("release") {
-            // Path to your keystore file
-            storeFile file("upload-keystore.jks") // Path to your keystore
-            storePassword System.getenv("KEYSTORE_PASSWORD") // From environment variables
-            keyAlias System.getenv("KEY_ALIAS")
-            keyPassword System.getenv("KEY_PASSWORD")
-        }
-    }
-
     buildTypes {
         release {
-           // isMinifyEnabled = false
-          //  isShrinkResources = false
-            signingConfig = signingConfigs["release"]
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 }
