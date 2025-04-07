@@ -36,6 +36,8 @@ class _HomeState extends State<Home> {
   late Future<bool> _canCheckOut;
   File? _imageFile;
   String? _imagePath;
+  bool _isLoading = false;
+
 
 
   bool isValidEmail(String input) {
@@ -445,7 +447,15 @@ class _HomeState extends State<Home> {
   left: 0,
   right: 0,
   child: GestureDetector(
-    onTap: _pickImage,
+    onTap: () async {
+      setState(() {
+        _isLoading = true; // Set loading state to true when tapping
+      });
+      await _pickImage(); // Call the function to pick an image
+      setState(() {
+        _isLoading = false; // Set loading state to false once the image is picked
+      });
+    },
     child: Container(
       width: 110,
       height: 110,
@@ -463,18 +473,26 @@ class _HomeState extends State<Home> {
               )
             : null, // No default image
       ),
-      child: _imageFile == null
+      child: _isLoading
           ? const Center(
-              child: Icon(
-                Icons.camera_alt, // Your preferred icon
-                size: 40,
-                color: Colors.grey,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
               ),
-            )
-          : null,
+            ) // Show loading indicator when _isLoading is true
+          : (_imageFile == null
+              ? const Center(
+                  child: Icon(
+                    Icons.camera_alt, // Your preferred icon
+                    size: 40,
+                    color: Colors.grey,
+                  ),
+                )
+              : null), // Show icon if no image selected
     ),
   ),
 ),
+
                 ],
               ), // Forces a rebuild when the image changes
             ),
