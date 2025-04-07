@@ -368,6 +368,7 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               ),
+              key: UniqueKey(),
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
@@ -475,8 +476,7 @@ class _HomeState extends State<Home> {
   ),
 ),
                 ],
-              ),
-              key: UniqueKey(), // Forces a rebuild when the image changes
+              ), // Forces a rebuild when the image changes
             ),
             verticalSpacing(MediaQuery.of(context).size.height * 0.05),
               Padding(

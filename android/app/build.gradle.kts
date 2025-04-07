@@ -27,15 +27,25 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 21
         targetSdk = 35
-        versionCode = 3
+        versionCode = 4
         versionName = "1.0.2"
+    }
+
+    signingConfigs {
+        create("release") {
+            // Path to your keystore file
+            storeFile = file("my-release-key.jks")
+            storePassword = "R1C@rd0$"
+            keyAlias = "my-key-alias"
+            keyPassword = "R1C@rd0$"
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+           // isMinifyEnabled = false
+          //  isShrinkResources = false
+            signingConfig = signingConfigs["release"]
         }
     }
 }
