@@ -20,6 +20,10 @@
 	<string>This app requires location access in both foreground and background.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to your camera for scanning QR codes</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select an image</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take a picture</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
