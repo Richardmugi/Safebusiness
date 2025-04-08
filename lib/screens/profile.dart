@@ -279,10 +279,10 @@ Widget build(BuildContext context) {
                   _buildActionButton(
                     icon: Icons.logout,
                     label: 'Logout',
-                    color: Colors.red,
+                    color: mainColor,
                     onTap: () async {
-                     /* SharedPreferences prefs = await SharedPreferences.getInstance();
-                      await prefs.clear();*/
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      await prefs.clear();
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => const LoginPage()),

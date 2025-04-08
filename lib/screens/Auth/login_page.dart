@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   String? storedEmployeeName; // Store employee name if already logged in
   String? storedEmployeeId;
-  bool termsAccepted = false;
+  bool termsAccepted = true;
 
   @override
   void initState() {
@@ -244,9 +244,9 @@ Widget _buildTermsAndConditions() {
         activeColor: mainColor,
         value: termsAccepted,
         onChanged: (value) {
-          setState(() {
+          /*setState(() {
             termsAccepted = value ?? false;
-          });
+          });*/
         },
       ),
       Expanded(
@@ -263,12 +263,12 @@ Widget _buildTermsAndConditions() {
                 text: "privacy policy",
                 style: TextStyle(
                   color: mainColor, // Link color
-                  decoration: TextDecoration.underline, // Underline to show it's a link
+                  //decoration: TextDecoration.underline, // Underline to show it's a link
                 ),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {
                     // Open the URL
-                    launch('https://nardconcepts.io/safe-biznes-privacy-policy/'); // Use your actual URL
+                    launch('https://nardconcepts.io/checkinpro-privacy-policy/'); // Use your actual URL
                   },
               ),
             ],

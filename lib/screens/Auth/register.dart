@@ -289,12 +289,13 @@ void initState() {
                           _EmailinputField("Email", emailController),
                           verticalSpacing(22),
                          PasswordInputField(controller: passwordController, hintText: 'Enter Pin',), // Use the custom password input field
+                         PasswordInputField(controller: passwordController, hintText: 'Confirm Pin',),
                         verticalSpacing(22),
                           _GenderinputField("Gender", genderController),
                           verticalSpacing(22),
-                          _BirthinputField("Date of Birth", dobController),
-                          verticalSpacing(22),
                           _AddressinputField("Address", addressController),
+                          verticalSpacing(22),
+                          _BirthinputField("Date of Birth", dobController),
                           verticalSpacing(22),
                           _dropdownField(
                             "Branch",

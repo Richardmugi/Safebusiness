@@ -38,8 +38,6 @@ class _HomeState extends State<Home> {
   String? _imagePath;
   bool _isLoading = false;
 
-
-
   bool isValidEmail(String input) {
     final RegExp emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -51,8 +49,8 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _loadEmployeeDetails();
-     _loadStates();
-     _loadSavedImage();
+    _loadStates();
+    _loadSavedImage();
   }
 
   /// Load the saved image path from SharedPreferences
@@ -68,15 +66,28 @@ class _HomeState extends State<Home> {
   }
 
   /// Pick an image from the gallery and save it to app storage
+  bool _isPicking = false;
+
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      File savedImage = await _saveImageToAppStorage(File(pickedFile.path));
-      setState(() {
-        _imageFile = savedImage;
-        _imagePath = savedImage.path;
-      });
-      _saveImagePath(savedImage.path); // Save image path in SharedPreferences
+    if (_isPicking) return;
+    _isPicking = true;
+
+    try {
+      final pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+      );
+      if (pickedFile != null) {
+        File savedImage = await _saveImageToAppStorage(File(pickedFile.path));
+        setState(() {
+          _imageFile = savedImage;
+          _imagePath = savedImage.path;
+        });
+        _saveImagePath(savedImage.path);
+      }
+    } catch (e) {
+      print("Error picking image: $e");
+    } finally {
+      _isPicking = false;
     }
   }
 
@@ -120,9 +131,9 @@ class _HomeState extends State<Home> {
   }
 
   Future<bool> _clockin(String email, String companyEmail) async {
-  if (!mounted) return false;
+    if (!mounted) return false;
 
-  /*Position? userPosition = await _determinePosition();
+    /*Position? userPosition = await _determinePosition();
   if (userPosition == null) {
     if (!mounted) return false;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -173,77 +184,77 @@ class _HomeState extends State<Home> {
     return false;
   }*/
 
-  var url = Uri.parse(
-    'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockIn',
-  );
-
-  try {
-    var response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "employeeEmail": email,
-        "companyEmail": companyEmail,
-        //"latitude": userLatitude,
-        //"longitude": userLongitude,
-      }),
+    var url = Uri.parse(
+      'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockIn',
     );
 
-    var responseData = jsonDecode(response.body);
-    print("Check-in Response: $responseData");
-
-    String message = responseData["message"] ?? "Unknown error occurred";
-
-    if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
-      _saveNotification("Check-in successful");
-
-      if (await Vibration.hasVibrator()) {
-        Vibration.vibrate(duration: 500);
-      }
-      _ringtonePlayer.playNotification();
-
-      if (!mounted) return false;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Check-in success"),
-          backgroundColor: Colors.green,
-        ),
+    try {
+      var response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "employeeEmail": email,
+          "companyEmail": companyEmail,
+          //"latitude": userLatitude,
+          //"longitude": userLongitude,
+        }),
       );
-      return true; // Indicate success
-    } else {
-      _saveNotification("Check-in failed: $message");
+
+      var responseData = jsonDecode(response.body);
+      print("Check-in Response: $responseData");
+
+      String message = responseData["message"] ?? "Unknown error occurred";
+
+      if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
+        _saveNotification("Check-in successful");
+
+        if (await Vibration.hasVibrator()) {
+          Vibration.vibrate(duration: 500);
+        }
+        _ringtonePlayer.playNotification();
+
+        if (!mounted) return false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Check-in success"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        return true; // Indicate success
+      } else {
+        _saveNotification("Check-in failed: $message");
+
+        if (await Vibration.hasVibrator()) {
+          Vibration.vibrate(duration: 200);
+        }
+        _ringtonePlayer.play(fromAsset: "system/alarm");
+
+        if (!mounted) return false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Check-in failed: $message"),
+            backgroundColor: mainColor,
+          ),
+        );
+        return false; // Indicate failure
+      }
+    } catch (e) {
+      _saveNotification("Check-in error: $e");
 
       if (await Vibration.hasVibrator()) {
         Vibration.vibrate(duration: 200);
       }
-      _ringtonePlayer.play(fromAsset: "system/alarm");
+      _ringtonePlayer.play(fromAsset: "system/ringtone");
 
       if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Check-in failed: $message"),
-          backgroundColor: mainColor,
-        ),
+        SnackBar(content: Text("Error: $e"), backgroundColor: mainColor),
       );
       return false; // Indicate failure
     }
-  } catch (e) {
-    _saveNotification("Check-in error: $e");
-
-    if (await Vibration.hasVibrator()) {
-      Vibration.vibrate(duration: 200);
-    }
-    _ringtonePlayer.play(fromAsset: "system/ringtone");
-
-    if (!mounted) return false;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Error: $e"), backgroundColor: mainColor),
-    );
-    return false; // Indicate failure
   }
-}
 
- /* Future<Position?> _determinePosition() async {
+  /* Future<Position?> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -295,59 +306,59 @@ class _HomeState extends State<Home> {
   }*/
 
   Future<bool> _clockout(String email, String companyEmail) async {
-  var url = Uri.parse(
-    'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockOut',
-  );
-
-  try {
-    var response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "employeeEmail": email,
-        "companyEmail": companyEmail,
-      }),
+    var url = Uri.parse(
+      'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockOut',
     );
 
-    var responseData = jsonDecode(response.body);
-    print("Check-out Response: $responseData");
-
-    if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
-      _saveNotification("Check-out successful");
-
-      if (await Vibration.hasVibrator()) {
-        Vibration.vibrate(duration: 500);
-      }
-      _ringtonePlayer.playNotification();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Check-out success"),
-          backgroundColor: Colors.green,
-        ),
+    try {
+      var response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "employeeEmail": email,
+          "companyEmail": companyEmail,
+        }),
       );
-      return true; // Indicate success
-    } else {
-      _saveNotification("Check-out failed: ${responseData["message"]}");
 
-      if (await Vibration.hasVibrator()) {
-        Vibration.vibrate(duration: 200);
+      var responseData = jsonDecode(response.body);
+      print("Check-out Response: $responseData");
+
+      if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
+        _saveNotification("Check-out successful");
+
+        if (await Vibration.hasVibrator()) {
+          Vibration.vibrate(duration: 500);
+        }
+        _ringtonePlayer.playNotification();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Check-out success"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        return true; // Indicate success
+      } else {
+        _saveNotification("Check-out failed: ${responseData["message"]}");
+
+        if (await Vibration.hasVibrator()) {
+          Vibration.vibrate(duration: 200);
+        }
+        _ringtonePlayer.play(fromAsset: "system/alarm");
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Check-out failed: ${responseData["message"]}"),
+            backgroundColor: mainColor,
+          ),
+        );
+        return false; // Indicate failure
       }
-      _ringtonePlayer.play(fromAsset: "system/alarm");
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Check-out failed: ${responseData["message"]}"),
-          backgroundColor: mainColor,
-        ),
-      );
+    } catch (e) {
+      print("Error: $e");
       return false; // Indicate failure
     }
-  } catch (e) {
-    print("Error: $e");
-    return false; // Indicate failure
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -359,80 +370,83 @@ class _HomeState extends State<Home> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.30,
-              decoration: const ShapeDecoration(
-                color: mainColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.30,
+                decoration: const ShapeDecoration(
+                  color: mainColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(40),
+                      bottomRight: Radius.circular(40),
+                    ),
                   ),
                 ),
-              ),
-              key: UniqueKey(),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Positioned(
-                    top: 20,
-                    left: 20,
-                    right: 20,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      height: MediaQuery.of(context).size.height * 0.2,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
+                key: UniqueKey(),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned(
+                      top: 20,
+                      left: 20,
+                      right: 20,
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        height: MediaQuery.of(context).size.height * 0.2,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
                           color: Colors.white,
                           image: const DecorationImage(
                             image: AssetImage('assets/images/image 15.png'),
                             fit: BoxFit.fill,
                           ),
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 30, right: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                verticalSpacing(15),
-                                _headerTextBold(companyName),
-                                verticalSpacing(10),
-                                _headerText('Employee Name'),
-                                _headerTextBold(employeeName),
-                                verticalSpacing(10),
-                                _headerText('Employee ID'),
-                                _headerTextBold(employeeId),
-                              ],
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                //verticalSpacing(5),
-                                SizedBox(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 30, right: 30),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  verticalSpacing(15),
+                                  _headerTextBold(companyName),
+                                  verticalSpacing(10),
+                                  _headerText('Employee Name'),
+                                  _headerTextBold(employeeName),
+                                  verticalSpacing(10),
+                                  _headerText('Employee ID'),
+                                  _headerTextBold(employeeId),
+                                ],
+                              ),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  //verticalSpacing(5),
+                                  SizedBox(
                                     width: 59,
                                     height: 36,
-                                    child:
-                                        Image.asset('assets/icons/checkinprowhite.png')),
-                                //verticalSpacing(5),
-                                Text(
-                                  'CheckInPro',
-                                  style: GoogleFonts.poppins(
-                                    color: const Color(0xFF646464),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w500,
+                                    child: Image.asset(
+                                      'assets/icons/checkinprowhite.png',
+                                    ),
                                   ),
-                                )
-                              ],
-                            ),
-                          ],
+                                  //verticalSpacing(5),
+                                  Text(
+                                    'CheckInPro',
+                                    style: GoogleFonts.poppins(
+                                      color: const Color(0xFF646464),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                 /* Positioned(
+                    /* Positioned(
                       bottom: 10,
                       right: 80,
                       child: SizedBox(
@@ -441,64 +455,77 @@ class _HomeState extends State<Home> {
                         child: Image.asset('assets/icons/qr-code2.png',
                             color: Colors.white),
                       )),*/
-                  // put a circle avatar here
-                  Positioned(
+                    // put a circle avatar here
+                    Positioned(
   bottom: -60,
   left: 0,
   right: 0,
-  child: GestureDetector(
-    onTap: () async {
-      setState(() {
-        _isLoading = true; // Set loading state to true when tapping
-      });
-      await _pickImage(); // Call the function to pick an image
-      setState(() {
-        _isLoading = false; // Set loading state to false once the image is picked
-      });
-    },
-    child: Container(
-      width: 110,
-      height: 110,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.grey[200], // Background color for the icon
-        border: Border.all(
-          color: Colors.grey.shade400,
-          width: 2,
-        ),
-        image: _imageFile != null
-            ? DecorationImage(
-                image: FileImage(_imageFile!),
-                fit: BoxFit.cover,
-              )
-            : null, // No default image
-      ),
-      child: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-              ),
-            ) // Show loading indicator when _isLoading is true
-          : (_imageFile == null
-              ? const Center(
-                  child: Icon(
-                    Icons.camera_alt, // Your preferred icon
-                    size: 40,
-                    color: Colors.grey,
-                  ),
+  child: Material(
+    color: Colors.transparent,
+    child: InkWell(
+      borderRadius: BorderRadius.circular(55),
+      onTap: () async {
+        if (_isLoading) return; // Prevent multiple taps
+
+        setState(() {
+          _isLoading = true;
+        });
+
+        await _pickImage();
+
+        setState(() {
+          _isLoading = false;
+        });
+      },
+      child: Container(
+        width: 110,
+        height: 110,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.grey[200],
+          border: Border.all(
+            color: Colors.grey.shade400,
+            width: 2,
+          ),
+          image: _imageFile != null
+              ? DecorationImage(
+                  image: FileImage(_imageFile!),
+                  fit: BoxFit.cover,
                 )
-              : null), // Show icon if no image selected
+              : null,
+        ),
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                ),
+              )
+            : (_imageFile == null
+                ? const Center(
+                    child: Icon(
+                      Icons.camera_alt,
+                      size: 40,
+                      color: Colors.grey,
+                    ),
+                  )
+                : null),
+      ),
     ),
   ),
 ),
 
-                ],
-              ), // Forces a rebuild when the image changes
-            ),
-            verticalSpacing(MediaQuery.of(context).size.height * 0.05),
+                  ],
+                ), // Forces a rebuild when the image changes
+              ),
+              verticalSpacing(MediaQuery.of(context).size.height * 0.05),
               Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24, top: 30, bottom: 15),
+                padding: const EdgeInsets.only(
+                  left: 24,
+                  right: 24,
+                  top: 30,
+                  bottom: 15,
+                ),
                 child: FutureBuilder(
                   future: Future.wait([_canCheckIn, _canCheckOut]),
                   builder: (context, snapshot) {
@@ -514,47 +541,68 @@ class _HomeState extends State<Home> {
                       children: [
                         // Check In Button
                         GestureDetector(
-  onTap: canCheckIn ? () async {
-  final scannedEmail = await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const QRCodeScanner(isReturningUser: true),
-    ),
-  );
+                          onTap:
+                              canCheckIn
+                                  ? () async {
+                                    final scannedEmail = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => const QRCodeScanner(
+                                              isReturningUser: true,
+                                            ),
+                                      ),
+                                    );
 
-  if (scannedEmail != null && isValidEmail(scannedEmail)) {
-    bool success = await _clockin(employeeEmail, companyEmail);
-    if (success) {
-      await CheckInOutManager.setCheckedIn(true); // Update shared prefs
-      setState(() {
-        _loadStates(); // Reload Future values to update UI
-      });
-    }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Invalid QR code!"),
-        backgroundColor: mainColor,
-      ),
-    );
-  }
-} : null, // Disable button when canCheckIn is false
-
+                                    if (scannedEmail != null &&
+                                        isValidEmail(scannedEmail)) {
+                                      bool success = await _clockin(
+                                        employeeEmail,
+                                        companyEmail,
+                                      );
+                                      if (success) {
+                                        await CheckInOutManager.setCheckedIn(
+                                          true,
+                                        ); // Update shared prefs
+                                        setState(() {
+                                          _loadStates(); // Reload Future values to update UI
+                                        });
+                                      }
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Invalid QR code!"),
+                                          backgroundColor: mainColor,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                  : null, // Disable button when canCheckIn is false
 
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             width: MediaQuery.of(context).size.width * 0.42,
                             height: 50,
                             decoration: BoxDecoration(
-                              color: canCheckIn ? Colors.green[600] : Colors.grey[400],
+                              color:
+                                  canCheckIn
+                                      ? Colors.green[600]
+                                      : Colors.grey[400],
                               borderRadius: BorderRadius.circular(20),
-                              boxShadow: canCheckIn ? [
-                                BoxShadow(
-                                  color: Colors.green[800]!.withOpacity(0.3),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ] : null,
+                              boxShadow:
+                                  canCheckIn
+                                      ? [
+                                        BoxShadow(
+                                          color: Colors.green[800]!.withOpacity(
+                                            0.3,
+                                          ),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                      : null,
                             ),
                             child: Center(
                               child: Text(
@@ -572,45 +620,67 @@ class _HomeState extends State<Home> {
 
                         // Check Out Button
                         GestureDetector(
-  onTap: canCheckOut ? () async {
-  final scannedEmail = await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const QRCodeScanner(isReturningUser: true),
-    ),
-  );
+                          onTap:
+                              canCheckOut
+                                  ? () async {
+                                    final scannedEmail = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => const QRCodeScanner(
+                                              isReturningUser: true,
+                                            ),
+                                      ),
+                                    );
 
-  if (scannedEmail != null && isValidEmail(scannedEmail)) {
-    bool success = await _clockout(employeeEmail, companyEmail);
-    if (success) {
-      await CheckInOutManager.setCheckedOut(true); // Update shared prefs
-      setState(() {
-        _loadStates(); // Reload Future values to update UI
-      });
-    }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Invalid QR code!"),
-        backgroundColor: mainColor,
-      ),
-    );
-  }
-} : null, // Disable button when canCheckOut is false
+                                    if (scannedEmail != null &&
+                                        isValidEmail(scannedEmail)) {
+                                      bool success = await _clockout(
+                                        employeeEmail,
+                                        companyEmail,
+                                      );
+                                      if (success) {
+                                        await CheckInOutManager.setCheckedOut(
+                                          true,
+                                        ); // Update shared prefs
+                                        setState(() {
+                                          _loadStates(); // Reload Future values to update UI
+                                        });
+                                      }
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Invalid QR code!"),
+                                          backgroundColor: mainColor,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                  : null, // Disable button when canCheckOut is false
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             width: MediaQuery.of(context).size.width * 0.42,
                             height: 50,
                             decoration: BoxDecoration(
-                              color: canCheckOut ? Colors.blue[600] : Colors.grey[400],
+                              color:
+                                  canCheckOut
+                                      ? Colors.blue[600]
+                                      : Colors.grey[400],
                               borderRadius: BorderRadius.circular(20),
-                              boxShadow: canCheckOut ? [
-                                BoxShadow(
-                                  color: Colors.blue[800]!.withOpacity(0.3),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ] : null,
+                              boxShadow:
+                                  canCheckOut
+                                      ? [
+                                        BoxShadow(
+                                          color: Colors.blue[800]!.withOpacity(
+                                            0.3,
+                                          ),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                      : null,
                             ),
                             child: Center(
                               child: Text(
@@ -631,92 +701,94 @@ class _HomeState extends State<Home> {
                 ),
               ),
 
-Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Adverts',
-                style: GoogleFonts.poppins(
-                  color: Colors.blueGrey,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Adverts',
+                      style: GoogleFonts.poppins(
+                        color: Colors.blueGrey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios, // Right arrow
+                      color: Colors.blueGrey,
+                      size: 16,
+                    ),
+                  ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios, // Right arrow
-                color: Colors.blueGrey,
-                size: 16,
+
+              // Horizontal scrollable category boxes
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildCategoryBox(
+                        title: 'Health',
+                        icon: Icons.fastfood,
+                        color: Colors.blueAccent,
+                        index: 3,
+                        image: AssetImage('assets/images/health.jpeg'),
+                      ),
+                      _buildCategoryBox(
+                        title: 'Travels',
+                        icon: Icons.flight_takeoff,
+                        color: Colors.green,
+                        index: 0,
+                        image: AssetImage('assets/images/travel.jpeg'),
+                      ),
+                      _buildCategoryBox(
+                        title: 'Vacations',
+                        icon: Icons.beach_access,
+                        color: Colors.orangeAccent,
+                        index: 2,
+                        image: AssetImage('assets/images/vacations.webp'),
+                      ),
+                      _buildCategoryBox(
+                        title: 'Hangouts',
+                        icon: Icons.people,
+                        color: Colors.blueAccent,
+                        index: 1,
+                        image: AssetImage('assets/images/hangouts.jpg'),
+                      ),
+                      // More categories can be added here
+                      _buildCategoryBox(
+                        title: 'Food',
+                        icon: Icons.fastfood,
+                        color: Colors.pink,
+                        index: 3,
+                        image: AssetImage('assets/images/food.jpg'),
+                      ),
+                      _buildCategoryBox(
+                        title: 'Spirituality',
+                        icon: Icons.fastfood,
+                        color: Colors.green,
+                        index: 3,
+                        image: AssetImage('assets/images/spiritual.jpg'),
+                      ),
+                      // Add more categories as needed
+                    ],
+                  ),
+                ),
               ),
-            ],
-          ),
-        ),
 
-        // Horizontal scrollable category boxes
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildCategoryBox(
-                  title: 'Travels',
-                  icon: Icons.flight_takeoff,
-                  color: Colors.blueAccent,
-                  index: 0,
-                  image: AssetImage('assets/images/travel.jpeg'),
-                ),
-                _buildCategoryBox(
-                  title: 'Hangouts',
-                  icon: Icons.people,
-                  color: Colors.green,
-                  index: 1,
-                  image: AssetImage('assets/images/hangouts.jpg'),
-                ),
-                _buildCategoryBox(
-                  title: 'Vacations',
-                  icon: Icons.beach_access,
-                  color: Colors.orangeAccent,
-                  index: 2,
-                  image: AssetImage('assets/images/vacations.webp'),
-                ),
-                // More categories can be added here
-                _buildCategoryBox(
-                  title: 'Food',
-                  icon: Icons.fastfood,
-                  color: Colors.pink,
-                  index: 3,
-                  image: AssetImage('assets/images/food.jpg'),
-                ),
-
-                _buildCategoryBox(
-                  title: 'Health',
-                  icon: Icons.fastfood,
-                  color: Colors.redAccent,
-                  index: 3,
-                  image: AssetImage('assets/images/health.jpeg'),
-                ),
-
-                _buildCategoryBox(
-                  title: 'Spirituality',
-                  icon: Icons.fastfood,
-                  color: Colors.yellowAccent,
-                  index: 3,
-                  image: AssetImage('assets/images/spiritual.jpg'),
-                ),
-                // Add more categories as needed
-              ],
-            ),
-          ),
-        ),
-
-        // Spacer or additional content if needed
-        SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
-          child: ImageCarousel(), // Custom widget for carousel (if needed)
-        ),
+              // Spacer or additional content if needed
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
+                child:
+                    ImageCarousel(), // Custom widget for carousel (if needed)
+              ),
             ],
           ),
         ),
@@ -788,11 +860,16 @@ Padding(
         height: 110,
         margin: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.8) : color, // Highlight selected box
+          color:
+              isSelected
+                  ? color.withOpacity(0.8)
+                  : color, // Highlight selected box
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.3 : 0.15), // Stronger shadow for selected
+              color: Colors.black.withOpacity(
+                isSelected ? 0.3 : 0.15,
+              ), // Stronger shadow for selected
               blurRadius: isSelected ? 8 : 5,
               offset: Offset(0, isSelected ? -2 : 4), // Lift effect
             ),
@@ -807,14 +884,15 @@ Padding(
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: image,
-                    fit: BoxFit.cover,
-                  ),
+                  image: DecorationImage(image: image, fit: BoxFit.cover),
                 ),
               )
             else
-              Icon(icon, size: 32, color: Colors.white), // Show icon if no image
+              Icon(
+                icon,
+                size: 32,
+                color: Colors.white,
+              ), // Show icon if no image
 
             SizedBox(height: 8),
             Text(
@@ -830,7 +908,6 @@ Padding(
       ),
     );
   }
-
 
   Widget _headerText(String title) {
     return Text(
@@ -854,7 +931,6 @@ Padding(
     );
   }
 }
-
 
 class CheckInOutManager {
   static const _checkInKey = 'isCheckedIn';
