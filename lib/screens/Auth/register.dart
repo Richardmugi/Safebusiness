@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:safebusiness/screens/Auth/login_page.dart';
 import 'package:safebusiness/screens/Auth/otp_selection.dart';
+import 'package:safebusiness/screens/confirm_password.dart';
 //import 'package:safebusiness/screens/Auth/otp_verification.dart';
 import 'package:safebusiness/screens/password_input.dart';
 import 'package:safebusiness/utils/color_resources.dart';
@@ -289,7 +290,8 @@ void initState() {
                           _EmailinputField("Email", emailController),
                           verticalSpacing(22),
                          PasswordInputField(controller: passwordController, hintText: 'Enter Pin',), // Use the custom password input field
-                         PasswordInputField(controller: passwordController, hintText: 'Confirm Pin',),
+                         verticalSpacing(10),
+                         ConfirmPassword(controller: passwordController, hintText: 'Confirm Pin',),
                         verticalSpacing(22),
                           _GenderinputField("Gender", genderController),
                           verticalSpacing(22),

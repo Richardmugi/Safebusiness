@@ -75,7 +75,7 @@ class _ChangePinState extends State<ChangePin> {
                 padding: const EdgeInsets.only(left: 24, bottom: 10),
                 child: Text('Enter Username/Email',
                     style: GoogleFonts.poppins(
-                      color: const Color(0xFF686868),
+                      color: mainColor,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     )),
@@ -88,7 +88,7 @@ class _ChangePinState extends State<ChangePin> {
                 padding: const EdgeInsets.only(left: 24, bottom: 10),
                 child: Text('Enter Old PIN',
                     style: GoogleFonts.poppins(
-                      color: const Color(0xFF686868),
+                      color: mainColor,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     )),
@@ -120,7 +120,7 @@ class _ChangePinState extends State<ChangePin> {
                 padding: const EdgeInsets.only(left: 24, bottom: 10),
                 child: Text('Enter New PIN',
                     style: GoogleFonts.poppins(
-                      color: const Color(0xFF686868),
+                      color: mainColor,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     )),
@@ -147,7 +147,7 @@ Align(
                 alignment: Alignment.center,
                 child: ActionButton(
                   onPressed: _changePassword,
-                  actionText: 'Update Password',
+                  actionText: 'Update PIN',
                 ),
               ),
             ],
