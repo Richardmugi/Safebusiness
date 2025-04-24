@@ -80,6 +80,9 @@ flutter_launcher_icons:
   image_path: "assets/icons/checkinpro.png"
   remove_alpha_ios: true
 
+
+
+
 # The following section is specific to Flutter packages.
 flutter:
 
