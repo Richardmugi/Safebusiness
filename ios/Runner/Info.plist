@@ -32,6 +32,8 @@
 	<string>We need access to your photo library to select an image</string>
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to your camera to take a picture</string>
+	<key>NSCalendarsUsageDescription</key>
+  <string>This app may request calendar access for event-related features.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
