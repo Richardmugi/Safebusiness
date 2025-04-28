@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:safebusiness/screens/announcements.dart';
 import 'package:safebusiness/screens/jobs.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 

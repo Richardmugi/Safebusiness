@@ -730,7 +730,7 @@ class _HomeState extends State<Home> {
               ),
 
               // Horizontal scrollable category boxes
-              /*Padding(
+             /* Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
