@@ -48,7 +48,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _loadEmployeeDetails();
-    //_loadStates();
+    _loadStates();
     _loadSavedImage();
   }
 
@@ -114,10 +114,10 @@ class _HomeState extends State<Home> {
     });
   }
 
-  /*void _loadStates() {
-    //_canCheckIn = CheckInOutManager.isCheckedIn().then((value) => !value);
-    //_canCheckOut = CheckInOutManager.isCheckedOut().then((value) => !value);
-  }*/
+  void _loadStates() {
+  _canCheckIn = CheckInManager.isCheckedIn().then((value) => !value);
+  _canCheckOut = CheckOutManager.isCheckedOut().then((value) => !value);
+}
 
   Future<void> _saveNotification(String message) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -206,7 +206,8 @@ class _HomeState extends State<Home> {
 
       if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
         _saveNotification("Check-in successful");
-        //await CheckInOutManager.setCheckedIn(true);
+        await CheckInManager.setCheckedIn(true);
+        await CheckOutManager.setCheckedOut(false);
 
         if (await Vibration.hasVibrator()) {
           Vibration.vibrate(duration: 500);
@@ -325,8 +326,8 @@ class _HomeState extends State<Home> {
 
       if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
         _saveNotification("Check-out successful");
-        //await CheckInOutManager.setCheckedIn(false); // ✅ Reset check-in status
-        //await CheckInOutManager.setCheckedOut(true);
+        await CheckInManager.setCheckedIn(false); // ✅ Reset check-in status
+        await CheckOutManager.setCheckedOut(true);
 
         if (await Vibration.hasVibrator()) {
           Vibration.vibrate(duration: 500);
@@ -529,7 +530,7 @@ class _HomeState extends State<Home> {
                   bottom: 15,
                 ),
                 child: FutureBuilder(
-                  future: Future.value([true, true]),
+                  future: Future.wait([_canCheckIn, _canCheckOut]),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       return const Center(child: CircularProgressIndicator());
@@ -562,14 +563,14 @@ class _HomeState extends State<Home> {
                                         employeeEmail,
                                         companyEmail,
                                       );
-                                      /*if (success) {
-                                        await CheckInOutManager.setCheckedIn(
+                                      if (success) {
+                                        await CheckInManager.setCheckedIn(
                                           true,
                                         ); // Update shared prefs
                                         setState(() {
                                           _loadStates(); // Reload Future values to update UI
                                         });
-                                      }*/
+                                      }
                                     } else {
                                       ScaffoldMessenger.of(
                                         context,
@@ -641,14 +642,14 @@ class _HomeState extends State<Home> {
                                         employeeEmail,
                                         companyEmail,
                                       );
-                                     /* if (success) {
-                                        await CheckInOutManager.setCheckedOut(
+                                      if (success) {
+                                        await CheckOutManager.setCheckedOut(
                                           true,
                                         ); // Update shared prefs
                                         setState(() {
                                           _loadStates(); // Reload Future values to update UI
                                         });
-                                      }*/
+                                      }
                                     } else {
                                       ScaffoldMessenger.of(
                                         context,
@@ -729,7 +730,7 @@ class _HomeState extends State<Home> {
               ),
 
               // Horizontal scrollable category boxes
-              /*Padding(
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -782,7 +783,7 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
-              ),*/
+              ),
 
               // Spacer or additional content if needed
               SizedBox(height: 10),
@@ -842,7 +843,7 @@ class _HomeState extends State<Home> {
   );
 }*/
 
-  /*Widget _buildCategoryBox({
+  Widget _buildCategoryBox({
     required int index,
     required String title,
     required IconData icon,
@@ -909,7 +910,7 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
-  }*/
+  }
 
   Widget _headerText(String title) {
     return Text(
@@ -934,7 +935,7 @@ class _HomeState extends State<Home> {
   }
 }
 
-/*class CheckInOutManager {
+class CheckInManager {
   static const String _checkedInKey = 'checked_in';
   static const String _checkedInTimeKey = 'checked_in_time';
 
@@ -943,6 +944,8 @@ class _HomeState extends State<Home> {
     await prefs.setBool(_checkedInKey, value);
     if (value) {
       await prefs.setInt(_checkedInTimeKey, DateTime.now().millisecondsSinceEpoch);
+    } else {
+      await prefs.remove(_checkedInTimeKey);
     }
   }
 
@@ -953,26 +956,54 @@ class _HomeState extends State<Home> {
 
     if (checkedIn == true && checkedInTime != null) {
       final currentTime = DateTime.now().millisecondsSinceEpoch;
-      final diffInHours = (currentTime - checkedInTime) / (1000 * 60 * 60); // convert to hours
+      final diffInHours = (currentTime - checkedInTime) / (1000 * 60 * 60);
 
       // If more than 8 hours passed, reset check-in status
       if (diffInHours >= 8) {
         await prefs.setBool(_checkedInKey, false);
         await prefs.remove(_checkedInTimeKey);
+        print('Check-in expired.');
         return false;
       }
     }
 
     return checkedIn ?? false;
   }
+}
+
+
+class CheckOutManager {
+  static const String _checkedOutKey = 'checked_out';
+  static const String _checkedOutTimeKey = 'checked_out_time';
 
   static Future<void> setCheckedOut(bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('checked_out', value);
+    await prefs.setBool(_checkedOutKey, value);
+    if (value) {
+      await prefs.setInt(_checkedOutTimeKey, DateTime.now().millisecondsSinceEpoch);
+    } else {
+      await prefs.remove(_checkedOutTimeKey);
+    }
   }
 
   static Future<bool> isCheckedOut() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('checked_out') ?? false;
+    bool? checkedOut = prefs.getBool(_checkedOutKey);
+    int? checkedOutTime = prefs.getInt(_checkedOutTimeKey);
+
+    if (checkedOut == true && checkedOutTime != null) {
+      final currentTime = DateTime.now().millisecondsSinceEpoch;
+      final diffInHours = (currentTime - checkedOutTime) / (1000 * 60 * 60);
+
+      // If more than 8 hours passed, reset check-out status
+      if (diffInHours >= 8) {
+        await prefs.setBool(_checkedOutKey, false);
+        await prefs.remove(_checkedOutTimeKey);
+        print('Check-out expired.');
+        return false;
+      }
+    }
+
+    return checkedOut ?? false;
   }
-}*/
+}
