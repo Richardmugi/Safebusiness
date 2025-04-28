@@ -8,12 +8,7 @@ import 'helpers/route_helper.dart';
 import 'package:device_preview/device_preview.dart';
 
 void main() {
-  runApp(
-    DevicePreview(
-      //enabled: !kReleaseMode,           // Turn off in release builds if you like
-      builder: (context) => MyApp(),    // Wrap your app
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
