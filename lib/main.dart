@@ -5,9 +5,15 @@ import 'package:safebusiness/providers/dark_theme_provider.dart';
 import 'package:safebusiness/screens/splash.dart';
 import 'package:safebusiness/utils/dark_theme_styles.dart';
 import 'helpers/route_helper.dart';
+import 'package:device_preview/device_preview.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    DevicePreview(
+      //enabled: !kReleaseMode,           // Turn off in release builds if you like
+      builder: (context) => MyApp(),    // Wrap your app
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {

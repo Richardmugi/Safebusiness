@@ -117,7 +117,7 @@ class QuickActionsPage extends StatelessWidget {
   if (label == 'Announcements') {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const AnnouncementsPage()),
+      MaterialPageRoute(builder: (context) => const CompanyJobsPage()),
     );
   }
             },
