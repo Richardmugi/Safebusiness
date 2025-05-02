@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:safebusiness/screens/QRCodeScanner.dart';
@@ -132,7 +133,7 @@ class _HomeState extends State<Home> {
   Future<bool> _clockin(String email, String companyEmail) async {
     if (!mounted) return false;
 
-    /*Position? userPosition = await _determinePosition();
+    Position? userPosition = await _determinePosition();
   if (userPosition == null) {
     if (!mounted) return false;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -148,7 +149,7 @@ class _HomeState extends State<Home> {
   double userLatitude = userPosition.latitude;
   double userLongitude = userPosition.longitude;
 
-  var branchLocation = await _getBranchLocation(companyEmail);
+  /*var branchLocation = await _getBranchLocation(companyEmail);
   if (branchLocation == null || branchLocation['latitude'] == null || branchLocation['longitude'] == null) {
     if (!mounted) return false;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -194,8 +195,8 @@ class _HomeState extends State<Home> {
         body: jsonEncode({
           "employeeEmail": email,
           "companyEmail": companyEmail,
-          //"latitude": userLatitude,
-          //"longitude": userLongitude,
+          "latitude": userLatitude,
+          "longitude": userLongitude,
         }),
       );
 
@@ -255,7 +256,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /* Future<Position?> _determinePosition() async {
+   Future<Position?> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -281,7 +282,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Future<Map<String, double>?> _getBranchLocation(String companyEmail) async {
+  /*Future<Map<String, double>?> _getBranchLocation(String companyEmail) async {
     var url = Uri.parse(
       "http://65.21.59.117/safe-business-api/public/api/v1/getCompanyBranches",
     );

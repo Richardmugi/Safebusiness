@@ -405,7 +405,7 @@ if (isGateman) {
                         ..onTap = () {
                           // Open the URL
                           launch(
-                            'https://nardconcepts.io/checkinpro-privacy-policy/',
+                            'https://checkinproprivacy.netlify.app/',
                           ); // Use your actual URL
                         },
                 ),
