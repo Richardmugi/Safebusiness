@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:safebusiness/helpers/custom_text_form_field.dart';
 import 'package:safebusiness/screens/Auth/login_page.dart';
 import 'package:safebusiness/widgets/action_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/color_resources.dart';
 import '../widgets/custom_divider.dart';
@@ -31,8 +32,25 @@ class _ChangePinState extends State<ChangePin> {
   final TextEditingController _fieldTwo1 = TextEditingController();
   final TextEditingController _fieldThree1 = TextEditingController();
   final TextEditingController _fieldFour1 = TextEditingController();
+  String _userEmail = '';
 
-  
+
+  @override
+void initState() {
+  super.initState();
+  _loadUserDetails();
+}
+
+Future<void> _loadUserDetails() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String email = prefs.getString("email") ?? "N/A";
+  setState(() {
+    _userEmail = email;
+    _emailController.text = email; // Set the controller's value
+  });
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +89,7 @@ class _ChangePinState extends State<ChangePin> {
                 child: _headerText('You can change your PIN here'),
               ),
               verticalSpacing(15),
-              Padding(
+             /* Padding(
                 padding: const EdgeInsets.only(left: 24, bottom: 10),
                 child: Text('Enter Username/Email',
                     style: GoogleFonts.poppins(
@@ -79,9 +97,20 @@ class _ChangePinState extends State<ChangePin> {
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     )),
-              ),
+              ),*/
               verticalSpacing(15),
-              _EmailinputField("Email", _emailController),
+              TextFormField(
+  controller: _emailController, // ✅ Reactive
+  readOnly: true,
+  decoration: InputDecoration(
+    labelText: "Email",
+    border: OutlineInputBorder(),
+    filled: true,
+    fillColor: filledColor,
+  ),
+  style: TextStyle(color: Colors.grey[700]),
+),
+
               verticalSpacing(25),
               // ENTER OLD PIN
               Padding(
@@ -157,7 +186,7 @@ Align(
     );
   }
 
-  Widget _EmailinputField(String label, TextEditingController controller) {
+  /*Widget _EmailinputField(String label, TextEditingController controller) {
     return CustomTextFormField(
       controller: controller,
       hintText: "Enter Email",
@@ -173,7 +202,7 @@ Align(
       inputAction: TextInputAction.next,
       fillColor: filledColor,
     );
-  }
+  }*/
 
   Future<void> _changePassword() async {
     var url = Uri.parse("http://65.21.59.117/safe-business-api/public/api/v1/changePassword");
@@ -181,7 +210,7 @@ Align(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
-        "username": _emailController.text, // Use the username/email from the input
+        "username": _userEmail, // Use the username/email from the input
         "oldPassword": "${_fieldOne.text}${_fieldTwo.text}${_fieldThree.text}${_fieldFour.text}",
         "newPassword": "${_fieldOne1.text}${_fieldTwo1.text}${_fieldThree1.text}${_fieldFour1.text}"
 
