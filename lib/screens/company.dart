@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:safebusiness/screens/announcements.dart';
 import 'package:safebusiness/screens/jobs.dart';
+import 'package:safebusiness/screens/leave.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 
 class QuickActionsPage extends StatelessWidget {
@@ -51,7 +52,7 @@ class QuickActionsPage extends StatelessWidget {
                     ),
                     verticalSpacing(20.0),
                     buildActionContainer(
-                      label: 'Advance',
+                      label: 'Leave',
                       icon: Icons.attach_money,
                       description: 'Request salary advances easily',
                       color: Colors.orangeAccent,
@@ -121,10 +122,10 @@ class QuickActionsPage extends StatelessWidget {
     );
   }
 
-   if (label == 'Advance') {
+   if (label == 'Leave') {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const CompanyJobsPage()),
+      MaterialPageRoute(builder: (context) => LeaveApplicationPage()),
     );
   }
             },

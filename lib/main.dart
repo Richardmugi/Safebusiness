@@ -5,8 +5,29 @@ import 'package:safebusiness/providers/dark_theme_provider.dart';
 import 'package:safebusiness/screens/splash.dart';
 import 'package:safebusiness/utils/dark_theme_styles.dart';
 import 'helpers/route_helper.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Create the updater
+  final updater = ShorebirdUpdater();
+
+  // 1️⃣ Check if there’s a new patch
+  final status = await updater.checkForUpdate();
+
+  if (status == UpdateStatus.outdated) {
+    try {
+      // 2️⃣ Download the patch
+      await updater.update();
+      // 3️⃣ Restart the app to apply it
+      //await updater.installUpdateAndRestart();
+      return; // the app is restarting
+    } on UpdateException catch (err) {
+      debugPrint('Failed to apply patch: $err');
+    }
+  }
+
   runApp(const MyApp());
 }
 
