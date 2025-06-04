@@ -59,7 +59,6 @@ dependencies:
   qr_flutter: ^4.1.0
   pdf: ^3.11.3
   printing: ^5.14.2
-  device_preview: ^1.2.0
   shorebird_code_push: ^2.0.3
 
 dev_dependencies:
