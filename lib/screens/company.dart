@@ -54,7 +54,7 @@ class QuickActionsPage extends StatelessWidget {
                     buildActionContainer(
                       label: 'Leave',
                       icon: Icons.attach_money,
-                      description: 'Request salary advances easily',
+                      description: 'Apply for leave easily',
                       color: Colors.orangeAccent,
                       context: context,
                     ),
