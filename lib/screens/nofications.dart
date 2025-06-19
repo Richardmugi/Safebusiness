@@ -75,7 +75,7 @@ class _NotificationsState extends State<Notifications> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: mainColor,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -85,7 +85,7 @@ class _NotificationsState extends State<Notifications> {
               child: Text(
                 'Notifications',
                 style: GoogleFonts.poppins(
-                  color: mainColor,
+                  color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),

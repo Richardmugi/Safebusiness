@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:safebusiness/utils/color_resources.dart';
 import 'package:safebusiness/widgets/action_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -138,8 +139,9 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: mainColor,
       appBar: AppBar(
-        backgroundColor: Colors.blue[800], // Dark blue app bar
+        backgroundColor: Colors.amber, // Dark blue app bar
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -177,6 +179,10 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
                                 value: selectedLeaveTypeId,
                                 decoration: InputDecoration(
                                   labelText: 'Leave Type',
+                                  labelStyle: TextStyle(
+    color: Colors.white, // Change to any color you want
+    fontWeight: FontWeight.w500, // Optional: styling
+  ),
                                   border: OutlineInputBorder(),
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 12,
@@ -209,6 +215,10 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
                               TextFormField(
                                 decoration: InputDecoration(
                                   labelText: 'Leave Reason',
+                                  labelStyle: TextStyle(
+    color: Colors.white, // Change to any color you want
+    fontWeight: FontWeight.w500, // Optional: styling
+  ),
                                   border: OutlineInputBorder(),
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 12,
@@ -226,13 +236,19 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
                               ListTile(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  side: BorderSide(color: Colors.grey.shade400),
+                                  side: BorderSide(color: Colors.white),
                                 ),
                                 title: Text(
                                   startDate == null
                                       ? 'Select Start Date'
                                       : 'Start Date: ${startDate!.toIso8601String().split("T")[0]}',
-                                ),
+                                
+                                style: TextStyle(
+      color: Colors.white, // Set your desired color
+      fontSize: 14,
+      fontWeight: FontWeight.w600, // Optional
+    ),
+  ),
                                 trailing: Icon(Icons.calendar_today),
                                 onTap: () => pickDate(context, true),
                               ),
@@ -240,34 +256,49 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
                               ListTile(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  side: BorderSide(color: Colors.grey.shade400),
+                                  side: BorderSide(color: Colors.white),
                                 ),
                                 title: Text(
                                   endDate == null
                                       ? 'Select End Date'
                                       : 'End Date: ${endDate!.toIso8601String().split("T")[0]}',
-                                ),
+                                style: TextStyle(
+      color: Colors.white, // Set your desired color
+      fontSize: 14,
+      fontWeight: FontWeight.w600, // Optional
+    ),
+  ),
+  
                                 trailing: Icon(Icons.calendar_today),
                                 onTap: () => pickDate(context, false),
                               ),
                               SizedBox(height: 24),
                               SizedBox(
-                                width: double.infinity,
-                                height: 65,
-                                child: ActionButton(
-                                  onPressed: () {
-                                    isSubmitting
-                                        ? null
-                                        : () {
-                                          if (_formKey.currentState!
-                                              .validate()) {
-                                            submitLeaveApplication();
-                                          }
-                                        };
-                                  },
-                                  actionText: "Submit",
-                                ),
-                              ),
+  width: double.infinity,
+  height: 65,
+  child: ElevatedButton(
+    onPressed: isSubmitting
+        ? null
+        : () {
+            if (_formKey.currentState!.validate()) {
+              submitLeaveApplication();
+            }
+          },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.blue, // Button background color
+      foregroundColor: Colors.white, // Text/icon color
+      textStyle: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    child: Text("Submit"),
+  ),
+),
+
                             ],
                           ),
                         ),

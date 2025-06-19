@@ -150,7 +150,7 @@ class _ReportState extends State<Report> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: mainColor,
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -163,7 +163,7 @@ class _ReportState extends State<Report> {
                       'Attendance',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
-                        color: const Color(0xFF8696BB),
+                        color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -190,7 +190,7 @@ class _ReportState extends State<Report> {
                         Text(
                           'Check In Report',
                           style: GoogleFonts.poppins(
-                            color: mainColor,
+                            color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -199,7 +199,7 @@ class _ReportState extends State<Report> {
                         Text(
                           '${fromDate?.toLocal().toString().split(' ')[0] ?? "N/A"} to ${toDate?.toLocal().toString().split(' ')[0] ?? "N/A"}',
                           style: GoogleFonts.poppins(
-                            color: const Color(0xFF8696BB),
+                            color: Colors.white,
                             fontSize: 10,
                             fontWeight: FontWeight.w400,
                           ),
@@ -216,7 +216,7 @@ class _ReportState extends State<Report> {
                               onPressed: () => _selectDate(context, true),
                               icon: Image.asset(
                                 'assets/icons/magnifying-glass.png',
-                                color: mainColor,
+                                color: Colors.white,
                                 width: 20,
                                 height: 20,
                               ),
@@ -226,7 +226,7 @@ class _ReportState extends State<Report> {
                               onPressed: () => _downloadCSV(),
                               icon: Icon(
                                 Icons.download,
-                                color: mainColor,
+                                color: Colors.white,
                                 size: 20,
                               ),
                             ),

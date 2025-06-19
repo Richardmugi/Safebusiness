@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AnnouncementsPage extends StatefulWidget {
@@ -121,9 +122,9 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
 Widget build(BuildContext context) {
   return SafeArea(
     child: Scaffold(
-      backgroundColor: Colors.grey[50], // Light grey background
+      backgroundColor: mainColor, // Light grey background
       appBar: AppBar(
-        backgroundColor: Colors.blue[800], // Dark blue app bar
+        backgroundColor: Colors.amber, // Dark blue app bar
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -158,7 +159,7 @@ Widget build(BuildContext context) {
                           "No announcements available",
                           style: TextStyle(
                             fontSize: 16,
-                            color: Colors.grey,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -186,7 +187,7 @@ Widget build(BuildContext context) {
                                     style: GoogleFonts.poppins(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.blue[800],
+                                      color: mainColor,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
@@ -197,14 +198,14 @@ Widget build(BuildContext context) {
                                       Icon(
                                         Icons.location_on,
                                         size: 16,
-                                        color: Colors.grey[600],
+                                        color: mainColor,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
                                         announcement["branch_name"] ?? "Unknown Location",
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: Colors.grey[600],
+                                          color: mainColor,
                                         ),
                                       ),
                                     ],
@@ -232,21 +233,21 @@ Widget build(BuildContext context) {
                                           Icon(
                                             Icons.calendar_today,
                                             size: 16,
-                                            color: Colors.grey[600],
+                                            color: mainColor,
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
                                             "End Date: ",
                                             style: TextStyle(
                                               fontSize: 14,
-                                              color: Colors.grey[600],
+                                              color: mainColor,
                                             ),
                                           ),
                                           Text(
                                             announcement["end_date"] ?? "N/A",
                                             style: const TextStyle(
                                               fontSize: 14,
-                                              color: Colors.red,
+                                              color: mainColor,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),

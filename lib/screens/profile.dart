@@ -152,7 +152,7 @@ class _SettingsState extends State<Profile> {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
-    backgroundColor: Colors.grey[50],
+    backgroundColor: mainColor,
     body: SafeArea(
       child: Column(
         children: [
@@ -160,7 +160,7 @@ Widget build(BuildContext context) {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.amber,
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
@@ -233,7 +233,7 @@ Widget build(BuildContext context) {
                 Text(
                   email,
                   style: GoogleFonts.poppins(
-                    color: Colors.grey[600],
+                    color: Colors.black,
                     fontSize: 14,
                   ),
                 ),
@@ -288,7 +288,7 @@ Widget build(BuildContext context) {
                   _buildActionButton(
                     icon: Icons.logout,
                     label: 'Logout',
-                    color: mainColor,
+                    color: Colors.white,
                     onTap: () async {
                       SharedPreferences prefs = await SharedPreferences.getInstance();
                       await prefs.clear();
@@ -312,11 +312,16 @@ Widget _buildInfoCard({required String title, required Map<String, String> items
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Colors.white,
+      gradient: const LinearGradient(
+                colors: [
+                  Color(0xff041E43),
+                  Color(0xff00122C),
+                ],
+              ),
       borderRadius: BorderRadius.circular(12),
       boxShadow: [
         BoxShadow(
-          color: Colors.grey.withOpacity(0.1),
+          color: Colors.white,
           spreadRadius: 2,
           blurRadius: 8,
         ),
@@ -346,7 +351,7 @@ Widget _buildInfoCard({required String title, required Map<String, String> items
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey[600],
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -357,6 +362,7 @@ Widget _buildInfoCard({required String title, required Map<String, String> items
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -371,7 +377,7 @@ Widget _buildInfoCard({required String title, required Map<String, String> items
 Widget _buildActionButton({
   required IconData icon,
   required String label,
-  Color color = mainColor,
+  Color color = Colors.white,
   required VoidCallback onTap,
 }) {
   return InkWell(
@@ -381,7 +387,12 @@ Widget _buildActionButton({
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: const LinearGradient(
+                colors: [
+                  Color(0xff041E43),
+                  Color(0xff00122C),
+                ],
+              ),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(

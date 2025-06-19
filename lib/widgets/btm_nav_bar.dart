@@ -71,9 +71,9 @@ class _DefaultHomePageState extends State<BottomNavBar> {
         type: BottomNavigationBarType.fixed,
         showSelectedLabels: true,
         showUnselectedLabels: true,
-        selectedItemColor: mainColor,
-        unselectedItemColor: Colors.black54,
-        backgroundColor: Colors.white,
+        selectedItemColor: Colors.amber,
+        unselectedItemColor: Colors.white,
+        backgroundColor: mainColor,
         items: [
           BottomNavigationBarItem(
             icon: ImageIcon(

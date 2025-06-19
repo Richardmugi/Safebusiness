@@ -12,7 +12,7 @@ class QuickActionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: mainColor,
         body: SingleChildScrollView( // Make the body scrollable
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,7 +23,7 @@ class QuickActionsPage extends StatelessWidget {
                 child: Text(
                   'Quick Actions',
                   style: GoogleFonts.poppins(
-                    color: mainColor,
+                    color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -47,7 +47,7 @@ class QuickActionsPage extends StatelessWidget {
                       label: 'Jobs',
                       icon: Icons.work_outline,
                       description: 'Access company vacancies here',
-                      color: mainColor,
+                      color: Colors.green,
                       context: context,
                     ),
                     verticalSpacing(20.0),

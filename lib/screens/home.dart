@@ -20,6 +20,7 @@ class Home extends StatefulWidget {
 
   @override
   State<Home> createState() => _HomeState();
+  
 }
 
 class _HomeState extends State<Home> {
@@ -37,6 +38,45 @@ class _HomeState extends State<Home> {
   File? _imageFile;
   String? _imagePath;
   bool _isLoading = false;
+  final categoryData = [
+  {
+    'title': 'Health',
+    'desc': 'Wellbeing',
+    'icon': Icons.health_and_safety,
+    'index': 3,
+  },
+  {
+    'title': 'Travels',
+    'desc': 'Explore',
+    'icon': Icons.flight_takeoff,
+    'index': 0,
+  },
+  {
+    'title': 'Vacations',
+    'desc': 'Relaxation',
+    'icon': Icons.beach_access,
+    'index': 2,
+  },
+  {
+    'title': 'Hangouts',
+    'desc': 'Social Fun',
+    'icon': Icons.people,
+    'index': 1,
+  },
+  {
+    'title': 'Food',
+    'desc': 'Tastes',
+    'icon': Icons.fastfood,
+    'index': 3,
+  },
+  {
+    'title': 'Spirituality',
+    'desc': 'Peace',
+    'icon': Icons.self_improvement,
+    'index': 3,
+  },
+];
+
 
   bool isValidEmail(String input) {
     final RegExp emailRegex = RegExp(
@@ -368,7 +408,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: mainColor,
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,7 +417,7 @@ class _HomeState extends State<Home> {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.30,
                 decoration: const ShapeDecoration(
-                  color: mainColor,
+                  color: Colors.amber,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(40),
@@ -438,7 +478,7 @@ class _HomeState extends State<Home> {
                                   Text(
                                     'CheckInPro',
                                     style: GoogleFonts.poppins(
-                                      color: const Color(0xFF646464),
+                                      color: Colors.black,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -460,7 +500,7 @@ class _HomeState extends State<Home> {
                             color: Colors.white),
                       )),*/
                     // put a circle avatar here
-                    Positioned(
+                   /* Positioned(
   bottom: -60,
   left: 0,
   right: 0,
@@ -517,12 +557,12 @@ class _HomeState extends State<Home> {
       ),
     ),
   ),
-),
+),*/
 
                   ],
                 ), // Forces a rebuild when the image changes
               ),
-              verticalSpacing(MediaQuery.of(context).size.height * 0.05),
+              //verticalSpacing(MediaQuery.of(context).size.height * 0.05),
               Padding(
                 padding: const EdgeInsets.only(
                   left: 24,
@@ -545,160 +585,171 @@ class _HomeState extends State<Home> {
                       children: [
                         // Check In Button
                         GestureDetector(
-                          onTap:
-                              canCheckIn
-                                  ? () async {
-                                    final scannedEmail = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => const QRCodeScanner(
-                                              isReturningUser: true,
-                                            ),
-                                      ),
-                                    );
+  onTap: canCheckIn
+      ? () async {
+          final scannedEmail = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const QRCodeScanner(
+                isReturningUser: true,
+              ),
+            ),
+          );
 
-                                    if (scannedEmail != null &&
-                                        isValidEmail(scannedEmail)) {
-                                      bool success = await _clockin(
-                                        employeeEmail,
-                                        companyEmail,
-                                      );
-                                      if (success) {
-                                        await CheckInManager.setCheckedIn(
-                                          true,
-                                        ); // Update shared prefs
-                                        setState(() {
-                                          _loadStates(); // Reload Future values to update UI
-                                        });
-                                      }
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text("Invalid QR code!"),
-                                          backgroundColor: mainColor,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                  : null, // Disable button when canCheckIn is false
+          if (scannedEmail != null && isValidEmail(scannedEmail)) {
+            bool success = await _clockin(
+              employeeEmail,
+              companyEmail,
+            );
+            if (success) {
+              await CheckInManager.setCheckedIn(true);
+              setState(() {
+                _loadStates(); // Reload Future values to update UI
+              });
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Invalid QR code!"),
+                backgroundColor: mainColor,
+              ),
+            );
+          }
+        }
+      : null, // Disable button when canCheckIn is false
 
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: MediaQuery.of(context).size.width * 0.42,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color:
-                                  canCheckIn
-                                      ? Colors.green[600]
-                                      : Colors.grey[400],
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow:
-                                  canCheckIn
-                                      ? [
-                                        BoxShadow(
-                                          color: Colors.green[800]!.withOpacity(
-                                            0.3,
-                                          ),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                      : null,
-                            ),
-                            child: Center(
-                              child: Text(
-                                'CHECK IN',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+  child: AnimatedContainer(
+    duration: const Duration(milliseconds: 200),
+    width: MediaQuery.of(context).size.width * 0.42,
+    height: 50,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(15),
+      border: Border.all(
+        color: const Color(0xffF7F7F7).withOpacity(.5),
+        width: 0.5,
+      ),
+      gradient: canCheckIn
+          ? const LinearGradient(
+              colors: [
+                Color(0xff041E43),
+                Color(0xff041E43),
+                Color(0xff003D95),
+              ],
+            )
+          : LinearGradient(
+              colors: [
+                Colors.grey[500]!,
+                Colors.grey[500]!,
+              ],
+            ),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.login, // Checkout-style icon
+          color: Colors.white,
+          size: 20,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'CHECK IN',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.0,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
 
                         // Check Out Button
                         GestureDetector(
-                          onTap:
-                              canCheckOut
-                                  ? () async {
-                                    final scannedEmail = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => const QRCodeScanner(
-                                              isReturningUser: true,
-                                            ),
-                                      ),
-                                    );
+  onTap: canCheckOut
+      ? () async {
+          final scannedEmail = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const QRCodeScanner(
+                isReturningUser: true,
+              ),
+            ),
+          );
 
-                                    if (scannedEmail != null &&
-                                        isValidEmail(scannedEmail)) {
-                                      bool success = await _clockout(
-                                        employeeEmail,
-                                        companyEmail,
-                                      );
-                                      if (success) {
-                                        await CheckOutManager.setCheckedOut(
-                                          true,
-                                        ); // Update shared prefs
-                                        setState(() {
-                                          _loadStates(); // Reload Future values to update UI
-                                        });
-                                      }
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text("Invalid QR code!"),
-                                          backgroundColor: mainColor,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                  : null, // Disable button when canCheckOut is false
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: MediaQuery.of(context).size.width * 0.42,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color:
-                                  canCheckOut
-                                      ? Colors.blue[600]
-                                      : Colors.grey[400],
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow:
-                                  canCheckOut
-                                      ? [
-                                        BoxShadow(
-                                          color: Colors.blue[800]!.withOpacity(
-                                            0.3,
-                                          ),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                      : null,
-                            ),
-                            child: Center(
-                              child: Text(
-                                'CHECK OUT',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+          if (scannedEmail != null && isValidEmail(scannedEmail)) {
+            bool success = await _clockout(
+              employeeEmail,
+              companyEmail,
+            );
+            if (success) {
+              await CheckOutManager.setCheckedOut(true);
+              setState(() {
+                _loadStates(); // Reload Future values to update UI
+              });
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Invalid QR code!"),
+                backgroundColor: mainColor,
+              ),
+            );
+          }
+        }
+      : null,
+
+  child: AnimatedContainer(
+    duration: const Duration(milliseconds: 200),
+    width: MediaQuery.of(context).size.width * 0.42,
+    height: 50,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(15),
+      border: Border.all(
+        color: const Color(0xffF7F7F7).withOpacity(.5),
+        width: 0.5,
+      ),
+      gradient: canCheckOut
+          ? const LinearGradient(
+              colors: [
+                Color(0xff041E43),
+                Color(0xff041E43),
+                Color(0xff003D95),
+              ],
+            )
+          : LinearGradient(
+              colors: [
+                Colors.grey,
+                Colors.grey,
+              ],
+            ),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.logout, // Checkout-style icon
+          color: Colors.white,
+          size: 20,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'CHECK OUT',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.0,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
                       ],
                     );
                   },
@@ -716,14 +767,14 @@ class _HomeState extends State<Home> {
                     Text(
                       'Adverts',
                       style: GoogleFonts.poppins(
-                        color: Colors.blueGrey,
+                        color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Icon(
                       Icons.arrow_forward_ios, // Right arrow
-                      color: Colors.blueGrey,
+                      color: Colors.white,
                       size: 16,
                     ),
                   ],
@@ -732,59 +783,75 @@ class _HomeState extends State<Home> {
 
               // Horizontal scrollable category boxes
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildCategoryBox(
-                        title: 'Health',
-                        icon: Icons.fastfood,
-                        color: Colors.blueAccent,
-                        index: 3,
-                        image: AssetImage('assets/images/health.jpeg'),
-                      ),
-                      _buildCategoryBox(
-                        title: 'Travels',
-                        icon: Icons.flight_takeoff,
-                        color: Colors.green,
-                        index: 0,
-                        image: AssetImage('assets/images/travel.jpeg'),
-                      ),
-                      _buildCategoryBox(
-                        title: 'Vacations',
-                        icon: Icons.beach_access,
-                        color: Colors.orangeAccent,
-                        index: 2,
-                        image: AssetImage('assets/images/vacations.webp'),
-                      ),
-                      _buildCategoryBox(
-                        title: 'Hangouts',
-                        icon: Icons.people,
-                        color: Colors.blueAccent,
-                        index: 1,
-                        image: AssetImage('assets/images/hangouts.jpg'),
-                      ),
-                      // More categories can be added here
-                      _buildCategoryBox(
-                        title: 'Food',
-                        icon: Icons.fastfood,
-                        color: Colors.pink,
-                        index: 3,
-                        image: AssetImage('assets/images/food.jpg'),
-                      ),
-                      _buildCategoryBox(
-                        title: 'Spirituality',
-                        icon: Icons.fastfood,
-                        color: Colors.green,
-                        index: 3,
-                        image: AssetImage('assets/images/spiritual.jpg'),
-                      ),
-                      // Add more categories as needed
-                    ],
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  child: SizedBox(
+    height: 100,
+    child: ListView.builder(
+      clipBehavior: Clip.none,
+      padding: const EdgeInsets.all(0),
+      scrollDirection: Axis.horizontal,
+      itemCount: categoryData.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            // handle tap using categoryData[index]['index'] or other params
+          },
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 6.4, horizontal: 10),
+            constraints: BoxConstraints(
+              minWidth: 107,
+            ),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xff041E43),
+                  Color(0xff00122C),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey, width: 0.4),
+            ),
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Icon(
+  categoryData[index]['icon'] as IconData,
+  color: Colors.white,
+  size: 32,
+),
+
+                ),
+                SizedBox(height: 6),
+                Text(
+                  categoryData[index]['title'] as String,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
+                Text(
+                  categoryData[index]['desc'] as String,
+                  style: TextStyle(
+                    color: const Color(0xff8C8C8D),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  ),
+),
+
 
               // Spacer or additional content if needed
               SizedBox(height: 10),
@@ -844,7 +911,7 @@ class _HomeState extends State<Home> {
   );
 }*/
 
-  Widget _buildCategoryBox({
+ /* Widget _buildCategoryBox({
     required int index,
     required String title,
     required IconData icon,
@@ -911,13 +978,13 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
-  }
+  }*/
 
   Widget _headerText(String title) {
     return Text(
       title,
       style: GoogleFonts.poppins(
-        color: const Color(0xFF646464),
+        color: Colors.black,
         fontSize: 10,
         fontWeight: FontWeight.w500,
       ),
@@ -928,12 +995,13 @@ class _HomeState extends State<Home> {
     return Text(
       title,
       style: GoogleFonts.poppins(
-        color: const Color(0xFF646464),
+        color: Colors.black,
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
     );
   }
+  
 }
 
 class CheckInManager {
