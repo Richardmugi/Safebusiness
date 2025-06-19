@@ -417,7 +417,13 @@ class _HomeState extends State<Home> {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.30,
                 decoration: const ShapeDecoration(
-                  color: Colors.amber,
+                  gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000),
+                ],
+              ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(40),
@@ -438,7 +444,7 @@ class _HomeState extends State<Home> {
                         height: MediaQuery.of(context).size.height * 0.2,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Colors.grey,
                           image: const DecorationImage(
                             image: AssetImage('assets/images/image 15.png'),
                             fit: BoxFit.fill,
@@ -478,7 +484,7 @@ class _HomeState extends State<Home> {
                                   Text(
                                     'CheckInPro',
                                     style: GoogleFonts.poppins(
-                                      color: Colors.black,
+                                      color: Colors.white,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -625,17 +631,20 @@ class _HomeState extends State<Home> {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(15),
       border: Border.all(
-        color: const Color(0xffF7F7F7).withOpacity(.5),
+        color: Colors.white,
         width: 0.5,
       ),
       gradient: canCheckIn
           ? const LinearGradient(
-              colors: [
-                Color(0xff041E43),
-                Color(0xff041E43),
-                Color(0xff003D95),
-              ],
-            )
+  colors: [
+    Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000), // Crimson/Dark Red
+  ],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+)
+
           : LinearGradient(
               colors: [
                 Colors.grey[500]!,
@@ -709,15 +718,15 @@ class _HomeState extends State<Home> {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(15),
       border: Border.all(
-        color: const Color(0xffF7F7F7).withOpacity(.5),
+        color: Colors.white,
         width: 0.5,
       ),
       gradient: canCheckOut
           ? const LinearGradient(
               colors: [
-                Color(0xff041E43),
-                Color(0xff041E43),
-                Color(0xff003D95),
+                 Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000),
               ],
             )
           : LinearGradient(
@@ -804,12 +813,13 @@ class _HomeState extends State<Home> {
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [
-                  Color(0xff041E43),
-                  Color(0xff00122C),
+                   Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey, width: 0.4),
+              border: Border.all(color: Colors.white, width: 0.4),
             ),
             alignment: Alignment.center,
             padding: EdgeInsets.symmetric(horizontal: 10),
@@ -838,7 +848,7 @@ class _HomeState extends State<Home> {
                 Text(
                   categoryData[index]['desc'] as String,
                   style: TextStyle(
-                    color: const Color(0xff8C8C8D),
+                    color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.w400,
                   ),
@@ -984,7 +994,7 @@ class _HomeState extends State<Home> {
     return Text(
       title,
       style: GoogleFonts.poppins(
-        color: Colors.black,
+        color: Colors.white,
         fontSize: 10,
         fontWeight: FontWeight.w500,
       ),
@@ -995,7 +1005,7 @@ class _HomeState extends State<Home> {
     return Text(
       title,
       style: GoogleFonts.poppins(
-        color: Colors.black,
+        color: Colors.white,
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),

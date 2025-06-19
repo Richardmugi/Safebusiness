@@ -160,7 +160,13 @@ Widget build(BuildContext context) {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             decoration: BoxDecoration(
-              color: Colors.amber,
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000),
+                ],
+              ),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
@@ -314,8 +320,9 @@ Widget _buildInfoCard({required String title, required Map<String, String> items
     decoration: BoxDecoration(
       gradient: const LinearGradient(
                 colors: [
-                  Color(0xff041E43),
-                  Color(0xff00122C),
+                  Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000),
                 ],
               ),
       borderRadius: BorderRadius.circular(12),
@@ -389,8 +396,9 @@ Widget _buildActionButton({
       decoration: BoxDecoration(
         gradient: const LinearGradient(
                 colors: [
-                  Color(0xff041E43),
-                  Color(0xff00122C),
+                   Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000),
                 ],
               ),
         borderRadius: BorderRadius.circular(8),

@@ -7,7 +7,6 @@ import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/profile.dart';
 
-
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
 
@@ -64,75 +63,73 @@ class _DefaultHomePageState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        elevation: 5.0,
-        currentIndex: _selectedIndex,
-        onTap: _navigateBottomBar,
-        type: BottomNavigationBarType.fixed,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        selectedItemColor: Colors.amber,
-        unselectedItemColor: Colors.white,
-        backgroundColor: mainColor,
-        items: [
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/icons/home.png'),
-              size: 30,
-            ),
-            label: 'Home',
-            backgroundColor: Color(0xff40c4ff),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000),],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          BottomNavigationBarItem(
-            icon: Stack(
-              children: [
-                ImageIcon(
-                  AssetImage('assets/icons/notification.png'),
-                  size: 30,
-                ),
-                if (_hasNewNotification)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(4),
+        ),
+        child: BottomNavigationBar(
+          elevation: 5.0,
+          currentIndex: _selectedIndex,
+          onTap: _navigateBottomBar,
+          type: BottomNavigationBarType.fixed,
+          showSelectedLabels: true,
+          showUnselectedLabels: true,
+          selectedItemColor: Colors.amber,
+          unselectedItemColor: Colors.white,
+          backgroundColor:
+              Colors.transparent, // Must be transparent to show gradient
+          items: [
+            BottomNavigationBarItem(
+              icon: ImageIcon(AssetImage('assets/icons/home.png'), size: 30),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Stack(
+                children: [
+                  ImageIcon(
+                    AssetImage('assets/icons/notification.png'),
+                    size: 30,
+                  ),
+                  if (_hasNewNotification)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
+              label: 'Notifications',
             ),
-            label: 'Notifications',
-            backgroundColor: Color(0xff40c4ff),
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/icons/chart.png'),
-              size: 30,
+            BottomNavigationBarItem(
+              icon: ImageIcon(AssetImage('assets/icons/chart.png'), size: 30),
+              label: 'Reports',
             ),
-            label: 'Reports',
-            backgroundColor: Color(0xff40c4ff),
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/icons/company.png'),
-              size: 30,
+            BottomNavigationBarItem(
+              icon: ImageIcon(AssetImage('assets/icons/company.png'), size: 30),
+              label: 'My Company',
             ),
-            label: 'My Company',
-            backgroundColor: Color(0xff40c4ff),
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/icons/user-avatar.png'),
-              size: 30,
+            BottomNavigationBarItem(
+              icon: ImageIcon(
+                AssetImage('assets/icons/user-avatar.png'),
+                size: 30,
+              ),
+              label: 'Profile',
             ),
-            label: 'Profile',
-            backgroundColor: Color(0xff40c4ff),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

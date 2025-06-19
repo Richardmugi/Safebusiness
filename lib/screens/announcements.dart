@@ -122,9 +122,9 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
 Widget build(BuildContext context) {
   return SafeArea(
     child: Scaffold(
-      backgroundColor: mainColor, // Light grey background
+      backgroundColor: Colors.white, // Light grey background
       appBar: AppBar(
-        backgroundColor: Colors.amber, // Dark blue app bar
+        backgroundColor: mainColor, // Dark blue app bar
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);

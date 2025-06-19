@@ -139,9 +139,9 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: mainColor,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.amber, // Dark blue app bar
+        backgroundColor: mainColor, // Dark blue app bar
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -176,67 +176,86 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
                           child: ListView(
                             children: [
                               DropdownButtonFormField<int>(
-                                value: selectedLeaveTypeId,
-                                decoration: InputDecoration(
-                                  labelText: 'Leave Type',
-                                  labelStyle: TextStyle(
-    color: Colors.white, // Change to any color you want
-    fontWeight: FontWeight.w500, // Optional: styling
+  value: selectedLeaveTypeId,
+  decoration: InputDecoration(
+    labelText: 'Leave Type',
+    labelStyle: TextStyle(
+      color: mainColor, // label text color
+      fontWeight: FontWeight.w500,
+    ),
+    border: OutlineInputBorder(
+      borderSide: BorderSide(color: mainColor),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: mainColor, width: 1.5),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: mainColor, width: 2), // color when focused
+    ),
+    errorBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: mainColor, width: 1.5),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: mainColor, width: 2),
+    ),
+    contentPadding: EdgeInsets.symmetric(
+      horizontal: 12,
+      vertical: 10,
+    ),
   ),
-                                  border: OutlineInputBorder(),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 10,
-                                  ),
-                                ),
-                                items:
-                                    leaveTypes.map<DropdownMenuItem<int>>((
-                                      type,
-                                    ) {
-                                      return DropdownMenuItem<int>(
-                                        value: type['id'],
-                                        child: Text(
-                                          '${type['title']} (${type['days']} days)',
-                                        ),
-                                      );
-                                    }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedLeaveTypeId = value;
-                                  });
-                                },
-                                validator:
-                                    (value) =>
-                                        value == null
-                                            ? 'Please select a leave type'
-                                            : null,
-                              ),
+  items: leaveTypes.map<DropdownMenuItem<int>>((type) {
+    return DropdownMenuItem<int>(
+      value: type['id'],
+      child: Text('${type['title']} (${type['days']} days)'),
+    );
+  }).toList(),
+  onChanged: (value) {
+    setState(() {
+      selectedLeaveTypeId = value;
+    });
+  },
+  validator: (value) =>
+      value == null ? 'Please select a leave type' : null,
+),
+
                               SizedBox(height: 16),
                               TextFormField(
-                                decoration: InputDecoration(
-                                  labelText: 'Leave Reason',
-                                  labelStyle: TextStyle(
-    color: Colors.white, // Change to any color you want
-    fontWeight: FontWeight.w500, // Optional: styling
+  decoration: InputDecoration(
+    labelText: 'Leave Reason',
+    labelStyle: TextStyle(
+      color: mainColor, // Label text color
+      fontWeight: FontWeight.w500,
+    ),
+    border: OutlineInputBorder(
+      borderSide: BorderSide(color: mainColor),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: mainColor, width: 1.5),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: mainColor, width: 2), // On focus
+    ),
+    errorBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: mainColor, width: 1.5), // On validation error
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: mainColor, width: 2),
+    ),
+    contentPadding: EdgeInsets.symmetric(
+      horizontal: 12,
+      vertical: 10,
+    ),
   ),
-                                  border: OutlineInputBorder(),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 10,
-                                  ),
-                                ),
-                                onChanged: (value) => leaveReason = value,
-                                validator:
-                                    (value) =>
-                                        value == null || value.isEmpty
-                                            ? 'Enter a reason'
-                                            : null,
-                              ),
+  onChanged: (value) => leaveReason = value,
+  validator: (value) =>
+      value == null || value.isEmpty ? 'Enter a reason' : null,
+),
+
                               SizedBox(height: 16),
                               ListTile(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  side: BorderSide(color: Colors.white),
+                                  side: BorderSide(color: mainColor),
                                 ),
                                 title: Text(
                                   startDate == null
@@ -244,7 +263,7 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
                                       : 'Start Date: ${startDate!.toIso8601String().split("T")[0]}',
                                 
                                 style: TextStyle(
-      color: Colors.white, // Set your desired color
+      color: mainColor, // Set your desired color
       fontSize: 14,
       fontWeight: FontWeight.w600, // Optional
     ),
@@ -256,14 +275,14 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
                               ListTile(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  side: BorderSide(color: Colors.white),
+                                  side: BorderSide(color: mainColor),
                                 ),
                                 title: Text(
                                   endDate == null
                                       ? 'Select End Date'
                                       : 'End Date: ${endDate!.toIso8601String().split("T")[0]}',
                                 style: TextStyle(
-      color: Colors.white, // Set your desired color
+      color: mainColor, // Set your desired color
       fontSize: 14,
       fontWeight: FontWeight.w600, // Optional
     ),
@@ -285,7 +304,7 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
             }
           },
     style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.blue, // Button background color
+      backgroundColor: mainColor, // Button background color
       foregroundColor: Colors.white, // Text/icon color
       textStyle: TextStyle(
         fontSize: 16,
