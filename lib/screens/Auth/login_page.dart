@@ -148,8 +148,22 @@ if (isGateman) {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Column(
+        backgroundColor: Colors.transparent, // Let the container handle the color
+    body: Container(
+  width: double.infinity,
+  height: MediaQuery.of(context).size.height,
+  decoration: const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0xFF4B0000), // Deep Burgundy
+        Color(0xFFF80101), // Dark Red
+        Color(0xFF8B0000),
+      ],
+    ),
+  ),
+        child: Column(
           children: [
             verticalSpacing(MediaQuery.of(context).size.height * 0.10),
             Transform.scale(
@@ -160,7 +174,7 @@ if (isGateman) {
             Text(
               'Login',
               style: GoogleFonts.poppins(
-                color: const Color(0xFF0D1B34),
+                color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
               ),
@@ -185,7 +199,7 @@ if (isGateman) {
                               : Text(
                                 "Welcome back, $storedEmployeeName",
                                 style: GoogleFonts.poppins(
-                                  color: mainColor,
+                                  color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -284,7 +298,7 @@ if (isGateman) {
                                   TextSpan(
                                     text: 'Reset Here',
                                     style: GoogleFonts.poppins(
-                                      color: mainColor,
+                                      color: Colors.white,
                                       fontSize: 14,
                                     ),
                                     recognizer:
@@ -321,7 +335,7 @@ if (isGateman) {
                                     TextSpan(
                                       text: 'SignUp',
                                       style: GoogleFonts.poppins(
-                                        color: mainColor,
+                                        color: Colors.white,
                                         fontSize: 14,
                                       ),
                                       recognizer:
@@ -350,6 +364,7 @@ if (isGateman) {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -397,7 +412,7 @@ if (isGateman) {
                 TextSpan(
                   text: "privacy policy",
                   style: TextStyle(
-                    color: mainColor, // Link color
+                    color: Colors.white, // Link color
                     //decoration: TextDecoration.underline, // Underline to show it's a link
                   ),
                   recognizer:

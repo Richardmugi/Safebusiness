@@ -72,11 +72,23 @@ class _NotificationsState extends State<Notifications> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Column(
+Widget build(BuildContext context) {
+  return SafeArea(
+    child: Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF4B0000),
+              Color(0xFFF80101),
+              Color(0xFF8B0000),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             verticalSpacing(25),
@@ -85,14 +97,17 @@ class _NotificationsState extends State<Notifications> {
               child: Text(
                 'Notifications',
                 style: GoogleFonts.poppins(
-                  color: mainColor,
+                  color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             verticalSpacing(5.0),
-            customDivider(thickness: 3, color: Color(0xFFD9D9D9)),
+            Divider(
+              thickness: 2,
+              color: Colors.white.withOpacity(0.3),
+            ),
             verticalSpacing(15),
             notifications.isEmpty
                 ? Padding(
@@ -100,7 +115,7 @@ class _NotificationsState extends State<Notifications> {
                     child: Text(
                       "No notifications yet",
                       style: GoogleFonts.poppins(
-                        color: Colors.grey,
+                        color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
                       ),
@@ -120,8 +135,10 @@ class _NotificationsState extends State<Notifications> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget messageBody({required String bodyText, required VoidCallback onDelete}) {
     return Padding(

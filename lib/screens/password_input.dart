@@ -42,7 +42,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.grey, // You can change this color as needed
+            color: Colors.white, // You can change this color as needed
           ),
         ),
         SizedBox(height: 10), // Add some space between the label and the input boxes
@@ -53,7 +53,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
+                border: Border.all(color: Colors.white),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: TextField(
@@ -61,7 +61,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
                 textAlign: TextAlign.center,
                 maxLength: 1,
                 obscureText: true, // Hide the input
-                style: TextStyle(color: Colors.red), // Set the text color to red
+                style: TextStyle(color: Colors.black), // Set the text color to red
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   counterText: '', // Hide the character counter

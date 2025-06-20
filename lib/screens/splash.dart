@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:safebusiness/screens/Auth/login_page.dart';
+import 'package:safebusiness/screens/Auth/otp_selection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:safebusiness/screens/Auth/location_access.dart';
 import 'package:safebusiness/utils/color_resources.dart';
@@ -47,7 +48,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
+        MaterialPageRoute(builder: (context) => const OtpMethodSelection()),
       );
     }
   }

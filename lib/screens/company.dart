@@ -12,7 +12,7 @@ class QuickActionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: mainColor,
         body: SingleChildScrollView( // Make the body scrollable
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,7 +23,7 @@ class QuickActionsPage extends StatelessWidget {
                 child: Text(
                   'Quick Actions',
                   style: GoogleFonts.poppins(
-                    color: mainColor,
+                    color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -79,7 +79,13 @@ class QuickActionsPage extends StatelessWidget {
       width: MediaQuery.of(context).size.width - 24, // Full width minus left and right padding (16 + 16)
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: color,
+        gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000),
+                ],
+              ),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -90,7 +96,7 @@ class QuickActionsPage extends StatelessWidget {
           Text(
             label,
             style: GoogleFonts.poppins(
-              color: mainColor,
+              color: Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),

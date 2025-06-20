@@ -147,97 +147,91 @@ class _ReportState extends State<Report> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
+Widget build(BuildContext context) {
+  return SafeArea(
+    child: Scaffold(
+      backgroundColor: Colors.transparent, // Let the Container handle the color
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF4B0000),
+              Color(0xFFF80101),
+              Color(0xFF8B0000),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verticalSpacing(25),
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 0),
-                    child: Text(
-                      'Attendance',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        color: mainColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                'Attendance',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               verticalSpacing(5.0),
-              customDivider(
-                thickness: 3,
-                indent: 0,
-                endIndent: 0,
-                color: const Color(0xFFD9D9D9),
+              Divider(
+                thickness: 2,
+                color: Colors.white.withOpacity(0.3),
               ),
               verticalSpacing(15),
-              Padding(
-                padding: const EdgeInsets.only(left: 24, right: 24),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Check In Report',
-                          style: GoogleFonts.poppins(
-                            color: mainColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Check In Report',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
-                        verticalSpacing(10),
-                        Text(
-                          '${fromDate?.toLocal().toString().split(' ')[0] ?? "N/A"} to ${toDate?.toLocal().toString().split(' ')[0] ?? "N/A"}',
-                          style: GoogleFonts.poppins(
-                            color: mainColor,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w400,
-                          ),
+                      ),
+                      verticalSpacing(10),
+                      Text(
+                        '${fromDate?.toLocal().toString().split(' ')[0] ?? "N/A"} to ${toDate?.toLocal().toString().split(' ')[0] ?? "N/A"}',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white70,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400,
                         ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () => _selectDate(context, true),
-                              icon: Image.asset(
-                                'assets/icons/magnifying-glass.png',
-                                color: mainColor,
-                                width: 20,
-                                height: 20,
-                              ),
-                            ),
-                            horizontalSpacing(10),
-                            IconButton(
-                              onPressed: () => _downloadCSV(),
-                              icon: Icon(
-                                Icons.download,
-                                color: mainColor,
-                                size: 20,
-                              ),
-                            ),
-                          ],
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => _selectDate(context, true),
+                        icon: Image.asset(
+                          'assets/icons/magnifying-glass.png',
+                          color: Colors.white,
+                          width: 20,
+                          height: 20,
                         ),
-                        verticalSpacing(15),
-                        
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                      horizontalSpacing(10),
+                      IconButton(
+                        onPressed: () => _downloadCSV(),
+                        icon: Icon(
+                          Icons.download,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               verticalSpacing(40),
               FutureBuilder<List<AttendanceReport>>(
@@ -246,28 +240,35 @@ class _ReportState extends State<Report> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(
+                      child: Text(
+                        'Error: ${snapshot.error}',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
-                      child: Text('No attendance data available.'),
+                      child: Text(
+                        'No attendance data available.',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     );
                   } else {
                     return Column(
-                      children:
-                          snapshot.data!.map((report) {
-                            return mainDataContainer(
-                              context,
-                              title1: report.date,
-                              title2: 'Check In',
-                              title3: 'Check Out',
-                              title4: 'Status',
-                              val1: report.date,
-                              val2: report.checkIn,
-                              val3: report.checkOut,
-                              val4: report.status,
-                              val4Color: _getStatusColor(report.status),
-                            );
-                          }).toList(),
+                      children: snapshot.data!.map((report) {
+                        return mainDataContainer(
+                          context,
+                          title1: report.date,
+                          title2: 'Check In',
+                          title3: 'Check Out',
+                          title4: 'Status',
+                          val1: report.date,
+                          val2: report.checkIn,
+                          val3: report.checkOut,
+                          val4: report.status,
+                          val4Color: _getStatusColor(report.status),
+                        );
+                      }).toList(),
                     );
                   }
                 },
@@ -276,8 +277,10 @@ class _ReportState extends State<Report> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget mainDataContainer(
   BuildContext context, {

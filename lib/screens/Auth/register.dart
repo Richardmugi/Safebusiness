@@ -230,13 +230,26 @@ void initState() {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Column(
+        body: Container(
+  width: double.infinity,
+  height: MediaQuery.of(context).size.height,
+  decoration: const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0xFF4B0000), // Deep Burgundy
+        Color(0xFFF80101), // Dark Red
+        Color(0xFF8B0000),
+      ],
+    ),
+  ),
+        child: Column(
           children: [
             verticalSpacing(20),
             const Text(
               'Register',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             verticalSpacing(10),
             Expanded(
@@ -253,7 +266,7 @@ void initState() {
       "Company Email",
       style: const TextStyle(
         fontSize: 16,
-        color: Colors.red, 
+        color: Colors.white, 
         fontWeight: FontWeight.bold,
       ),
     ),
@@ -271,7 +284,7 @@ void initState() {
       "Company Name",
       style: const TextStyle(
         fontSize: 16,
-        color: Colors.red, 
+        color: Colors.white, 
         fontWeight: FontWeight.bold,
       ),
     ),
@@ -357,6 +370,7 @@ void initState() {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -585,7 +599,7 @@ void initState() {
           child: Text(
             "I agree with the Terms of Service",
             style: GoogleFonts.poppins(
-              color: const Color(0xFF8696BB),
+              color: Colors.white,
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
@@ -612,7 +626,7 @@ void initState() {
             TextSpan(
               text: 'Login Here',
               style: GoogleFonts.poppins(
-                color: mainColor,
+                color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),

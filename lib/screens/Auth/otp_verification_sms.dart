@@ -151,8 +151,21 @@ class _OtpVerificationSmsState extends State<OtpVerificationSms> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
+        body: Container(
+  width: double.infinity,
+  height: MediaQuery.of(context).size.height,
+  decoration: const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0xFF4B0000), // Deep Burgundy
+        Color(0xFFF80101), // Dark Red
+        Color(0xFF8B0000),
+      ],
+    ),
+  ),
+        child: SingleChildScrollView(
           child: Column(
             children: [
               verticalSpacing(MediaQuery.of(context).size.height * 0.12),
@@ -164,7 +177,7 @@ class _OtpVerificationSmsState extends State<OtpVerificationSms> {
               Text(
                 'OTP Verification',
                 style: GoogleFonts.poppins(
-                  color: const Color(0xFF0D1B34),
+                  color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
@@ -174,7 +187,7 @@ class _OtpVerificationSmsState extends State<OtpVerificationSms> {
                 'Enter the verification code that we have just sent to your phone.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  color: const Color(0xFF8696BB),
+                  color: Colors.white,
                   fontSize: Dimensions.FONT_SIZE_DEFAULT,
                   fontWeight: FontWeight.w400,
                 ),
@@ -211,7 +224,7 @@ class _OtpVerificationSmsState extends State<OtpVerificationSms> {
                     TextSpan(
                       text: _start > 0 ? '$_start seconds' : 'Resend now',
                       style: GoogleFonts.poppins(
-                        color: mainColor,
+                        color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
@@ -241,6 +254,7 @@ class _OtpVerificationSmsState extends State<OtpVerificationSms> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -232,6 +232,7 @@ Widget build(BuildContext context) {
                 Text(
                   employeeName,
                   style: GoogleFonts.poppins(
+                    color: Colors.white,
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
                   ),
@@ -239,7 +240,7 @@ Widget build(BuildContext context) {
                 Text(
                   email,
                   style: GoogleFonts.poppins(
-                    color: Colors.black,
+                    color: Colors.white,
                     fontSize: 14,
                   ),
                 ),
@@ -342,7 +343,7 @@ Widget _buildInfoCard({required String title, required Map<String, String> items
           style: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: mainColor,
+            color: Colors.white,
           ),
         ),
         const Divider(height: 24),

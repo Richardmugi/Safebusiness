@@ -56,8 +56,21 @@ Future<void> _loadUserDetails() async {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
+        body: Container(
+  width: double.infinity,
+  height: MediaQuery.of(context).size.height,
+  decoration: const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0xFF4B0000), // Deep Burgundy
+        Color(0xFFF80101), // Dark Red
+        Color(0xFF8B0000),
+      ],
+    ),
+  ),
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -69,7 +82,7 @@ Future<void> _loadUserDetails() async {
                         Navigator.pop(context);
                       },
                       icon:
-                          const Icon(Icons.arrow_back_ios_outlined, size: 20)),
+                          const Icon(Icons.arrow_back_ios_outlined, size: 20, color: Colors.white)),
                   Padding(
                     padding: const EdgeInsets.only(left: 0),
                     child: _headerTextBold('Change your Pin'),
@@ -117,7 +130,7 @@ Future<void> _loadUserDetails() async {
                 padding: const EdgeInsets.only(left: 24, bottom: 10),
                 child: Text('Enter Old PIN',
                     style: GoogleFonts.poppins(
-                      color: mainColor,
+                      color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     )),
@@ -149,7 +162,7 @@ Future<void> _loadUserDetails() async {
                 padding: const EdgeInsets.only(left: 24, bottom: 10),
                 child: Text('Enter New PIN',
                     style: GoogleFonts.poppins(
-                      color: mainColor,
+                      color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     )),
@@ -182,6 +195,7 @@ Align(
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -239,7 +253,7 @@ Align(
     return Text(
       title,
       style: GoogleFonts.poppins(
-        color: Colors.black,
+        color: Colors.white,
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
@@ -250,7 +264,7 @@ Align(
     return Text(
       title,
       style: GoogleFonts.poppins(
-        color: Colors.black.withOpacity(0.6000000238418579),
+        color: Colors.white,
         fontSize: 13,
         fontWeight: FontWeight.w400,
       ),

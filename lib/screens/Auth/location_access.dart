@@ -89,10 +89,24 @@ class _LocationAccessState extends State<LocationAccess> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+        backgroundColor: Colors.transparent, // Let the container handle the color
+    body: Container(
+  width: double.infinity,
+  height: MediaQuery.of(context).size.height,
+  decoration: const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0xFF4B0000), // Deep Burgundy
+        Color(0xFFF80101), // Dark Red
+        Color(0xFF8B0000),
+      ],
+    ),
+  ),
+  child: SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               verticalSpacing(MediaQuery.of(context).size.height * 0.1),
               const Text(
@@ -100,7 +114,7 @@ class _LocationAccessState extends State<LocationAccess> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: black,
+                  color: Colors.white,
                 ),
               ),
               verticalSpacing(MediaQuery.of(context).size.height * 0.03),
@@ -138,7 +152,7 @@ class _LocationAccessState extends State<LocationAccess> {
                 style: TextStyle(
                   fontSize: Dimensions.FONT_SIZE_EXTRA_LARGE,
                   fontWeight: FontWeight.w600,
-                  color: mainColor,
+                  color: Colors.white,
                 ),
               ),
               verticalSpacing(MediaQuery.of(context).size.height * 0.04),
@@ -148,7 +162,7 @@ class _LocationAccessState extends State<LocationAccess> {
                 style: TextStyle(
                   fontSize: Dimensions.FONT_SIZE_DEFAULT,
                   fontWeight: FontWeight.w400,
-                  color: darkgrey,
+                  color: Colors.white,
                 ),
               ),
               verticalSpacing(MediaQuery.of(context).size.height * 0.16),
@@ -159,6 +173,7 @@ class _LocationAccessState extends State<LocationAccess> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

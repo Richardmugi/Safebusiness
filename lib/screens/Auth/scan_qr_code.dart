@@ -20,15 +20,29 @@ class ScanQRCode extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Column(
+        backgroundColor: Colors.transparent, // Let the container handle the color
+    body: Container(
+  width: double.infinity,
+  height: MediaQuery.of(context).size.height,
+  decoration: const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0xFF4B0000), // Deep Burgundy
+        Color(0xFFF80101), // Dark Red
+        Color(0xFF8B0000),
+      ],
+    ),
+  ),
+        child: Column(
           children: [
             verticalSpacing(MediaQuery.of(context).size.height * 0.1),
             Container(
               width: MediaQuery.of(context).size.width * 0.75,
               height: MediaQuery.of(context).size.height * 0.16,
               decoration: ShapeDecoration(
-                color: const Color(0x60D9D9D9),
+                color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -49,7 +63,7 @@ class ScanQRCode extends StatelessWidget {
                     'Scan QR Code to Register',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                      color: textGreyColor,
+                      color: Colors.black,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     ),
@@ -93,6 +107,7 @@ class ScanQRCode extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

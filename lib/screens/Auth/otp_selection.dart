@@ -52,20 +52,33 @@ class _OtpMethodSelectionState extends State<OtpMethodSelection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
+      /*appBar: AppBar(
+        backgroundColor: mainColor,
         elevation: 0,
         title: Text(
           'Verification Method',
           style: GoogleFonts.poppins(
-            color: Colors.black,
+            color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
-      ),
-      body: Padding(
+      ),*/
+      body: Container(
+  width: double.infinity,
+  height: MediaQuery.of(context).size.height,
+  decoration: const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0xFF4B0000), // Deep Burgundy
+        Color(0xFFF80101), // Dark Red
+        Color(0xFF8B0000),
+      ],
+    ),
+  ),
+      child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +87,7 @@ class _OtpMethodSelectionState extends State<OtpMethodSelection> {
             Text(
               'Select your preferred OTP delivery method',
               style: GoogleFonts.poppins(
-                color: const Color(0xFF0D1B34),
+                color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -131,6 +144,7 @@ class _OtpMethodSelectionState extends State<OtpMethodSelection> {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -180,7 +194,7 @@ class _OtpMethodSelectionState extends State<OtpMethodSelection> {
                   Text(
                     title,
                     style: GoogleFonts.poppins(
-                      color: isEnabled ? Colors.black : Colors.grey,
+                      color: isEnabled ? Colors.white : Colors.grey,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
