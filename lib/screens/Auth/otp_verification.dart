@@ -153,7 +153,7 @@ class _OtpVerificationState extends State<OtpVerification> {
               verticalSpacing(MediaQuery.of(context).size.height * 0.12),
               Transform.scale(
                 scale: 0.5,
-                child: Image.asset('assets/icons/checkin.png'),
+                child: Image.asset('assets/icons/checkinwhite.png'),
               ),
               verticalSpacing(MediaQuery.of(context).size.height * 0.06),
               Text(

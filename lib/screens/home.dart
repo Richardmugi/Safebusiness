@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:safebusiness/screens/EmailQRScreen.dart';
 import 'package:safebusiness/screens/QRCodeScanner.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:safebusiness/utils/color_resources.dart';
@@ -444,11 +445,11 @@ class _HomeState extends State<Home> {
                         height: MediaQuery.of(context).size.height * 0.2,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: Colors.grey,
-                          image: const DecorationImage(
+                          //color: Colors.grey,
+                          /*image: const DecorationImage(
                             image: AssetImage('assets/images/image 15.png'),
                             fit: BoxFit.fill,
-                          ),
+                          ),*/
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Padding(
@@ -469,42 +470,57 @@ class _HomeState extends State<Home> {
                                   _headerTextBold(employeeId),
                                 ],
                               ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  //verticalSpacing(5),
-                                  SizedBox(
-                                    width: 59,
-                                    height: 36,
-                                    child: Image.asset(
-                                      'assets/icons/checkinprowhite.png',
-                                    ),
-                                  ),
-                                  //verticalSpacing(5),
-                                  Text(
-                                    'CheckInPro',
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              Padding(
+  padding: const EdgeInsets.only(right: 19.0), // adjust the value as needed
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      SizedBox(
+        width: 59,
+        height: 36,
+        child: Image.asset(
+          'assets/icons/checkinprowhite.png',
+          color: Colors.white,
+        ),
+      ),
+      Text(
+        'CheckInPro',
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    ],
+  ),
+),
+
                             ],
                           ),
                         ),
                       ),
                     ),
-                    /* Positioned(
-                      bottom: 10,
-                      right: 80,
-                      child: SizedBox(
-                        width: 55,
-                        height: 55,
-                        child: Image.asset('assets/icons/qr-code2.png',
-                            color: Colors.white),
-                      )),*/
+                     Positioned(
+  bottom: 10,
+  right: 80,
+  child: GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const EmailQrScreen()),
+      );
+    },
+    child: SizedBox(
+      width: 55,
+      height: 55,
+      child: Image.asset(
+        'assets/icons/qr-code2.png',
+        color: Colors.white,
+      ),
+    ),
+  ),
+),
+
                     // put a circle avatar here
                    /* Positioned(
   bottom: -60,
