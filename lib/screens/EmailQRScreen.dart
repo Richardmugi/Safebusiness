@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -78,9 +79,8 @@ class _EmailQrScreenState extends State<EmailQrScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
         appBar: AppBar(
-          backgroundColor: Colors.blue[800],
+          backgroundColor: Color(0xFF4B0000),
           leading: IconButton(
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
@@ -96,7 +96,22 @@ class _EmailQrScreenState extends State<EmailQrScreen> {
           centerTitle: true,
           elevation: 0,
         ),
-        body: email == null
+        backgroundColor: Colors.transparent, // Let the container handle the color
+    body: Container(
+  width: double.infinity,
+  height: MediaQuery.of(context).size.height,
+  decoration: const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0xFF4B0000), // Deep Burgundy
+        Color(0xFFF80101), // Dark Red
+        Color(0xFF8B0000),
+      ],
+    ),
+  ),
+        child: email == null
             ? const Center(child: CircularProgressIndicator())
             : Padding(
                 padding: const EdgeInsets.all(16),
@@ -167,6 +182,7 @@ class _EmailQrScreenState extends State<EmailQrScreen> {
                   ],
                 ),
               ),
+      ),
       ),
     );
   }

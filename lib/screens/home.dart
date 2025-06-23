@@ -442,7 +442,7 @@ class _HomeState extends State<Home> {
                       right: 20,
                       child: Container(
                         width: MediaQuery.of(context).size.width * 0.8,
-                        height: MediaQuery.of(context).size.height * 0.2,
+                        height: MediaQuery.of(context).size.height * 0.25,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           //color: Colors.grey,
@@ -471,13 +471,30 @@ class _HomeState extends State<Home> {
                                 ],
                               ),
                               Padding(
-  padding: const EdgeInsets.only(right: 19.0), // adjust the value as needed
+  padding: const EdgeInsets.only(right: 16.0), // adjust the value as needed
   child: Column(
     mainAxisSize: MainAxisSize.min,
     children: [
+      GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const EmailQrScreen()),
+      );
+    },
+    child: SizedBox(
+      width: 55,
+      height: 55,
+      child: Image.asset(
+        'assets/icons/qr-code2.png',
+        color: Colors.white,
+      ),
+    ),
+  ),
       SizedBox(
         width: 59,
         height: 36,
+        
         child: Image.asset(
           'assets/icons/checkinprowhite.png',
           color: Colors.white,
@@ -500,7 +517,7 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                     ),
-                     Positioned(
+                     /*Positioned(
   bottom: 10,
   right: 80,
   child: GestureDetector(
@@ -519,7 +536,7 @@ class _HomeState extends State<Home> {
       ),
     ),
   ),
-),
+),*/
 
                     // put a circle avatar here
                    /* Positioned(
