@@ -416,7 +416,7 @@ class _HomeState extends State<Home> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.32,
+                height: MediaQuery.of(context).size.height * 0.30,
                 decoration: const ShapeDecoration(
                   gradient: const LinearGradient(
                 colors: [
@@ -467,23 +467,31 @@ class _HomeState extends State<Home> {
                                   verticalSpacing(10),
                                   _headerText('Employee ID'),
                                   _headerTextBold(employeeId),
-                                  verticalSpacing(5),
+                                  verticalSpacing(10),
                                   Row(
   children: [
-    Container(
-      width: 55,
-      height: 55,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white, width: 1.5),
-      ),
-      child: Image.asset(
-        'assets/icons/qr-code2.png',
-        color: Colors.black,
-      ),
+    GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const EmailQrScreen()),
+    );
+  },
+  child: Container(
+    width: 55,
+    height: 55,
+    padding: const EdgeInsets.all(8),
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(0.1), // subtle background
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.white, width: 1.5),
     ),
+    child: Image.asset(
+      'assets/icons/qr-code2.png',
+      color: Colors.black,
+    ),
+  ),
+),
     const SizedBox(width: 10),
     Text(
       'Tap to get QR Code',
