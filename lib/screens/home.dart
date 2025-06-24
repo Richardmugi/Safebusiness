@@ -442,7 +442,7 @@ class _HomeState extends State<Home> {
                       right: 30,
                       child: Container(
                         width: MediaQuery.of(context).size.width * 0.8,
-                        height: MediaQuery.of(context).size.height * 0.2,
+                        //height: MediaQuery.of(context).size.height * 0.2,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           //color: Colors.grey,
@@ -485,28 +485,29 @@ class _HomeState extends State<Home> {
   child: Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Material(
-  color: Colors.transparent,
-  shape: const CircleBorder(),
-  child: InkWell(
-    borderRadius: BorderRadius.circular(50),
-    splashColor: Colors.yellow.withOpacity(0.4), // yellow ripple effect
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const EmailQrScreen()),
-      );
-    },
-    child: SizedBox(
-      width: 55,
-      height: 55,
-      child: Image.asset(
-        'assets/icons/qr-code2.png',
-        color: Colors.white,
-      ),
+      GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const EmailQrScreen()),
+    );
+  },
+  child: Container(
+    width: 55,
+    height: 55,
+    padding: const EdgeInsets.all(8),
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(0.1), // subtle background
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.white, width: 1.5),
+    ),
+    child: Image.asset(
+      'assets/icons/qr-code2.png',
+      color: Colors.white,
     ),
   ),
 ),
+
 
       SizedBox(
         width: 59,
