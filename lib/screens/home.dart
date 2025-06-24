@@ -437,12 +437,12 @@ class _HomeState extends State<Home> {
                   clipBehavior: Clip.none,
                   children: [
                     Positioned(
-                      top: 20,
-                      left: 20,
-                      right: 20,
+                      top: 30,
+                      left: 30,
+                      right: 30,
                       child: Container(
                         width: MediaQuery.of(context).size.width * 0.8,
-                        height: MediaQuery.of(context).size.height * 0.25,
+                        height: MediaQuery.of(context).size.height * 0.2,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           //color: Colors.grey,
@@ -460,8 +460,18 @@ class _HomeState extends State<Home> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  verticalSpacing(15),
-                                  _headerTextBold(companyName),
+                                  Text(
+  companyName,
+  textAlign: TextAlign.center,
+  style: GoogleFonts.poppins(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+  ),
+),
+
+                                  //verticalSpacing(15),
+                                  //_headerTextBold(companyName),
                                   verticalSpacing(10),
                                   _headerText('Employee Name'),
                                   _headerTextBold(employeeName),
@@ -475,7 +485,12 @@ class _HomeState extends State<Home> {
   child: Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      GestureDetector(
+      Material(
+  color: Colors.transparent,
+  shape: const CircleBorder(),
+  child: InkWell(
+    borderRadius: BorderRadius.circular(50),
+    splashColor: Colors.yellow.withOpacity(0.4), // yellow ripple effect
     onTap: () {
       Navigator.push(
         context,
@@ -491,6 +506,8 @@ class _HomeState extends State<Home> {
       ),
     ),
   ),
+),
+
       SizedBox(
         width: 59,
         height: 36,

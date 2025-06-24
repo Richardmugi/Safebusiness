@@ -168,7 +168,7 @@ if (isGateman) {
             verticalSpacing(MediaQuery.of(context).size.height * 0.10),
             Transform.scale(
               scale: 0.5,
-              child: Image.asset('assets/icons/checkinwhite.png'),
+              child: Image.asset('assets/icons/checkin2.png'),
             ),
             verticalSpacing(MediaQuery.of(context).size.height * 0.06),
             Text(
