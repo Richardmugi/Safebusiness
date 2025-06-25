@@ -3,6 +3,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carbon_icons/carbon_icons.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:safebusiness/screens/info.dart';
+import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ImageCarosel extends StatelessWidget {
@@ -12,34 +14,62 @@ class ImageCarosel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 220, // 🔻 Reduce this to shrink carousel height
+      height: 220, // overall height of carousel
       child: CarouselSlider(
         options: CarouselOptions(
-          height: 220.0, // 🔻 Smaller height
+          height: 220.0,
           enlargeCenterPage: true,
           autoPlay: true,
           autoPlayInterval: const Duration(seconds: 3),
           autoPlayAnimationDuration: const Duration(milliseconds: 800),
-          viewportFraction: 0.8, // 🔻 Show part of next image
+          viewportFraction: 0.8,
         ),
         items: imageList.map((imagePath) {
           return Builder(
             builder: (BuildContext context) {
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    imagePath,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: 160, // 🔻 Match height
+              return Stack(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 160,
+                      ),
+                    ),
                   ),
-                ),
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: mainColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+  context,
+  MaterialPageRoute(builder: (_) => const UserInfoFormPage()),
+);
+
+                      },
+                      child: const Text(
+                        'Place Order',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
           );
