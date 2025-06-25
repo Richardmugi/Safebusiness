@@ -416,7 +416,7 @@ class _HomeState extends State<Home> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.30,
+                height: MediaQuery.of(context).size.height * 0.31,
                 decoration: const ShapeDecoration(
                   gradient: const LinearGradient(
                 colors: [
@@ -467,7 +467,7 @@ class _HomeState extends State<Home> {
                                   verticalSpacing(10),
                                   _headerText('Employee ID'),
                                   _headerTextBold(employeeId),
-                                  verticalSpacing(10),
+                                  verticalSpacing(4),
                                   Row(
   children: [
     GestureDetector(
