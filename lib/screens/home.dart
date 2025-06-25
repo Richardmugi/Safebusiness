@@ -7,6 +7,8 @@ import 'package:safebusiness/screens/QRCodeScanner.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:safebusiness/widgets/carousel.dart';
+import 'package:safebusiness/widgets/carousel_image.dart';
+import 'package:safebusiness/widgets/carousels.dart';
 import 'package:safebusiness/widgets/sized_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -39,18 +41,25 @@ class _HomeState extends State<Home> {
   File? _imageFile;
   String? _imagePath;
   bool _isLoading = false;
+  String? selectedCategory;
+  final List<String> defaultImages = [
+  'assets/images/camera.jpg',
+  'assets/images/image2.jpg',
+  //'assets/images/image6.jpg',
+];
+
   final categoryData = [
   {
     'title': 'Health',
     'desc': 'Wellbeing',
     'icon': Icons.health_and_safety,
-    'index': 3,
+    'index': 0,
   },
   {
     'title': 'Travels',
     'desc': 'Explore',
     'icon': Icons.flight_takeoff,
-    'index': 0,
+    'index': 1,
   },
   {
     'title': 'Vacations',
@@ -62,19 +71,19 @@ class _HomeState extends State<Home> {
     'title': 'Hangouts',
     'desc': 'Social Fun',
     'icon': Icons.people,
-    'index': 1,
+    'index': 3,
   },
   {
     'title': 'Food',
     'desc': 'Tastes',
     'icon': Icons.fastfood,
-    'index': 3,
+    'index': 4,
   },
   {
     'title': 'Spirituality',
     'desc': 'Peace',
     'icon': Icons.self_improvement,
-    'index': 3,
+    'index': 5,
   },
 ];
 
@@ -856,7 +865,9 @@ class _HomeState extends State<Home> {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
-            // handle tap using categoryData[index]['index'] or other params
+              setState(() {
+    selectedCategory = categoryData[index]['title'] as String;
+  });
           },
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 6.4, horizontal: 10),
@@ -919,10 +930,14 @@ class _HomeState extends State<Home> {
               // Spacer or additional content if needed
               SizedBox(height: 10),
               Padding(
-                padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
-                child:
-                    ImageCarousel(), // Custom widget for carousel (if needed)
-              ),
+  padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
+  child: ImageCarosel(
+    imageList: selectedCategory != null && categoryImages[selectedCategory!] != null
+        ? categoryImages[selectedCategory!]!
+        : defaultImages,
+  ),
+)
+
             ],
           ),
         ),
