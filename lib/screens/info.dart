@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:safebusiness/widgets/action_button.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 
 class UserInfoFormPage extends StatefulWidget {
   const UserInfoFormPage({super.key});
@@ -15,37 +18,71 @@ class _UserInfoFormPageState extends State<UserInfoFormPage> {
   final TextEditingController _contactController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final name = _nameController.text.trim();
-      final contact = _contactController.text.trim();
-      final address = _addressController.text.trim();
+  Future<void> sendSms(String phoneNumber, String name, String contact, String address) async {
+  const smsApiUrl = 'http://65.21.59.117:8003/v1/notification/sms';
 
-      // Process or send the info here
-      print('Name: $name');
-      print('Contact: $contact');
-      print('Address: $address');
+  final message = '''
+Hello NC, this client has placed an order through Checkinpro.
+Name: $name
+Contact: $contact
+Address: $address
+Please reach out to them.
+''';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Info submitted successfully!')),
-      );
+  try {
+    final response = await http.post(
+      Uri.parse(smsApiUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "phoneNumber": phoneNumber,
+        "message": message,
+        "vendor": "Ego"
+      }),
+    );
 
-      // Optionally clear the form
-      _formKey.currentState!.reset();
-      _nameController.clear();
-      _contactController.clear();
-      _addressController.clear();
+    if (response.statusCode == 200) {
+      print("SMS sent successfully");
+    } else {
+      print("Failed to send SMS: ${response.body}");
     }
+  } catch (e) {
+    print("Error sending SMS: $e");
   }
+}
+
+
+  void _submitForm() async {
+  if (_formKey.currentState!.validate()) {
+    final name = _nameController.text.trim();
+    final contact = _contactController.text.trim();
+    final address = _addressController.text.trim();
+
+    print('Name: $name');
+    print('Contact: $contact');
+    print('Address: $address');
+
+    // Example: send SMS to NC (admin/manager)
+    const ncPhoneNumber = "+256745410599"; // Replace with valid test number
+    await sendSms(ncPhoneNumber, name, contact, address);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Info submitted and SMS sent!')),
+    );
+
+    _formKey.currentState!.reset();
+    _nameController.clear();
+    _contactController.clear();
+    _addressController.clear();
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios_outlined, size: 20, color: Colors.white),
         ),
         title: Text(
@@ -58,110 +95,128 @@ class _UserInfoFormPageState extends State<UserInfoFormPage> {
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Color(0xFF4B0000),
+        backgroundColor: const Color(0xFF4B0000),
       ),
-      backgroundColor: Colors.transparent, // Let the container handle the color
-    body: Container(
-  width: double.infinity,
-  height: MediaQuery.of(context).size.height,
-  decoration: const BoxDecoration(
-    gradient: LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [
-        Color(0xFF4B0000), // Deep Burgundy
-        Color(0xFFF80101), // Dark Red
-        Color(0xFF8B0000),
-      ],
-    ),
-  ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
+      body: Container(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF4B0000), // Deep Burgundy
+              Color(0xFFF80101), // Dark Red
+              Color(0xFF8B0000),
+            ],
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Please fill in your details:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Full Name',
-                  labelStyle: TextStyle(
-      color: Colors.white, // 🔸 Set your desired color here
-      fontWeight: FontWeight.w500,
-    ),
-                  border: OutlineInputBorder(borderSide: BorderSide(
-        color: Colors.white, // your desired border color
-        width: 2.0,         // optional: border thickness
-      ),),
+              Text(
+                'Please fill in your details',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
                 ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Please enter your name' : null,
               ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _contactController,
-                decoration: const InputDecoration(
-                  labelText: 'Contact Number',
-                  labelStyle: TextStyle(
-      color: Colors.white, // 🔸 Set your desired color here
-      fontWeight: FontWeight.w500,
-    ),
-                  border: OutlineInputBorder(borderSide: BorderSide(
-        color: Colors.white, // your desired border color
-        width: 2.0,         // optional: border thickness
-      ),),
+              const SizedBox(height: 8),
+              Text(
+                'We need this information to process your order',
+                style: GoogleFonts.poppins(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 14,
                 ),
-                keyboardType: TextInputType.phone,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Enter a valid contact' : null,
               ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _addressController,
-                decoration: const InputDecoration(
-                  labelText: 'Address',
-                  labelStyle: TextStyle(
-      color: Colors.white, // 🔸 Set your desired color here
-      fontWeight: FontWeight.w500,
-    ),
-                  border: OutlineInputBorder(borderSide: BorderSide(
-        color: Colors.white, // your desired border color
-        width: 2.0,         // optional: border thickness
-      ),),
+              const SizedBox(height: 32),
+              
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    _buildTextField(
+                      controller: _nameController,
+                      label: 'Full Name',
+                      hint: 'Enter your full name',
+                      validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    _buildTextField(
+                      controller: _contactController,
+                      label: 'Contact Number',
+                      hint: 'Enter your phone number',
+                      keyboardType: TextInputType.phone,
+                      validator: (value) => value == null || value.isEmpty ? 'Enter a valid contact' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    _buildTextField(
+                      controller: _addressController,
+                      label: 'Address',
+                      hint: 'Enter your complete address',
+                      maxLines: 3,
+                      validator: (value) => value == null || value.isEmpty ? 'Please enter your address' : null,
+                    ),
+                    const SizedBox(height: 40),
+                    
+                    ActionButton(
+                      onPressed: _submitForm,
+                      actionText: "Submit",
+                    ),
+                  ],
                 ),
-                maxLines: 2,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Please enter your address' : null,
               ),
-              const SizedBox(height: 30),
-              ActionButton(
-                            onPressed: () {
-                              _submitForm(
-                              );
-                            },
-                            actionText: "Submit",
-                          ),
-              /*ElevatedButton(
-                onPressed: _submitForm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                child: const Text('Submit', style: TextStyle(fontSize: 16)),
-              ),*/
             ],
           ),
         ),
       ),
-    ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required String? Function(String?)? validator,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      style: GoogleFonts.poppins(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.poppins(
+          color: Colors.white.withOpacity(0.9),
+          fontWeight: FontWeight.w500,
+        ),
+        hintText: hint,
+        hintStyle: GoogleFonts.poppins(
+          color: Colors.white.withOpacity(0.6),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.white, width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.white, width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.white, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      validator: validator,
+      cursorColor: Colors.white,
     );
   }
 }

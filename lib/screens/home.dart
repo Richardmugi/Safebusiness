@@ -503,41 +503,82 @@ class _HomeState extends State<Home> {
   ),
 ),
     const SizedBox(width: 10),
-    Text(
-      'Tap to get QR Code',
-      style: GoogleFonts.poppins(
-        color: Colors.white,
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-      ),
+    RichText(
+  text: TextSpan(
+    style: GoogleFonts.poppins(
+      fontSize: 15,
+      fontWeight: FontWeight.w400,
     ),
+    children: [
+      TextSpan(
+        text: 'Check',
+        style: const TextStyle(color: Colors.white),
+      ),
+      TextSpan(
+        text: 'Inpro',
+        style: const TextStyle(color: Colors.black),
+      ),
+    ],
+  ),
+),
   ],
 ),
                                 ],
                               ),
                               Padding(
   padding: const EdgeInsets.only(right: 16.0), // adjust the value as needed
-  child: Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      
-      SizedBox(
-        width: 59,
-        height: 36,
-        
-        child: Image.asset(
-          'assets/icons/checkin2.png',
+  child: Material(
+    color: Colors.transparent,
+    child: InkWell(
+      borderRadius: BorderRadius.circular(55),
+      onTap: () async {
+        if (_isLoading) return; // Prevent multiple taps
+
+        setState(() {
+          _isLoading = true;
+        });
+
+        await _pickImage();
+
+        setState(() {
+          _isLoading = false;
+        });
+      },
+      child: Container(
+        width: 110,
+        height: 110,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.grey[200],
+          border: Border.all(
+            color: Colors.grey.shade400,
+            width: 2,
+          ),
+          image: _imageFile != null
+              ? DecorationImage(
+                  image: FileImage(_imageFile!),
+                  fit: BoxFit.cover,
+                )
+              : null,
         ),
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                ),
+              )
+            : (_imageFile == null
+                ? const Center(
+                    child: Icon(
+                      Icons.camera_alt,
+                      size: 40,
+                      color: Colors.grey,
+                    ),
+                  )
+                : null),
       ),
-      /*Text(
-        'CheckInPro',
-        style: GoogleFonts.poppins(
-          color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.w500,
-        ),
-      ),*/
-    ],
+    ),
   ),
 ),
 
@@ -568,7 +609,7 @@ class _HomeState extends State<Home> {
 ),*/
 
                     // put a circle avatar here
-                   /* Positioned(
+                    /*Positioned(
   bottom: -60,
   left: 0,
   right: 0,
