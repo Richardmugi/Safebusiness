@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:safebusiness/widgets/action_button.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 
 class UserInfoFormPage extends StatefulWidget {
@@ -17,6 +19,22 @@ class _UserInfoFormPageState extends State<UserInfoFormPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+
+  @override
+  void initState() {
+  super.initState();
+  _loadUserDataFromPrefs();
+}
+
+Future<void> _loadUserDataFromPrefs() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  setState(() {
+    _nameController.text = prefs.getString('employeeName') ?? '';
+    _contactController.text = prefs.getString('phone') ?? '';
+    _addressController.text = prefs.getString('address') ?? '';
+  });
+}
 
   Future<void> sendSms(String phoneNumber, String name, String contact, String address) async {
   const smsApiUrl = 'http://65.21.59.117:8003/v1/notification/sms';
@@ -86,7 +104,7 @@ Please reach out to them.
           icon: const Icon(Icons.arrow_back_ios_outlined, size: 20, color: Colors.white),
         ),
         title: Text(
-          'Add your Info',
+          'Your Information',
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontSize: 18,
@@ -117,7 +135,7 @@ Please reach out to them.
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Please fill in your details',
+                'Your details',
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 20,
@@ -188,6 +206,7 @@ Please reach out to them.
   }) {
     return TextFormField(
       controller: controller,
+      readOnly: true,
       style: GoogleFonts.poppins(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,

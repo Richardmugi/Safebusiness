@@ -470,9 +470,7 @@ class _HomeState extends State<Home> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                  verticalSpacing(25),
-                                  _headerTextBold(companyName),
-                                  verticalSpacing(10),
-                                  _headerText('Employee Name'),
+                                  _headerText('Name'),
                                   _headerTextBold(employeeName),
                                   verticalSpacing(10),
                                   _headerText('Employee ID'),
@@ -506,7 +504,7 @@ class _HomeState extends State<Home> {
     RichText(
   text: TextSpan(
     style: GoogleFonts.poppins(
-      fontSize: 15,
+      fontSize: 25,
       fontWeight: FontWeight.w400,
     ),
     children: [
@@ -523,6 +521,8 @@ class _HomeState extends State<Home> {
 ),
   ],
 ),
+verticalSpacing(10),
+_headerTextBold(companyName),
                                 ],
                               ),
                               Padding(
