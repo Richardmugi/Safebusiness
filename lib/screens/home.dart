@@ -456,13 +456,36 @@ class _HomeState extends State<Home> {
                 const SizedBox(height: 16),
                 //_headerText('Employee ID'),
                 _headerTextBold(employeeId),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EmailQrScreen()),
+                    );
+                  },
+                  child: Container(
+                    width: 55,
+                    height: 55,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                    child: Image.asset(
+                      'assets/icons/qr-code2.png',
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
           // Profile image positioned at the end
           Positioned(
   right: 0,
-  top: 20,
+  bottom: 0,
   child: Material(
     color: Colors.transparent,
     child: InkWell(
@@ -484,8 +507,8 @@ class _HomeState extends State<Home> {
         });
       },
       child: Container(
-        width: 100,
-        height: 100,
+        width: 130,
+        height: 190,
         decoration: BoxDecoration(
           color: Colors.grey[200],
           borderRadius: const BorderRadius.only(
@@ -537,7 +560,7 @@ class _HomeState extends State<Home> {
     // Second container (QR code and company info)
     Container(
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.20, // Half the original height
+      height: MediaQuery.of(context).size.height * 0.10, // Half the original height
       decoration: const ShapeDecoration(
         gradient: LinearGradient(
           colors: [
@@ -563,28 +586,6 @@ class _HomeState extends State<Home> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const EmailQrScreen()),
-                    );
-                  },
-                  child: Container(
-                    width: 55,
-                    height: 55,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white, width: 1.5),
-                    ),
-                    child: Image.asset(
-                      'assets/icons/qr-code2.png',
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 5),
                 RichText(
                 text: TextSpan(
