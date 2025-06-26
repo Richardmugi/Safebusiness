@@ -423,254 +423,217 @@ class _HomeState extends State<Home> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.30,
-                decoration: const ShapeDecoration(
-                  gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF4B0000), // Deep Burgundy
-    Color(0xFFF80101), // Dark Red
-    Color(0xFF8B0000),
-                ],
-              ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(40),
-                      bottomRight: Radius.circular(40),
+              Column(
+  children: [
+    // First container (Employee info)
+    Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height * 0.20, // Half the original height
+      decoration: const ShapeDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF4B0000), // Deep Burgundy
+            Color(0xFFF80101), // Dark Red
+            Color(0xFF8B0000),
+          ],
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(0),
+            bottomRight: Radius.circular(0),
+          ),
+        ),
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 30, top: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //_headerText('Name'),
+                _headerTextBold(employeeName),
+                const SizedBox(height: 16),
+                //_headerText('Employee ID'),
+                _headerTextBold(employeeId),
+              ],
+            ),
+          ),
+          // Profile image positioned at the end
+          Positioned(
+  right: 0,
+  top: 20,
+  child: Material(
+    color: Colors.transparent,
+    child: InkWell(
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(50),
+        bottomLeft: Radius.circular(50),
+      ),
+      onTap: () async {
+        if (_isLoading) return; // Prevent multiple taps
+
+        setState(() {
+          _isLoading = true;
+        });
+
+        await _pickImage();
+
+        setState(() {
+          _isLoading = false;
+        });
+      },
+      child: Container(
+        width: 100,
+        height: 100,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(50),
+            bottomLeft: Radius.circular(50),
+          ),
+          border: Border.all(
+            color: Colors.grey.shade400,
+            width: 2,
+          ),
+          image: _imageFile != null
+              ? DecorationImage(
+                  image: FileImage(_imageFile!),
+                  fit: BoxFit.cover,
+                )
+              : null,
+        ),
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                ),
+              )
+            : (_imageFile == null
+                ? const Center(
+                    child: Icon(
+                      Icons.camera_alt,
+                      size: 40,
+                      color: Colors.grey,
+                    ),
+                  )
+                : null),
+      ),
+    ),
+  ),
+),
+        ],
+      ),
+    ),
+    
+    // Separator bar
+    Container(
+      height: 25,
+      width: double.infinity,
+      color: Colors.white.withOpacity(0.3),
+    ),
+    
+    // Second container (QR code and company info)
+    Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height * 0.20, // Half the original height
+      decoration: const ShapeDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF4B0000), // Deep Burgundy
+            Color(0xFFF80101), // Dark Red
+            Color(0xFF8B0000),
+          ],
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(0),
+            topRight: Radius.circular(0),
+            bottomLeft: Radius.circular(30),
+            bottomRight: Radius.circular(30),
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 30, top: 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EmailQrScreen()),
+                    );
+                  },
+                  child: Container(
+                    width: 55,
+                    height: 55,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                    child: Image.asset(
+                      'assets/icons/qr-code2.png',
+                      color: Colors.black,
                     ),
                   ),
                 ),
-                key: UniqueKey(),
-                child: Stack(
-                  clipBehavior: Clip.none,
+                const SizedBox(height: 5),
+                RichText(
+                text: TextSpan(
+                  style: GoogleFonts.poppins(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w400,
+                  ),
                   children: [
-                    Positioned(
-                      top: 20,
-                      left: 20,
-                      right: 20,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        //height: MediaQuery.of(context).size.height * 0.2,
-                        alignment: Alignment.center,
-                        /*decoration: BoxDecoration(
-                          //color: Colors.grey,
-                          /*image: const DecorationImage(
-                            image: AssetImage('assets/images/image 15.png'),
-                            fit: BoxFit.fill,
-                          ),*/
-                          borderRadius: BorderRadius.circular(10),
-                        ),*/
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 30, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                 verticalSpacing(25),
-                                  _headerText('Name'),
-                                  _headerTextBold(employeeName),
-                                  verticalSpacing(10),
-                                  _headerText('Employee ID'),
-                                  _headerTextBold(employeeId),
-                                  verticalSpacing(10),
-                                  Row(
-  children: [
-    GestureDetector(
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const EmailQrScreen()),
-    );
-  },
-  child: Container(
-    width: 55,
-    height: 55,
-    padding: const EdgeInsets.all(8),
-    decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.1), // subtle background
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.white, width: 1.5),
-    ),
-    child: Image.asset(
-      'assets/icons/qr-code2.png',
-      color: Colors.black,
-    ),
-  ),
-),
-    const SizedBox(width: 10),
-    RichText(
-  text: TextSpan(
-    style: GoogleFonts.poppins(
-      fontSize: 25,
-      fontWeight: FontWeight.w400,
-    ),
-    children: [
-      TextSpan(
-        text: 'Check',
-        style: const TextStyle(color: Colors.white),
+                    TextSpan(
+                      text: 'Check',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    TextSpan(
+                      text: 'Inpro',
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+                _headerTextBold(companyName),
+              ],
+            ),
+           /* Padding(
+              padding: const EdgeInsets.only(right: 30),
+              child: RichText(
+                text: TextSpan(
+                  style: GoogleFonts.poppins(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: 'Check',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    TextSpan(
+                      text: 'Inpro',
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+            ),*/
+          ],
+        ),
       ),
-      TextSpan(
-        text: 'Inpro',
-        style: const TextStyle(color: Colors.black),
-      ),
-    ],
-  ),
-),
+    ),
   ],
 ),
-verticalSpacing(10),
-_headerTextBold(companyName),
-                                ],
-                              ),
-                              Padding(
-  padding: const EdgeInsets.only(right: 16.0), // adjust the value as needed
-  child: Material(
-    color: Colors.transparent,
-    child: InkWell(
-      borderRadius: BorderRadius.circular(55),
-      onTap: () async {
-        if (_isLoading) return; // Prevent multiple taps
-
-        setState(() {
-          _isLoading = true;
-        });
-
-        await _pickImage();
-
-        setState(() {
-          _isLoading = false;
-        });
-      },
-      child: Container(
-        width: 110,
-        height: 110,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.grey[200],
-          border: Border.all(
-            color: Colors.grey.shade400,
-            width: 2,
-          ),
-          image: _imageFile != null
-              ? DecorationImage(
-                  image: FileImage(_imageFile!),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        ),
-        child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                ),
-              )
-            : (_imageFile == null
-                ? const Center(
-                    child: Icon(
-                      Icons.camera_alt,
-                      size: 40,
-                      color: Colors.grey,
-                    ),
-                  )
-                : null),
-      ),
-    ),
-  ),
-),
-
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                     /*Positioned(
-  bottom: 10,
-  right: 80,
-  child: GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const EmailQrScreen()),
-      );
-    },
-    child: SizedBox(
-      width: 55,
-      height: 55,
-      child: Image.asset(
-        'assets/icons/qr-code2.png',
-        color: Colors.white,
-      ),
-    ),
-  ),
-),*/
-
-                    // put a circle avatar here
-                    /*Positioned(
-  bottom: -60,
-  left: 0,
-  right: 0,
-  child: Material(
-    color: Colors.transparent,
-    child: InkWell(
-      borderRadius: BorderRadius.circular(55),
-      onTap: () async {
-        if (_isLoading) return; // Prevent multiple taps
-
-        setState(() {
-          _isLoading = true;
-        });
-
-        await _pickImage();
-
-        setState(() {
-          _isLoading = false;
-        });
-      },
-      child: Container(
-        width: 110,
-        height: 110,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.grey[200],
-          border: Border.all(
-            color: Colors.grey.shade400,
-            width: 2,
-          ),
-          image: _imageFile != null
-              ? DecorationImage(
-                  image: FileImage(_imageFile!),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        ),
-        child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                ),
-              )
-            : (_imageFile == null
-                ? const Center(
-                    child: Icon(
-                      Icons.camera_alt,
-                      size: 40,
-                      color: Colors.grey,
-                    ),
-                  )
-                : null),
-      ),
-    ),
-  ),
-),*/
-
-                  ],
-                ), // Forces a rebuild when the image changes
-              ),
               //verticalSpacing(MediaQuery.of(context).size.height * 0.05),
               Padding(
                 padding: const EdgeInsets.only(
@@ -1115,7 +1078,7 @@ _headerTextBold(companyName),
       title,
       style: GoogleFonts.poppins(
         color: Colors.white,
-        fontSize: 14,
+        fontSize: 20,
         fontWeight: FontWeight.w600,
       ),
     );
