@@ -6,6 +6,7 @@ import 'package:safebusiness/screens/splash.dart';
 import 'package:safebusiness/utils/dark_theme_styles.dart';
 import 'helpers/route_helper.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
+import 'package:device_preview/device_preview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,13 @@ void main() async {
   }
 
   runApp(const MyApp());
+
+  /*runApp(
+    DevicePreview(
+      //enabled: !kReleaseMode, // Only enable in debug/dev
+      builder: (context) => const MyApp(),
+    ),
+  );*/
 }
 
 class MyApp extends StatefulWidget {
@@ -67,11 +75,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   /// Redirect to Splash Screen when session times out
   void _redirectToSplashScreen() {
     if (GlobalContextService.navigatorKey.currentContext != null) {
-      Navigator.of(GlobalContextService.navigatorKey.currentContext!)
-          .pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => MySplashScreen(nextScreen: null)),
-            (route) => false,
-          );
+      Navigator.of(
+        GlobalContextService.navigatorKey.currentContext!,
+      ).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => MySplashScreen(nextScreen: null),
+        ),
+        (route) => false,
+      );
     }
   }
 
@@ -88,9 +99,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           builder: (context, value, child) {
             return MaterialApp(
               title: 'Safebusiness',
+              //useInheritedMediaQuery: true,
+              //locale: DevicePreview.locale(context),
+              //builder: DevicePreview.appBuilder,
               debugShowCheckedModeBanner: false,
               theme: Styles.themeData(themeChangeProvider.darkTheme, context),
-              home: MySplashScreen(nextScreen: null), // Always start from splash
+              home: MySplashScreen(
+                nextScreen: null,
+              ), // Always start from splash
               onGenerateRoute: RouteHelper.router.generator,
               navigatorKey: GlobalContextService.navigatorKey,
             );
@@ -102,5 +118,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 }
 
 class GlobalContextService {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 }

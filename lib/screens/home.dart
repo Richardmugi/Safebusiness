@@ -428,7 +428,7 @@ class _HomeState extends State<Home> {
     // First container (Employee info)
     Container(
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.20, // Half the original height
+      height: MediaQuery.of(context).size.height * 0.21, // Half the original height
       decoration: const ShapeDecoration(
         gradient: LinearGradient(
           colors: [
@@ -560,7 +560,7 @@ class _HomeState extends State<Home> {
     // Second container (QR code and company info)
     Container(
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.10, // Half the original height
+      height: MediaQuery.of(context).size.height * 0.12, // Half the original height
       decoration: const ShapeDecoration(
         gradient: LinearGradient(
           colors: [
