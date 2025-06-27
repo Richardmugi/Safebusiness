@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 //import 'package:safebusiness/screens/Auth/gateman.dart';
 import 'package:safebusiness/screens/Auth/location_access.dart';
 import 'package:safebusiness/screens/change_pin.dart';
+import 'package:safebusiness/screens/message.dart';
 import 'package:safebusiness/screens/password_input.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:safebusiness/widgets/action_button.dart';
@@ -90,6 +91,7 @@ class _LoginPageState extends State<LoginPage> {
       print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
+        LateCheckInNotifier.checkAndSendLateSms();
         var data = jsonDecode(response.body);
         if (data["status"] == "SUCCESS") {
           // Store user details on first login
