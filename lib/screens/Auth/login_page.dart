@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
       print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
-        LateCheckInNotifier.checkAndSendLateSms();
+        //LateCheckInNotifier.checkAndSendLateSms();
         var data = jsonDecode(response.body);
         if (data["status"] == "SUCCESS") {
           // Store user details on first login
