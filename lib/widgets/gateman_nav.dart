@@ -53,7 +53,7 @@ class _DefaultHomePageState extends State<GatemanNavBar> {
   }
 
   final List<Widget> _pages = [
-    GatemanHomeScreen(),
+    Gateman(),
     const Notifications(),
     Report(),
     QuickActionsPage(),

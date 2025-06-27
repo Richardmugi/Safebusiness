@@ -19,6 +19,10 @@ class _UserInfoFormPageState extends State<UserInfoFormPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  bool _isNameEditable = false;
+  bool _isContactEditable = false;
+  bool _isAddressEditable = false;
+
 
   @override
   void initState() {
@@ -36,10 +40,11 @@ Future<void> _loadUserDataFromPrefs() async {
   });
 }
 
-  Future<void> sendSms(String phoneNumber, String name, String contact, String address) async {
+  Future<void> sendSms(String adminPhone, String clientPhone, String name, String contact, String address) async {
   const smsApiUrl = 'http://65.21.59.117:8003/v1/notification/sms';
 
-  final message = '''
+  // Message to admin
+  final adminMessage = '''
 Hello NC, this client has placed an order through Checkinpro.
 Name: $name
 Contact: $contact
@@ -47,26 +52,51 @@ Address: $address
 Please reach out to them.
 ''';
 
+  // Message to client
+  final clientMessage = '''
+Hello $name, your order has been received successfully through Checkinpro.
+You will be contacted shortly. Thank you!
+''';
+
   try {
-    final response = await http.post(
+    // Send to admin
+    final adminResponse = await http.post(
       Uri.parse(smsApiUrl),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
-        "phoneNumber": phoneNumber,
-        "message": message,
-        "vendor": "Ego"
+        "phoneNumber": adminPhone,
+        "message": adminMessage,
+        "vendor": "Ego",
       }),
     );
 
-    if (response.statusCode == 200) {
-      print("SMS sent successfully");
+    if (adminResponse.statusCode == 200) {
+      print("Admin SMS sent successfully");
     } else {
-      print("Failed to send SMS: ${response.body}");
+      print("Failed to send admin SMS: ${adminResponse.body}");
+    }
+
+    // Send to client
+    final clientResponse = await http.post(
+      Uri.parse(smsApiUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "phoneNumber": clientPhone,
+        "message": clientMessage,
+        "vendor": "Ego",
+      }),
+    );
+
+    if (clientResponse.statusCode == 200) {
+      print("Client SMS sent successfully");
+    } else {
+      print("Failed to send client SMS: ${clientResponse.body}");
     }
   } catch (e) {
     print("Error sending SMS: $e");
   }
 }
+
 
 
   void _submitForm() async {
@@ -80,11 +110,12 @@ Please reach out to them.
     print('Address: $address');
 
     // Example: send SMS to NC (admin/manager)
-    const ncPhoneNumber = "+256745410599"; // Replace with valid test number
-    await sendSms(ncPhoneNumber, name, contact, address);
+    const adminPhone = "+256745410599";
+    const clientPhone = "+256745410599"; // Replace with valid test number
+    await sendSms(adminPhone, clientPhone, name, contact, address);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Info submitted and SMS sent!')),
+      const SnackBar(content: Text('Your information has been sent. You will receive confirmation shortly!')),
     );
 
     _formKey.currentState!.reset();
@@ -153,42 +184,54 @@ Please reach out to them.
               const SizedBox(height: 32),
               
               Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    _buildTextField(
-                      controller: _nameController,
-                      label: 'Full Name',
-                      hint: 'Enter your full name',
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
-                    ),
-                    const SizedBox(height: 20),
-                    
-                    _buildTextField(
-                      controller: _contactController,
-                      label: 'Contact Number',
-                      hint: 'Enter your phone number',
-                      keyboardType: TextInputType.phone,
-                      validator: (value) => value == null || value.isEmpty ? 'Enter a valid contact' : null,
-                    ),
-                    const SizedBox(height: 20),
-                    
-                    _buildTextField(
-                      controller: _addressController,
-                      label: 'Address',
-                      hint: 'Enter your complete address',
-                      maxLines: 3,
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter your address' : null,
-                    ),
-                    const SizedBox(height: 40),
-                    
-                    ActionButton(
-                      onPressed: _submitForm,
-                      actionText: "Submit",
-                    ),
-                  ],
-                ),
-              ),
+  key: _formKey,
+  child: Column(
+    children: [
+      _buildTextField(
+        controller: _nameController,
+        label: 'Full Name',
+        hint: 'Enter your full name',
+        validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
+        isEditable: _isNameEditable,
+        onEditTap: () {
+          setState(() => _isNameEditable = true);
+        },
+      ),
+      const SizedBox(height: 20),
+
+      _buildTextField(
+        controller: _contactController,
+        label: 'Contact Number',
+        hint: 'Enter your phone number',
+        keyboardType: TextInputType.phone,
+        validator: (value) => value == null || value.isEmpty ? 'Enter a valid contact' : null,
+        isEditable: _isContactEditable,
+        onEditTap: () {
+          setState(() => _isContactEditable = true);
+        },
+      ),
+      const SizedBox(height: 20),
+
+      _buildTextField(
+        controller: _addressController,
+        label: 'Address',
+        hint: 'Enter your complete address',
+        maxLines: 3,
+        validator: (value) => value == null || value.isEmpty ? 'Please enter your address' : null,
+        isEditable: _isAddressEditable,
+        onEditTap: () {
+          setState(() => _isAddressEditable = true);
+        },
+      ),
+      const SizedBox(height: 40),
+
+      ActionButton(
+        onPressed: _submitForm,
+        actionText: "Submit",
+      ),
+    ],
+  ),
+),
             ],
           ),
         ),
@@ -197,45 +240,56 @@ Please reach out to them.
   }
 
   Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required String? Function(String?)? validator,
-    TextInputType? keyboardType,
-    int maxLines = 1,
-  }) {
-    return TextFormField(
-      controller: controller,
-      readOnly: true,
-      style: GoogleFonts.poppins(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: GoogleFonts.poppins(
-          color: Colors.white.withOpacity(0.9),
-          fontWeight: FontWeight.w500,
+  required TextEditingController controller,
+  required String label,
+  required String hint,
+  required String? Function(String?)? validator,
+  TextInputType? keyboardType,
+  int maxLines = 1,
+  required bool isEditable,
+  required VoidCallback onEditTap,
+}) {
+  return Stack(
+    alignment: Alignment.centerRight,
+    children: [
+      TextFormField(
+        controller: controller,
+        readOnly: !isEditable,
+        style: GoogleFonts.poppins(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.poppins(
+            color: Colors.white.withOpacity(0.9),
+            fontWeight: FontWeight.w500,
+          ),
+          hintText: hint,
+          hintStyle: GoogleFonts.poppins(
+            color: Colors.white.withOpacity(0.6),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.white, width: 1.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.white, width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.white, width: 2),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
-        hintText: hint,
-        hintStyle: GoogleFonts.poppins(
-          color: Colors.white.withOpacity(0.6),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.white, width: 1.5),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.white, width: 1.5),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.white, width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        validator: validator,
+        cursorColor: Colors.white,
       ),
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      validator: validator,
-      cursorColor: Colors.white,
-    );
-  }
+      IconButton(
+        icon: Icon(Icons.edit, color: Colors.white.withOpacity(0.8), size: 20),
+        onPressed: onEditTap,
+      ),
+    ],
+  );
+}
 }

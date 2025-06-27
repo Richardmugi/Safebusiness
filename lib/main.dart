@@ -2,42 +2,60 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safebusiness/providers/dark_theme_provider.dart';
+import 'package:safebusiness/screens/message.dart';
 import 'package:safebusiness/screens/splash.dart';
 import 'package:safebusiness/utils/dark_theme_styles.dart';
 import 'helpers/route_helper.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'package:device_preview/device_preview.dart';
+import 'package:workmanager/workmanager.dart';
+
+/*const String checkInTask = "checkLateCheckIn";
+
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    if (task == checkInTask) {
+      await LateCheckInNotifier.checkAndSendLateSms();
+    }
+    return Future.value(true);
+  });
+}*/
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Create the updater
-  final updater = ShorebirdUpdater();
+  /*await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
 
-  // 1️⃣ Check if there’s a new patch
-  final status = await updater.checkForUpdate();
+  // Schedule once daily after 10:40 AM
+  await Workmanager().registerPeriodicTask(
+    "checkInTaskId",
+    checkInTask,
+    frequency: Duration(hours: 24),
+    initialDelay: _calculateInitialDelay(),
+    constraints: Constraints(
+      networkType: NetworkType.connected,
+    ),
+  );*/
 
-  if (status == UpdateStatus.outdated) {
-    try {
-      // 2️⃣ Download the patch
-      await updater.update();
-      // 3️⃣ Restart the app to apply it
-      //await updater.installUpdateAndRestart();
-      return; // the app is restarting
-    } on UpdateException catch (err) {
-      debugPrint('Failed to apply patch: $err');
-    }
-  }
+  //runApp(const MyApp());
 
-  runApp(const MyApp());
-
-  /*runApp(
+  runApp(
     DevicePreview(
       //enabled: !kReleaseMode, // Only enable in debug/dev
       builder: (context) => const MyApp(),
     ),
-  );*/
+  );
 }
+
+// Utility: Schedule the task to start at 10:40AM today (or tomorrow if passed)
+/*Duration _calculateInitialDelay() {
+  final now = DateTime.now();
+  final target = DateTime(now.year, now.month, now.day, 10, 0);
+  if (now.isAfter(target)) {
+    final tomorrow = target.add(Duration(days: 1));
+    return tomorrow.difference(now);
+  }
+  return target.difference(now);
+}*/
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -99,9 +117,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           builder: (context, value, child) {
             return MaterialApp(
               title: 'Safebusiness',
-              //useInheritedMediaQuery: true,
-              //locale: DevicePreview.locale(context),
-              //builder: DevicePreview.appBuilder,
+              useInheritedMediaQuery: true,
+              locale: DevicePreview.locale(context),
+              builder: DevicePreview.appBuilder,
               debugShowCheckedModeBanner: false,
               theme: Styles.themeData(themeChangeProvider.darkTheme, context),
               home: MySplashScreen(

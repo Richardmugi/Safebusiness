@@ -17,7 +17,7 @@ class LateCheckInNotifier {
     final localTime = now;
 
     // Define the check-in deadline time (10:00 AM)
-    final deadline = DateTime(localTime.year, localTime.month, localTime.day, 10, 40);
+    final deadline = DateTime(localTime.year, localTime.month, localTime.day, 10, 0);
 
     // Check if current time is after 10 AM
     if (localTime.isAfter(deadline)) {

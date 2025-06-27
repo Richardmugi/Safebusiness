@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:safebusiness/screens/EmailQRScreen.dart';
 import 'package:safebusiness/screens/QRCodeScanner.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:safebusiness/widgets/carousel.dart';
+import 'package:safebusiness/widgets/carousel_image.dart';
+import 'package:safebusiness/widgets/carousels.dart';
 import 'package:safebusiness/widgets/sized_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -14,14 +18,15 @@ import 'package:vibration/vibration.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class GatemanHomeScreen extends StatefulWidget {
-  const GatemanHomeScreen({super.key});
+class Gateman extends StatefulWidget {
+  const Gateman({super.key});
 
   @override
-  State<GatemanHomeScreen> createState() => _HomeState();
+  State<Gateman> createState() => _GatemanState();
+  
 }
 
-class _HomeState extends State<GatemanHomeScreen> {
+class _GatemanState extends State<Gateman> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController companyEmailController = TextEditingController();
   final FlutterRingtonePlayer _ringtonePlayer = FlutterRingtonePlayer();
@@ -36,6 +41,52 @@ class _HomeState extends State<GatemanHomeScreen> {
   File? _imageFile;
   String? _imagePath;
   bool _isLoading = false;
+  String? selectedCategory;
+  final List<String> defaultImages = [
+  'assets/images/camera.jpg',
+  'assets/images/image2.jpg',
+  //'assets/images/image6.jpg',
+];
+
+  final categoryData = [
+  {
+    'title': 'Health',
+    'desc': 'Wellbeing',
+    'icon': Icons.health_and_safety,
+    'index': 0,
+  },
+  {
+    'title': 'Travels',
+    'desc': 'Explore',
+    'icon': Icons.flight_takeoff,
+    'index': 1,
+  },
+  {
+    'title': 'Vacations',
+    'desc': 'Relaxation',
+    'icon': Icons.beach_access,
+    'index': 2,
+  },
+  {
+    'title': 'Hangouts',
+    'desc': 'Social Fun',
+    'icon': Icons.people,
+    'index': 3,
+  },
+  {
+    'title': 'Food',
+    'desc': 'Tastes',
+    'icon': Icons.fastfood,
+    'index': 4,
+  },
+  {
+    'title': 'Spirituality',
+    'desc': 'Peace',
+    'icon': Icons.self_improvement,
+    'index': 5,
+  },
+];
+
 
   bool isValidEmail(String input) {
     final RegExp emailRegex = RegExp(
@@ -48,7 +99,7 @@ class _HomeState extends State<GatemanHomeScreen> {
   void initState() {
     super.initState();
     _loadEmployeeDetails();
-    //_loadStates();
+    _loadStates();
     _loadSavedImage();
   }
 
@@ -114,10 +165,10 @@ class _HomeState extends State<GatemanHomeScreen> {
     });
   }
 
-  /*void _loadStates() {
-    _canCheckIn = CheckInOutManager.isCheckedIn().then((value) => !value);
-    _canCheckOut = CheckInOutManager.isCheckedOut().then((value) => !value);
-  }*/
+  void _loadStates() {
+  _canCheckIn = CheckInManager.isCheckedIn().then((value) => !value);
+  _canCheckOut = CheckOutManager.isCheckedOut().then((value) => !value);
+}
 
   Future<void> _saveNotification(String message) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -132,7 +183,7 @@ class _HomeState extends State<GatemanHomeScreen> {
   Future<bool> _clockin(String email, String companyEmail) async {
     if (!mounted) return false;
 
-    /*Position? userPosition = await _determinePosition();
+    Position? userPosition = await _determinePosition();
   if (userPosition == null) {
     if (!mounted) return false;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -148,7 +199,7 @@ class _HomeState extends State<GatemanHomeScreen> {
   double userLatitude = userPosition.latitude;
   double userLongitude = userPosition.longitude;
 
-  var branchLocation = await _getBranchLocation(companyEmail);
+  /*var branchLocation = await _getBranchLocation(companyEmail);
   if (branchLocation == null || branchLocation['latitude'] == null || branchLocation['longitude'] == null) {
     if (!mounted) return false;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -194,8 +245,8 @@ class _HomeState extends State<GatemanHomeScreen> {
         body: jsonEncode({
           "employeeEmail": email,
           "companyEmail": companyEmail,
-          //"latitude": userLatitude,
-          //"longitude": userLongitude,
+          "latitude": userLatitude,
+          "longitude": userLongitude,
         }),
       );
 
@@ -206,7 +257,8 @@ class _HomeState extends State<GatemanHomeScreen> {
 
       if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
         _saveNotification("Check-in successful");
-        //await CheckInOutManager.setCheckedIn(true);
+        await CheckInManager.setCheckedIn(true);
+        await CheckOutManager.setCheckedOut(false);
 
         if (await Vibration.hasVibrator()) {
           Vibration.vibrate(duration: 500);
@@ -254,7 +306,7 @@ class _HomeState extends State<GatemanHomeScreen> {
     }
   }
 
-  /* Future<Position?> _determinePosition() async {
+   Future<Position?> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -280,7 +332,7 @@ class _HomeState extends State<GatemanHomeScreen> {
     );
   }
 
-  Future<Map<String, double>?> _getBranchLocation(String companyEmail) async {
+  /*Future<Map<String, double>?> _getBranchLocation(String companyEmail) async {
     var url = Uri.parse(
       "http://65.21.59.117/safe-business-api/public/api/v1/getCompanyBranches",
     );
@@ -325,8 +377,8 @@ class _HomeState extends State<GatemanHomeScreen> {
 
       if (response.statusCode == 200 && responseData["status"] == "SUCCESS") {
         _saveNotification("Check-out successful");
-        //await CheckInOutManager.setCheckedIn(false); // ✅ Reset check-in status
-        //await CheckInOutManager.setCheckedOut(true);
+        await CheckInManager.setCheckedIn(false); // ✅ Reset check-in status
+        await CheckOutManager.setCheckedOut(true);
 
         if (await Vibration.hasVibrator()) {
           Vibration.vibrate(duration: 500);
@@ -366,106 +418,81 @@ class _HomeState extends State<GatemanHomeScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: mainColor,
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.30,
-                decoration: const ShapeDecoration(
-                  color: mainColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(40),
-                      bottomRight: Radius.circular(40),
+              Column(
+  children: [
+    // First container (Employee info)
+    Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height * 0.21, // Half the original height
+      decoration: const ShapeDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF4B0000), // Deep Burgundy
+            Color(0xFFF80101), // Dark Red
+            Color(0xFF8B0000),
+          ],
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(0),
+            bottomRight: Radius.circular(0),
+          ),
+        ),
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 30, top: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //_headerText('Name'),
+                _headerTextBold(employeeName),
+                const SizedBox(height: 16),
+                //_headerText('Employee ID'),
+                _headerTextBold(employeeId),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EmailQrScreen()),
+                    );
+                  },
+                  child: Container(
+                    width: 55,
+                    height: 55,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                    child: Image.asset(
+                      'assets/icons/qr-code2.png',
+                      color: Colors.black,
                     ),
                   ),
                 ),
-                key: UniqueKey(),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned(
-                      top: 20,
-                      left: 20,
-                      right: 20,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/image 15.png'),
-                            fit: BoxFit.fill,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 30, right: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  verticalSpacing(15),
-                                  _headerTextBold(companyName),
-                                  verticalSpacing(10),
-                                  _headerText('Employee Name'),
-                                  _headerTextBold(employeeName),
-                                  verticalSpacing(10),
-                                  _headerText('Employee ID'),
-                                  _headerTextBold(employeeId),
-                                ],
-                              ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  //verticalSpacing(5),
-                                  SizedBox(
-                                    width: 59,
-                                    height: 36,
-                                    child: Image.asset(
-                                      'assets/icons/checkinprowhite.png',
-                                    ),
-                                  ),
-                                  //verticalSpacing(5),
-                                  Text(
-                                    'CheckInPro',
-                                    style: GoogleFonts.poppins(
-                                      color: const Color(0xFF646464),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    /* Positioned(
-                      bottom: 10,
-                      right: 80,
-                      child: SizedBox(
-                        width: 55,
-                        height: 55,
-                        child: Image.asset('assets/icons/qr-code2.png',
-                            color: Colors.white),
-                      )),*/
-                    // put a circle avatar here
-                    Positioned(
-  bottom: -60,
-  left: 0,
+              ],
+            ),
+          ),
+          // Profile image positioned at the end
+          Positioned(
   right: 0,
+  bottom: 0,
   child: Material(
     color: Colors.transparent,
     child: InkWell(
-      borderRadius: BorderRadius.circular(55),
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(50),
+        bottomLeft: Radius.circular(50),
+      ),
       onTap: () async {
         if (_isLoading) return; // Prevent multiple taps
 
@@ -480,11 +507,14 @@ class _HomeState extends State<GatemanHomeScreen> {
         });
       },
       child: Container(
-        width: 110,
-        height: 110,
+        width: 130,
+        height: 190,
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
           color: Colors.grey[200],
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(50),
+            bottomLeft: Radius.circular(50),
+          ),
           border: Border.all(
             color: Colors.grey.shade400,
             width: 2,
@@ -516,11 +546,96 @@ class _HomeState extends State<GatemanHomeScreen> {
     ),
   ),
 ),
-
+        ],
+      ),
+    ),
+    
+    // Separator bar
+    Container(
+      height: 25,
+      width: double.infinity,
+      color: Colors.white.withOpacity(0.3),
+    ),
+    
+    // Second container (QR code and company info)
+    Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height * 0.12, // Half the original height
+      decoration: const ShapeDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF4B0000), // Deep Burgundy
+            Color(0xFFF80101), // Dark Red
+            Color(0xFF8B0000),
+          ],
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(0),
+            topRight: Radius.circular(0),
+            bottomLeft: Radius.circular(30),
+            bottomRight: Radius.circular(30),
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 30, top: 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 5),
+                RichText(
+                text: TextSpan(
+                  style: GoogleFonts.poppins(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: 'Check',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    TextSpan(
+                      text: 'Inpro',
+                      style: const TextStyle(color: Colors.black),
+                    ),
                   ],
-                ), // Forces a rebuild when the image changes
+                ),
               ),
-              verticalSpacing(MediaQuery.of(context).size.height * 0.05),
+                _headerTextBold(companyName),
+              ],
+            ),
+           /* Padding(
+              padding: const EdgeInsets.only(right: 30),
+              child: RichText(
+                text: TextSpan(
+                  style: GoogleFonts.poppins(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: 'Check',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    TextSpan(
+                      text: 'Inpro',
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+            ),*/
+          ],
+        ),
+      ),
+    ),
+  ],
+),
+              //verticalSpacing(MediaQuery.of(context).size.height * 0.05),
               Padding(
                 padding: const EdgeInsets.only(
                   left: 24,
@@ -529,7 +644,7 @@ class _HomeState extends State<GatemanHomeScreen> {
                   bottom: 15,
                 ),
                 child: FutureBuilder(
-                  future: Future.value([true, true]), // Always allow,
+                  future: Future.wait([_canCheckIn, _canCheckOut]),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       return const Center(child: CircularProgressIndicator());
@@ -543,160 +658,174 @@ class _HomeState extends State<GatemanHomeScreen> {
                       children: [
                         // Check In Button
                         GestureDetector(
-                          onTap:
-                              canCheckIn
-                                  ? () async {
-                                    final scannedEmail = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => const QRCodeScanner(
-                                              isReturningUser: true,
-                                            ),
-                                      ),
-                                    );
+  onTap: canCheckIn
+      ? () async {
+          final scannedEmail = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const QRCodeScanner(
+                isReturningUser: true,
+              ),
+            ),
+          );
 
-                                    if (scannedEmail != null &&
-                                        isValidEmail(scannedEmail)) {
-                                      bool success = await _clockin(
-                                        scannedEmail,
-                                        companyEmail,
-                                      );
-                                      /*if (success) {
-                                        await CheckInOutManager.setCheckedIn(
-                                          true,
-                                        ); // Update shared prefs
-                                        setState(() {
-                                          _loadStates(); // Reload Future values to update UI
-                                        });
-                                      }*/
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text("Invalid QR code!"),
-                                          backgroundColor: mainColor,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                  : null, // Disable button when canCheckIn is false
+          if (scannedEmail != null && isValidEmail(scannedEmail)) {
+            bool success = await _clockin(
+              employeeEmail,
+              companyEmail,
+            );
+            if (success) {
+              await CheckInManager.setCheckedIn(true);
+              setState(() {
+                _loadStates(); // Reload Future values to update UI
+              });
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Invalid QR code!"),
+                backgroundColor: mainColor,
+              ),
+            );
+          }
+        }
+      : null, // Disable button when canCheckIn is false
 
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: MediaQuery.of(context).size.width * 0.42,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color:
-                                  canCheckIn
-                                      ? Colors.green[600]
-                                      : Colors.grey[400],
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow:
-                                  canCheckIn
-                                      ? [
-                                        BoxShadow(
-                                          color: Colors.green[800]!.withOpacity(
-                                            0.3,
-                                          ),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                      : null,
-                            ),
-                            child: Center(
-                              child: Text(
-                                'CHECK IN',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+  child: AnimatedContainer(
+    duration: const Duration(milliseconds: 200),
+    width: MediaQuery.of(context).size.width * 0.42,
+    height: 50,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(15),
+      border: Border.all(
+        color: Colors.white,
+        width: 0.5,
+      ),
+      gradient: canCheckIn
+          ? const LinearGradient(
+  colors: [
+    Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000), // Crimson/Dark Red
+  ],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+)
+
+          : LinearGradient(
+              colors: [
+                Colors.grey[500]!,
+                Colors.grey[500]!,
+              ],
+            ),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.login, // Checkout-style icon
+          color: Colors.white,
+          size: 20,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'CHECK IN',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.0,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
 
                         // Check Out Button
                         GestureDetector(
-                          onTap:
-                              canCheckOut
-                                  ? () async {
-                                    final scannedEmail = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => const QRCodeScanner(
-                                              isReturningUser: true,
-                                            ),
-                                      ),
-                                    );
+  onTap: canCheckOut
+      ? () async {
+          final scannedEmail = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const QRCodeScanner(
+                isReturningUser: true,
+              ),
+            ),
+          );
 
-                                    if (scannedEmail != null &&
-                                        isValidEmail(scannedEmail)) {
-                                      bool success = await _clockout(
-                                        scannedEmail,
-                                        companyEmail,
-                                      );
-                                      /*if (success) {
-                                        await CheckInOutManager.setCheckedOut(
-                                          true,
-                                        ); // Update shared prefs
-                                        setState(() {
-                                          _loadStates(); // Reload Future values to update UI
-                                        });
-                                      }*/
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text("Invalid QR code!"),
-                                          backgroundColor: mainColor,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                  : null, // Disable button when canCheckOut is false
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: MediaQuery.of(context).size.width * 0.42,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color:
-                                  canCheckOut
-                                      ? Colors.blue[600]
-                                      : Colors.grey[400],
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow:
-                                  canCheckOut
-                                      ? [
-                                        BoxShadow(
-                                          color: Colors.blue[800]!.withOpacity(
-                                            0.3,
-                                          ),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                      : null,
-                            ),
-                            child: Center(
-                              child: Text(
-                                'CHECK OUT',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+          if (scannedEmail != null && isValidEmail(scannedEmail)) {
+            bool success = await _clockout(
+              employeeEmail,
+              companyEmail,
+            );
+            if (success) {
+              await CheckOutManager.setCheckedOut(true);
+              setState(() {
+                _loadStates(); // Reload Future values to update UI
+              });
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Invalid QR code!"),
+                backgroundColor: mainColor,
+              ),
+            );
+          }
+        }
+      : null,
+
+  child: AnimatedContainer(
+    duration: const Duration(milliseconds: 200),
+    width: MediaQuery.of(context).size.width * 0.42,
+    height: 50,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(15),
+      border: Border.all(
+        color: Colors.white,
+        width: 0.5,
+      ),
+      gradient: canCheckOut
+          ? const LinearGradient(
+              colors: [
+                 Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000),
+              ],
+            )
+          : LinearGradient(
+              colors: [
+                Colors.grey,
+                Colors.grey,
+              ],
+            ),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.logout, // Checkout-style icon
+          color: Colors.white,
+          size: 20,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'CHECK OUT',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.0,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
                       ],
                     );
                   },
@@ -714,83 +843,106 @@ class _HomeState extends State<GatemanHomeScreen> {
                     Text(
                       'Adverts',
                       style: GoogleFonts.poppins(
-                        color: Colors.blueGrey,
+                        color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                   /* Icon(
+                    Icon(
                       Icons.arrow_forward_ios, // Right arrow
-                      color: Colors.blueGrey,
+                      color: Colors.white,
                       size: 16,
-                    ),*/
+                    ),
                   ],
                 ),
               ),
 
-             /* // Horizontal scrollable category boxes
+              // Horizontal scrollable category boxes
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildCategoryBox(
-                        title: 'Health',
-                        icon: Icons.fastfood,
-                        color: Colors.blueAccent,
-                        index: 3,
-                        image: AssetImage('assets/images/health.jpeg'),
-                      ),
-                      _buildCategoryBox(
-                        title: 'Travels',
-                        icon: Icons.flight_takeoff,
-                        color: Colors.green,
-                        index: 0,
-                        image: AssetImage('assets/images/travel.jpeg'),
-                      ),
-                      _buildCategoryBox(
-                        title: 'Vacations',
-                        icon: Icons.beach_access,
-                        color: Colors.orangeAccent,
-                        index: 2,
-                        image: AssetImage('assets/images/vacations.webp'),
-                      ),
-                      _buildCategoryBox(
-                        title: 'Hangouts',
-                        icon: Icons.people,
-                        color: Colors.blueAccent,
-                        index: 1,
-                        image: AssetImage('assets/images/hangouts.jpg'),
-                      ),
-                      // More categories can be added here
-                      _buildCategoryBox(
-                        title: 'Food',
-                        icon: Icons.fastfood,
-                        color: Colors.pink,
-                        index: 3,
-                        image: AssetImage('assets/images/food.jpg'),
-                      ),
-                      _buildCategoryBox(
-                        title: 'Spirituality',
-                        icon: Icons.fastfood,
-                        color: Colors.green,
-                        index: 3,
-                        image: AssetImage('assets/images/spiritual.jpg'),
-                      ),
-                      // Add more categories as needed
-                    ],
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  child: SizedBox(
+    height: 100,
+    child: ListView.builder(
+      clipBehavior: Clip.none,
+      padding: const EdgeInsets.all(0),
+      scrollDirection: Axis.horizontal,
+      itemCount: categoryData.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+              setState(() {
+    selectedCategory = categoryData[index]['title'] as String;
+  });
+          },
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 6.4, horizontal: 10),
+            constraints: BoxConstraints(
+              minWidth: 107,
+            ),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                   Color(0xFF4B0000), // Deep Burgundy
+    Color(0xFFF80101), // Dark Red
+    Color(0xFF8B0000),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white, width: 0.4),
+            ),
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Icon(
+  categoryData[index]['icon'] as IconData,
+  color: Colors.white,
+  size: 32,
+),
+
+                ),
+                SizedBox(height: 6),
+                Text(
+                  categoryData[index]['title'] as String,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),*/
+                Text(
+                  categoryData[index]['desc'] as String,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  ),
+),
+
 
               // Spacer or additional content if needed
               SizedBox(height: 10),
               Padding(
-                padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
-                child:
-                    ImageCarousel(), // Custom widget for carousel (if needed)
-              ),
+  padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
+  child: ImageCarosel(
+    imageList: selectedCategory != null && categoryImages[selectedCategory!] != null
+        ? categoryImages[selectedCategory!]!
+        : defaultImages,
+  ),
+)
+
             ],
           ),
         ),
@@ -915,7 +1067,7 @@ class _HomeState extends State<GatemanHomeScreen> {
     return Text(
       title,
       style: GoogleFonts.poppins(
-        color: const Color(0xFF646464),
+        color: Colors.white,
         fontSize: 10,
         fontWeight: FontWeight.w500,
       ),
@@ -926,15 +1078,16 @@ class _HomeState extends State<GatemanHomeScreen> {
     return Text(
       title,
       style: GoogleFonts.poppins(
-        color: const Color(0xFF646464),
-        fontSize: 14,
+        color: Colors.white,
+        fontSize: 20,
         fontWeight: FontWeight.w600,
       ),
     );
   }
+  
 }
 
-/*class CheckInOutManager {
+class CheckInManager {
   static const String _checkedInKey = 'checked_in';
   static const String _checkedInTimeKey = 'checked_in_time';
 
@@ -943,6 +1096,8 @@ class _HomeState extends State<GatemanHomeScreen> {
     await prefs.setBool(_checkedInKey, value);
     if (value) {
       await prefs.setInt(_checkedInTimeKey, DateTime.now().millisecondsSinceEpoch);
+    } else {
+      await prefs.remove(_checkedInTimeKey);
     }
   }
 
@@ -953,27 +1108,54 @@ class _HomeState extends State<GatemanHomeScreen> {
 
     if (checkedIn == true && checkedInTime != null) {
       final currentTime = DateTime.now().millisecondsSinceEpoch;
-      final diffInHours = (currentTime - checkedInTime) / (1000 * 60 * 60); // convert to hours
+      final diffInHours = (currentTime - checkedInTime) / (1000 * 60 * 60);
 
       // If more than 8 hours passed, reset check-in status
       if (diffInHours >= 8) {
         await prefs.setBool(_checkedInKey, false);
         await prefs.remove(_checkedInTimeKey);
+        print('Check-in expired.');
         return false;
       }
     }
 
     return checkedIn ?? false;
   }
+}
+
+
+class CheckOutManager {
+  static const String _checkedOutKey = 'checked_out';
+  static const String _checkedOutTimeKey = 'checked_out_time';
 
   static Future<void> setCheckedOut(bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('checked_out', value);
+    await prefs.setBool(_checkedOutKey, value);
+    if (value) {
+      await prefs.setInt(_checkedOutTimeKey, DateTime.now().millisecondsSinceEpoch);
+    } else {
+      await prefs.remove(_checkedOutTimeKey);
+    }
   }
 
   static Future<bool> isCheckedOut() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('checked_out') ?? false;
-  }
-}*/
+    bool? checkedOut = prefs.getBool(_checkedOutKey);
+    int? checkedOutTime = prefs.getInt(_checkedOutTimeKey);
 
+    if (checkedOut == true && checkedOutTime != null) {
+      final currentTime = DateTime.now().millisecondsSinceEpoch;
+      final diffInHours = (currentTime - checkedOutTime) / (1000 * 60 * 60);
+
+      // If more than 8 hours passed, reset check-out status
+      if (diffInHours >= 8) {
+        await prefs.setBool(_checkedOutKey, false);
+        await prefs.remove(_checkedOutTimeKey);
+        print('Check-out expired.');
+        return false;
+      }
+    }
+
+    return checkedOut ?? false;
+  }
+}

@@ -1,4 +1,4 @@
-import 'dart:async'; // Import the async package for Timer
+/*import 'dart:async'; // Import the async package for Timer
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carbon_icons/carbon_icons.dart';
 import 'package:flutter/material.dart';
@@ -131,4 +131,4 @@ class _ImageCarouselState extends State<ImageCarousel> {
       ],
     );
   }
-}
+}*/

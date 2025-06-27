@@ -427,212 +427,143 @@ class _HomeState extends State<Home> {
   children: [
     // First container (Employee info)
     Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.21, // Half the original height
-      decoration: const ShapeDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFF4B0000), // Deep Burgundy
-            Color(0xFFF80101), // Dark Red
-            Color(0xFF8B0000),
-          ],
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(0),
-            bottomRight: Radius.circular(0),
-          ),
-        ),
-      ),
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 30, top: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //_headerText('Name'),
-                _headerTextBold(employeeName),
-                const SizedBox(height: 16),
-                //_headerText('Employee ID'),
-                _headerTextBold(employeeId),
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const EmailQrScreen()),
-                    );
-                  },
-                  child: Container(
-                    width: 55,
-                    height: 55,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white, width: 1.5),
-                    ),
-                    child: Image.asset(
-                      'assets/icons/qr-code2.png',
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Profile image positioned at the end
-          Positioned(
-  right: 0,
-  bottom: 0,
-  child: Material(
-    color: Colors.transparent,
-    child: InkWell(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(50),
-        bottomLeft: Radius.circular(50),
-      ),
-      onTap: () async {
-        if (_isLoading) return; // Prevent multiple taps
-
-        setState(() {
-          _isLoading = true;
-        });
-
-        await _pickImage();
-
-        setState(() {
-          _isLoading = false;
-        });
-      },
-      child: Container(
-        width: 130,
-        height: 190,
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(50),
-            bottomLeft: Radius.circular(50),
-          ),
-          border: Border.all(
-            color: Colors.grey.shade400,
-            width: 2,
-          ),
-          image: _imageFile != null
-              ? DecorationImage(
-                  image: FileImage(_imageFile!),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        ),
-        child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                ),
-              )
-            : (_imageFile == null
-                ? const Center(
-                    child: Icon(
-                      Icons.camera_alt,
-                      size: 40,
-                      color: Colors.grey,
-                    ),
-                  )
-                : null),
+  width: MediaQuery.of(context).size.width,
+  height: MediaQuery.of(context).size.height * 0.33, // Combined height (0.21 + 0.12)
+  decoration: const ShapeDecoration(
+    gradient: LinearGradient(
+      colors: [
+        Color(0xFF4B0000), // Deep Burgundy
+        Color(0xFFF80101), // Dark Red
+        Color(0xFF8B0000),
+      ],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(30),
+        bottomRight: Radius.circular(30),
       ),
     ),
   ),
-),
-        ],
-      ),
-    ),
-    
-    // Separator bar
-    Container(
-      height: 25,
-      width: double.infinity,
-      color: Colors.white.withOpacity(0.3),
-    ),
-    
-    // Second container (QR code and company info)
-    Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.12, // Half the original height
-      decoration: const ShapeDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFF4B0000), // Deep Burgundy
-            Color(0xFFF80101), // Dark Red
-            Color(0xFF8B0000),
+  child: Stack(
+    children: [
+      // Left section with name, ID, QR button, and company info
+      Padding(
+        padding: const EdgeInsets.only(left: 30, top: 20, right: 150), // Account for profile image
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _headerTextBold(employeeName),
+            const SizedBox(height: 14),
+            _headerTextBold(employeeId),
+            const SizedBox(height: 14),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const EmailQrScreen()),
+                );
+              },
+              child: Container(
+                width: 55,
+                height: 55,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white, width: 1.5),
+                ),
+                child: Image.asset(
+                  'assets/icons/qr-code2.png',
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            RichText(
+              text: TextSpan(
+                style: GoogleFonts.poppins(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w400,
+                ),
+                children: const [
+                  TextSpan(text: 'Check', style: TextStyle(color: Colors.white)),
+                  TextSpan(text: 'Inpro', style: TextStyle(color: Colors.black)),
+                ],
+              ),
+            ),
+            //const SizedBox(height: 10),
+            _headerTextBold(companyName),
+            //const SizedBox(height: 10),
           ],
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(0),
-            topRight: Radius.circular(0),
-            bottomLeft: Radius.circular(30),
-            bottomRight: Radius.circular(30),
+      ),
+
+      // Right-side profile image
+      Positioned(
+        right: 0,
+        bottom: 0,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(50),
+              bottomLeft: Radius.circular(50),
+            ),
+            onTap: () async {
+              if (_isLoading) return;
+              setState(() {
+                _isLoading = true;
+              });
+              await _pickImage();
+              setState(() {
+                _isLoading = false;
+              });
+            },
+            child: Container(
+              width: 130,
+              height: 190,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(50),
+                  bottomLeft: Radius.circular(50),
+                ),
+                border: Border.all(
+                  color: Colors.grey.shade400,
+                  width: 2,
+                ),
+                image: _imageFile != null
+                    ? DecorationImage(
+                        image: FileImage(_imageFile!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                      ),
+                    )
+                  : (_imageFile == null
+                      ? const Center(
+                          child: Icon(
+                            Icons.camera_alt,
+                            size: 40,
+                            color: Colors.grey,
+                          ),
+                        )
+                      : null),
+            ),
           ),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 30, top: 15),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 5),
-                RichText(
-                text: TextSpan(
-                  style: GoogleFonts.poppins(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: 'Check',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    TextSpan(
-                      text: 'Inpro',
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ],
-                ),
-              ),
-                _headerTextBold(companyName),
-              ],
-            ),
-           /* Padding(
-              padding: const EdgeInsets.only(right: 30),
-              child: RichText(
-                text: TextSpan(
-                  style: GoogleFonts.poppins(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: 'Check',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    TextSpan(
-                      text: 'Inpro',
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ],
-                ),
-              ),
-            ),*/
-          ],
-        ),
-      ),
-    ),
+    ],
+  ),
+)
   ],
 ),
               //verticalSpacing(MediaQuery.of(context).size.height * 0.05),
