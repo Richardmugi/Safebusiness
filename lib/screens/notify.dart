@@ -15,6 +15,15 @@ Future<void> initNotifications() async {
     requestSoundPermission: true,
   );
 
+  await flutterLocalNotificationsPlugin
+    .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+    ?.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+
   final InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
     iOS: initializationSettingsIOS,

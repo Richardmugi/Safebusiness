@@ -20,6 +20,13 @@
   	<string>fetch</string>
   	<string>remote-notification</string>
 	</array>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>We use this to send you notifications.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+  	<key>NSAllowsArbitraryLoads</key>
+  	<true/>
+	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need your location to provide better services.</string>
 	<key>NSLocationAlwaysUsageDescription</key>

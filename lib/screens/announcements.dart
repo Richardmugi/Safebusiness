@@ -163,6 +163,7 @@ Future<void> _fetchAnnouncements() async {
     var body = jsonEncode(branchId > 0
         ? {"companyEmail": companyEmail, "branchId": branchId}
         : {"companyEmail": companyEmail});
+        
 
     var response = await http.post(
       url,
@@ -175,6 +176,9 @@ Future<void> _fetchAnnouncements() async {
       if (data["status"] == "SUCCESS") {
         List fetched = data["announcements"] ?? [];
 
+     print("Response Status Code: ${response.statusCode}");
+    print("Response Body: ${response.body}");
+
         // Load seen announcements from storage
         Set<String> seenIds = await _getSeenAnnouncementIds();
         Set<String> newSeenIds = {...seenIds};
@@ -184,7 +188,7 @@ Future<void> _fetchAnnouncements() async {
           if (!seenIds.contains(id)) {
             await _showNotification(
               announcement['title'] ?? 'New Announcement',
-              announcement['message'] ?? '',
+              announcement['description'] ?? '',
             );
             newSeenIds.add(id);
           }
@@ -203,7 +207,7 @@ Future<void> _fetchAnnouncements() async {
       setState(() => isLoading = false);
     }
   } catch (e) {
-    print("Fetch Announcements Error: $e");
+    print("Fetch Announcements Error: Please check your internet connection (Wi-Fi or mobile data) and try again.");
     setState(() => isLoading = false);
   }
 }

@@ -112,7 +112,7 @@ class _CompanyJobsPageState extends State<CompanyJobsPage> {
       });
     }
   } catch (e) {
-    print("Fetch Jobs Error: $e");
+    print("Fetch Jobs Error: Please check your internet connection (Wi-Fi or mobile data) and try again.");
     setState(() {
       isLoading = false;
     });
