@@ -242,7 +242,7 @@ Widget build(BuildContext context) {
                   } else if (snapshot.hasError) {
                     return Center(
                       child: Text(
-                        'Error: ${snapshot.error}',
+                        'Network error: Please check your internet connection (Wi-Fi or mobile data) and try again.',
                         style: TextStyle(color: Colors.white),
                       ),
                     );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safebusiness/providers/dark_theme_provider.dart';
 import 'package:safebusiness/screens/message.dart';
+import 'package:safebusiness/screens/notify.dart';
 import 'package:safebusiness/screens/splash.dart';
 import 'package:safebusiness/utils/dark_theme_styles.dart';
 import 'helpers/route_helper.dart';
@@ -22,6 +23,7 @@ void callbackDispatcher() {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initNotifications();
 
   /*await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
 

@@ -16,6 +16,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../helpers/custom_text_form_field.dart';
 import '../../widgets/btm_nav_bar.dart';
 import '../../widgets/sized_box.dart';
+//import 'dart:io'; // Add this import at the top if not already present
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -135,7 +137,7 @@ if (isGateman) {
         _showError("Failed to login: ${response.statusCode}");
       }
     } catch (e) {
-      _showError("Error logging in: $e");
+      _showError("Error logging in: Please check your internet connection (Wi-Fi or mobile data) and try again.");
     }
   }
 
