@@ -51,6 +51,9 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _loadStoredUser();
     _loadUserDetails();
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+    _showNotification("title", "body");
+  });
     _fetchAnnouncements();
     //_loadSavedRole();
   }
