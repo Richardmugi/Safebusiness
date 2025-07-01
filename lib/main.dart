@@ -108,7 +108,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<void> saveAndScheduleNotification() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String message = "Good morning. Don't forget to checkin.";
-  TimeOfDay notificationTime = TimeOfDay(hour: 12, minute: 0);
+  TimeOfDay notificationTime = TimeOfDay(hour: 12, minute: 25);
 
   await prefs.setString('notification_message', message);
   await prefs.setInt('notification_hour', notificationTime.hour);
@@ -153,8 +153,11 @@ Future<void> scheduleNotification() async {
         'Daily Notifications',
         importance: Importance.max,
         priority: Priority.high,
+        playSound: true,
       ),
-      iOS: DarwinNotificationDetails(),
+      iOS: DarwinNotificationDetails(presentAlert: true,
+    presentBadge: true,
+    presentSound: true, ),
     ),
     androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     matchDateTimeComponents: DateTimeComponents.time,
