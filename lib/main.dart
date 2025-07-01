@@ -3,14 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safebusiness/providers/dark_theme_provider.dart';
 import 'package:safebusiness/screens/message.dart';
+import 'package:safebusiness/screens/notify.dart';
 import 'package:safebusiness/screens/splash.dart';
 import 'package:safebusiness/utils/dark_theme_styles.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'helpers/route_helper.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 //import 'package:workmanager/workmanager.dart';
 
 /*const String checkInTask = "checkLateCheckIn";
@@ -24,27 +22,9 @@ void callbackDispatcher() {
   });
 }*/
 
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
-
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-
-  const DarwinInitializationSettings initializationSettingsIOS =
-      DarwinInitializationSettings();
-
-  const InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-    iOS: initializationSettingsIOS,
-  );
-
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
   /*await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
 
   // Schedule once daily after 10:40 AM
@@ -79,8 +59,6 @@ void main() async {
   return target.difference(now);
 }*/
 
-
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -93,76 +71,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Timer? _sessionTimer;
   static const Duration sessionTimeout = Duration(minutes: 5);
 
-
-    @override
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     RouteHelper.setupRouter();
     _resetSessionTimer();
-    saveAndScheduleNotification();
-    _requestIOSPermissions();
   }
-
-
-  Future<void> saveAndScheduleNotification() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String message = "Good morning. Don't forget to checkin.";
-  TimeOfDay notificationTime = TimeOfDay(hour: 12, minute: 25);
-
-  await prefs.setString('notification_message', message);
-  await prefs.setInt('notification_hour', notificationTime.hour);
-  await prefs.setInt('notification_minute', notificationTime.minute);
-
-  scheduleNotification();
-}
-
-void _requestIOSPermissions() async {
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
-      ?.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-}
-
-
-Future<void> scheduleNotification() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  String? message = prefs.getString('notification_message') ?? "Default reminder";
-  int hour = prefs.getInt('notification_hour') ?? 9;
-  int minute = prefs.getInt('notification_minute') ?? 0;
-
-  // Next 9am
-  final now = tz.TZDateTime.now(tz.local);
-  var scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
-  if (scheduledDate.isBefore(now)) {
-    scheduledDate = scheduledDate.add(Duration(days: 1));
-  }
-
-  await flutterLocalNotificationsPlugin.zonedSchedule(
-    0,
-    "Reminder",
-    message,
-    scheduledDate,
-    const NotificationDetails(
-      android: AndroidNotificationDetails(
-        'daily_channel_id',
-        'Daily Notifications',
-        importance: Importance.max,
-        priority: Priority.high,
-        playSound: true,
-      ),
-      iOS: DarwinNotificationDetails(presentAlert: true,
-    presentBadge: true,
-    presentSound: true, ),
-    ),
-    androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    matchDateTimeComponents: DateTimeComponents.time,
-  );
-}
 
   @override
   void dispose() {
@@ -209,9 +124,17 @@ Future<void> scheduleNotification() async {
               //builder: DevicePreview.appBuilder,
               debugShowCheckedModeBanner: false,
               theme: Styles.themeData(themeChangeProvider.darkTheme, context),
-              home: MySplashScreen(
+              home: Stack(
+        children: [
+          const MySplashScreen(
                 nextScreen: null,
-              ), // Always start from splash
+              ),  // Main visible screen
+          Offstage(
+            offstage: true, // Hides UI but keeps widget alive
+            child: const NotificationsPage(), // Background logic widget
+          ),
+        ],
+      ),
               onGenerateRoute: RouteHelper.router.generator,
               navigatorKey: GlobalContextService.navigatorKey,
             );

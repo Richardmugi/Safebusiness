@@ -1,4 +1,4 @@
-/*import 'dart:convert';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
@@ -57,7 +57,7 @@ void _requestIOSPermissions() async {
 
   Future<void> _scheduleDailyCheckInReminder() async {
   final now = tz.TZDateTime.now(tz.local);
-  final scheduledTime = tz.TZDateTime(tz.local, now.year, now.month, now.day, 8, 55);
+  final scheduledTime = tz.TZDateTime(tz.local, now.year, now.month, now.day, 13, 18);
 
   final reminderTime = scheduledTime.isBefore(now)
       ? scheduledTime.add(Duration(days: 1))
@@ -66,7 +66,7 @@ void _requestIOSPermissions() async {
   await flutterLocalNotificationsPlugin.zonedSchedule(
     1, // Notification ID
     'Check-In Reminder',
-    'Please remember to check in before 9:00 AM.',
+    'Please remember to check in',
     reminderTime,
     const NotificationDetails(
       android: AndroidNotificationDetails(
@@ -74,7 +74,13 @@ void _requestIOSPermissions() async {
         'Reminders',
         importance: Importance.max,
         priority: Priority.high,
+        playSound: true,
       ),
+      iOS: DarwinNotificationDetails(
+    presentAlert: true,
+    presentBadge: true,
+    presentSound: true, // 🔔 This is the key for iOS sound
+  ),
     ),
     androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     matchDateTimeComponents: DateTimeComponents.time,
@@ -153,4 +159,4 @@ void _requestIOSPermissions() async {
       body: const Center(child: Text("Local notifications handler is running...")),
     );
   }
-}*/
+}
