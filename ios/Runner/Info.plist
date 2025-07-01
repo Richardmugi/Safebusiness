@@ -20,6 +20,8 @@
   	<string>fetch</string>
   	<string>remote-notification</string>
 	</array>
+	<key>NSUserNotificationUsageDescription</key>
+	<string>We use notifications to remind you to check in and update you on jobs and announcements.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>We use this to send you notifications.</string>
 	<key>NSAppTransportSecurity</key>

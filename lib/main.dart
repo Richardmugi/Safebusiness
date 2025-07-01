@@ -6,6 +6,7 @@ import 'package:safebusiness/screens/message.dart';
 import 'package:safebusiness/screens/notify.dart';
 import 'package:safebusiness/screens/splash.dart';
 import 'package:safebusiness/utils/dark_theme_styles.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'helpers/route_helper.dart';
 import 'package:device_preview/device_preview.dart';
 //import 'package:workmanager/workmanager.dart';
@@ -23,8 +24,7 @@ void callbackDispatcher() {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initNotifications();
-
+  tz.initializeTimeZones();
   /*await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
 
   // Schedule once daily after 10:40 AM
@@ -124,9 +124,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               //builder: DevicePreview.appBuilder,
               debugShowCheckedModeBanner: false,
               theme: Styles.themeData(themeChangeProvider.darkTheme, context),
-              home: MySplashScreen(
+              home: Stack(
+        children: [
+          MySplashScreen(
                 nextScreen: null,
               ), // Always start from splash
+              //onGenerateRoute: RouteHelper.router.generator,
+              //navigatorKey: GlobalContextService.navigatorKey, // Your main app page
+          NotificationsPage(), // Keep this invisible to run init logic
+        ],
+      ),
+              //home: MySplashScreen(
+              //  nextScreen: null,
+              //), // Always start from splash
               onGenerateRoute: RouteHelper.router.generator,
               navigatorKey: GlobalContextService.navigatorKey,
             );

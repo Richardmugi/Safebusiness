@@ -118,6 +118,7 @@ class _CompanyJobsPageState extends State<CompanyJobsPage> {
     });
   }
 }
+
 @override
 Widget build(BuildContext context) {
   return SafeArea(

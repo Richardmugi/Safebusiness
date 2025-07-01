@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:safebusiness/screens/notify.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -69,7 +67,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
 }
 
 
-  /*Future<void> _fetchAnnouncements() async {
+  Future<void> _fetchAnnouncements() async {
   try {
     print("Fetching announcements...");
 
@@ -114,105 +112,12 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
       });
     }
   } catch (e) {
-    print("Fetch Announcements Error: $e");
+    print("Fetch Announcements Error: Please check your internet connection (Wi-Fi or mobile data) and try again.");
     setState(() {
       isLoading = false;
     });
   }
-}*/
-Future<void> _showNotification(String title, String body) async {
-  const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-    'announcement_channel',
-    'Announcements',
-    importance: Importance.max,
-    priority: Priority.high,
-  );
-
-  const NotificationDetails platformDetails = NotificationDetails(
-    android: androidDetails,
-    iOS: DarwinNotificationDetails(),
-  );
-
-  await flutterLocalNotificationsPlugin.show(
-    DateTime.now().millisecondsSinceEpoch ~/ 1000, // unique id
-    title,
-    body,
-    platformDetails,
-    payload: 'announcement',
-  );
 }
-
-Future<Set<String>> _getSeenAnnouncementIds() async {
-  final prefs = await SharedPreferences.getInstance();
-  return prefs.getStringList('seenAnnouncements')?.toSet() ?? {};
-}
-
-Future<void> _saveSeenAnnouncementIds(Set<String> ids) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setStringList('seenAnnouncements', ids.toList());
-}
-
-Future<void> _fetchAnnouncements() async {
-  try {
-    print("Fetching announcements...");
-
-    var url = branchId > 0
-        ? Uri.parse("http://65.21.59.117/safe-business-api/public/api/v1/getCompanyAnnouncementsByBranch")
-        : Uri.parse("http://65.21.59.117/safe-business-api/public/api/v1/getCompanyPostedAnnouncements");
-
-    var body = jsonEncode(branchId > 0
-        ? {"companyEmail": companyEmail, "branchId": branchId}
-        : {"companyEmail": companyEmail});
-        
-
-    var response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: body,
-    );
-
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      if (data["status"] == "SUCCESS") {
-        List fetched = data["announcements"] ?? [];
-
-     print("Response Status Code: ${response.statusCode}");
-    print("Response Body: ${response.body}");
-
-        // Load seen announcements from storage
-        Set<String> seenIds = await _getSeenAnnouncementIds();
-        Set<String> newSeenIds = {...seenIds};
-
-        for (var announcement in fetched) {
-          String id = announcement['id'].toString();
-          if (!seenIds.contains(id)) {
-            await _showNotification(
-              announcement['title'] ?? 'New Announcement',
-              announcement['description'] ?? '',
-            );
-            newSeenIds.add(id);
-          }
-        }
-
-        await _saveSeenAnnouncementIds(newSeenIds);
-
-        setState(() {
-          announcements = fetched;
-          isLoading = false;
-        });
-      } else {
-        setState(() => isLoading = false);
-      }
-    } else {
-      setState(() => isLoading = false);
-    }
-  } catch (e) {
-    print("Fetch Announcements Error: Please check your internet connection (Wi-Fi or mobile data) and try again.");
-    setState(() => isLoading = false);
-  }
-}
-
-
 
 @override
 Widget build(BuildContext context) {
