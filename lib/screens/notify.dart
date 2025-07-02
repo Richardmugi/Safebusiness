@@ -23,7 +23,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   void initState() {
     super.initState();
-    _initNotifications();
     _requestIOSPermissions();
     _loadUserDetails();
     _scheduleDailyCheckInReminder();
@@ -88,7 +87,7 @@ void _requestIOSPermissions() async {
     android: androidDetails,
     iOS: iOSDetails,
   );
-    await flutterLocalNotificationsPlugin.show(0, title, body, details);
+    await flutterLocalNotificationsPlugin.show(DateTime.now().millisecondsSinceEpoch.remainder(100000), title, body, details);
   }
 
   Future<void> _scheduleDailyCheckInReminder() async {
@@ -155,6 +154,7 @@ Future<void> _fetchBranchName(int branchId) async {
     _fetchBranchName(branchId).then((_) {
     _fetchAnnouncements();
     _fetchJobs();
+    _initNotifications();
   });
   }
 
