@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -17,8 +18,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
   String companyEmail = "";
   int branchId = 0;
   String branchName = "";
+  late Timer _pollingTimer;
 
-  @override
   @override
   void initState() {
     super.initState();
@@ -27,6 +28,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
     _loadUserDetails();
     _scheduleDailyCheckInReminder();
 }
+
+@override
+void dispose() {
+  _pollingTimer.cancel();
+  super.dispose();
+}
+
 
 void _requestIOSPermissions() async {
   await flutterLocalNotificationsPlugin
@@ -40,10 +48,28 @@ void _requestIOSPermissions() async {
 
 
   Future<void> _initNotifications() async {
-    const AndroidInitializationSettings androidInitSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const InitializationSettings initSettings = InitializationSettings(android: androidInitSettings);
-    await flutterLocalNotificationsPlugin.initialize(initSettings);
-  }
+  const AndroidInitializationSettings androidInitSettings =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  const DarwinInitializationSettings iosInitSettings = DarwinInitializationSettings(
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
+  );
+
+  const InitializationSettings initSettings = InitializationSettings(
+    android: androidInitSettings,
+    iOS: iosInitSettings,
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(initSettings);
+
+   _pollingTimer = Timer.periodic(const Duration(minutes: 5), (timer) async {
+    await _fetchJobs();
+    await _fetchAnnouncements();
+  });
+}
+
 
   Future<void> _showNotification(String title, String body) async {
     const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
