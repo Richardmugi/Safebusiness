@@ -16,6 +16,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   String companyEmail = "";
   int branchId = 0;
+  String branchName = "";
 
   @override
   @override
@@ -51,7 +52,16 @@ void _requestIOSPermissions() async {
       importance: Importance.max,
       priority: Priority.high,
     );
-    const NotificationDetails details = NotificationDetails(android: androidDetails);
+
+    const DarwinNotificationDetails iOSDetails = DarwinNotificationDetails(
+    presentAlert: true,
+    presentBadge: true,
+    presentSound: true, // 🔔 enable sound
+  );
+  const NotificationDetails details = NotificationDetails(
+    android: androidDetails,
+    iOS: iOSDetails,
+  );
     await flutterLocalNotificationsPlugin.show(0, title, body, details);
   }
 
@@ -87,13 +97,39 @@ void _requestIOSPermissions() async {
   );
 }
 
+Future<void> _fetchBranchName(int branchId) async {
+    var url = Uri.parse(
+      "http://65.21.59.117/safe-business-api/public/api/v1/getCompanyBranches",
+    );
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"companyEmail": companyEmail}),
+    );
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      if (data["status"] == "SUCCESS") {
+        var branch = (data["branches"] as List).firstWhere(
+          (b) => b["id"] == branchId,
+          orElse: () => null,
+        );
+        setState(() {
+          branchName = branch != null ? branch["name"] : "Unknown Branch";
+        });
+      }
+    }
+  }
+
 
   Future<void> _loadUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     companyEmail = prefs.getString("companyEmail") ?? "";
     branchId = prefs.getInt("branchId") ?? 0;
-    await _fetchJobs();
-    await _fetchAnnouncements();
+    _fetchBranchName(branchId).then((_) {
+    _fetchAnnouncements();
+    _fetchJobs();
+  });
   }
 
   Future<void> _fetchJobs() async {
@@ -108,12 +144,15 @@ void _requestIOSPermissions() async {
     try {
       var response = await http.post(url, headers: {"Content-Type": "application/json"}, body: body);
       if (response.statusCode == 200) {
+        print("Response Status Code: ${response.statusCode}");
+    print("Response Body: ${response.body}");
         var data = jsonDecode(response.body);
         if (data["status"] == "SUCCESS" && data["postedJobs"] is List) {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           int previousCount = prefs.getInt("jobCount") ?? 0;
           List jobs = data["postedJobs"];
           if (jobs.length > previousCount) {
+            print("New Job Posted");
             await _showNotification("New Job Posted", "${jobs.length - previousCount} new job(s) available.");
             prefs.setInt("jobCount", jobs.length);
           }
@@ -136,12 +175,15 @@ void _requestIOSPermissions() async {
     try {
       var response = await http.post(url, headers: {"Content-Type": "application/json"}, body: body);
       if (response.statusCode == 200) {
+        print("Response Status Code: ${response.statusCode}");
+    print("Response Body: ${response.body}");
         var data = jsonDecode(response.body);
         if (data["status"] == "SUCCESS" && data["announcements"] is List) {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           int previousCount = prefs.getInt("announcementCount") ?? 0;
           List announcements = data["announcements"];
           if (announcements.length > previousCount) {
+            print("New Announcemnt Posted");
             await _showNotification("New Announcement", "${announcements.length - previousCount} new announcement(s).");
             prefs.setInt("announcementCount", announcements.length);
           }
