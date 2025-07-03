@@ -12,15 +12,15 @@ final Map<String, List<String>> categoryImages = {
     'assets/images/vac.webp',
   ],
   'Hangouts': [
-    'assets/images/health.jpeg',
+    'assets/images/hangouts.jpg',
     'assets/images/hang.webp',
   ],
   'Food': [
     'assets/images/food.jpg',
     'assets/images/food.webp',
   ],
-  'Spirituality': [
-    'assets/images/spiritual.jpg',
-    'assets/images/spirit.webp',
+  'Events': [
+    'assets/images/event-management-placeholder.jpg',
+    'assets/images/events.jpg',
   ],
 };

@@ -254,7 +254,7 @@ Widget build(BuildContext context) {
                                           ),
                                         ],
                                       ),
-                                      ElevatedButton(
+                                      /*ElevatedButton(
                                         onPressed: () {
                                           print("Apply for ${job["job_title"]}");
                                         },
@@ -274,7 +274,7 @@ Widget build(BuildContext context) {
                                             color: Colors.white,
                                           ),
                                         ),
-                                      ),
+                                      ),*/
                                     ],
                                   ),
                                 ],

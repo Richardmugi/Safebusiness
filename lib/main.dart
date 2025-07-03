@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_timezone_latest/flutter_native_timezone_latest.dart';
 import 'package:provider/provider.dart';
 import 'package:safebusiness/providers/dark_theme_provider.dart';
-import 'package:safebusiness/screens/message.dart';
 import 'package:safebusiness/screens/notify.dart';
 import 'package:safebusiness/screens/splash.dart';
 import 'package:safebusiness/utils/dark_theme_styles.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'helpers/route_helper.dart';
 import 'package:device_preview/device_preview.dart';
 //import 'package:workmanager/workmanager.dart';
@@ -25,6 +26,10 @@ void callbackDispatcher() {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
+  //final String timeZoneName = await FlutterNativeTimezoneLatest.getLocalTimezone();
+
+  // Step 3: Set local location for tz
+  //tz.setLocalLocation(tz.getLocation(timeZoneName));
   /*await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
 
   // Schedule once daily after 10:40 AM
@@ -38,14 +43,14 @@ void main() async {
     ),
   );*/
 
-  runApp(const MyApp());
+  //runApp(const MyApp());
 
-  /*runApp(
+  runApp(
     DevicePreview(
       //enabled: !kReleaseMode, // Only enable in debug/dev
       builder: (context) => const MyApp(),
     ),
-  );*/
+  );
 }
 
 // Utility: Schedule the task to start at 10:40AM today (or tomorrow if passed)
@@ -119,9 +124,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           builder: (context, value, child) {
             return MaterialApp(
               title: 'Safebusiness',
-              //useInheritedMediaQuery: true,
-              //locale: DevicePreview.locale(context),
-              //builder: DevicePreview.appBuilder,
+              useInheritedMediaQuery: true,
+              locale: DevicePreview.locale(context),
+              builder: DevicePreview.appBuilder,
               debugShowCheckedModeBanner: false,
               theme: Styles.themeData(themeChangeProvider.darkTheme, context),
               home: Stack(

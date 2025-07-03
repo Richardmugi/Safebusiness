@@ -54,7 +54,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.22") // Ensure this matches your Kotlin version
     implementation("androidx.work:work-runtime:2.8.1")
     // Add other dependencies here
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
 flutter {

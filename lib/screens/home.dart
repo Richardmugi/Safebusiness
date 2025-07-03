@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:safebusiness/screens/EmailQRScreen.dart';
 import 'package:safebusiness/screens/QRCodeScanner.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:safebusiness/screens/notification.dart';
 import 'package:safebusiness/utils/color_resources.dart';
 import 'package:safebusiness/widgets/carousel.dart';
 import 'package:safebusiness/widgets/carousel_image.dart';
@@ -80,9 +81,9 @@ class _HomeState extends State<Home> {
     'index': 4,
   },
   {
-    'title': 'Spirituality',
-    'desc': 'Peace',
-    'icon': Icons.self_improvement,
+    'title': 'Events',
+    'desc': 'Events',
+    'icon': Icons.party_mode,
     'index': 5,
   },
 ];
@@ -101,6 +102,9 @@ class _HomeState extends State<Home> {
     _loadEmployeeDetails();
     _loadStates();
     _loadSavedImage();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    NotificationService(context).init(); // 🔥 RUN IN BACKGROUND
+  });
   }
 
   /// Load the saved image path from SharedPreferences
@@ -428,7 +432,7 @@ class _HomeState extends State<Home> {
     // First container (Employee info)
     Container(
   width: MediaQuery.of(context).size.width,
-  height: MediaQuery.of(context).size.height * 0.33, // Combined height (0.21 + 0.12)
+  height: MediaQuery.of(context).size.height * 0.35, // Combined height (0.21 + 0.12)
   decoration: const ShapeDecoration(
     gradient: LinearGradient(
       colors: [
@@ -538,6 +542,7 @@ class _HomeState extends State<Home> {
                     ? DecorationImage(
                         image: FileImage(_imageFile!),
                         fit: BoxFit.cover,
+                        filterQuality: FilterQuality.high,
                       )
                     : null,
               ),
@@ -1010,7 +1015,7 @@ class _HomeState extends State<Home> {
       title,
       style: GoogleFonts.poppins(
         color: Colors.white,
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: FontWeight.w600,
       ),
     );
