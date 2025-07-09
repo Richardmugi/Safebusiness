@@ -150,9 +150,15 @@ class _ReportState extends State<Report> {
 Widget build(BuildContext context) {
   return SafeArea(
     child: Scaffold(
-      backgroundColor: Colors.transparent, // Let the Container handle the color
+      appBar: AppBar(
+        title: Text('Attendance Summary'),
+        backgroundColor: mainColor,
+        centerTitle: true,
+        elevation: 0,
+      ),
+      backgroundColor: Colors.white, // Let the Container handle the color
       body: Container(
-        decoration: const BoxDecoration(
+        /*decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
               Color(0xFF4B0000),
@@ -162,27 +168,27 @@ Widget build(BuildContext context) {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
-        ),
+        ),*/
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verticalSpacing(25),
-              Text(
+              /*Text(
                 'Attendance',
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
-              ),
-              verticalSpacing(5.0),
-              Divider(
+              ),*/
+              //verticalSpacing(5.0),
+              /*Divider(
                 thickness: 2,
                 color: Colors.white.withOpacity(0.3),
               ),
-              verticalSpacing(15),
+              verticalSpacing(15),*/
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -192,7 +198,7 @@ Widget build(BuildContext context) {
                       Text(
                         'Check In Report',
                         style: GoogleFonts.poppins(
-                          color: Colors.white,
+                          color: mainColor,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -201,7 +207,7 @@ Widget build(BuildContext context) {
                       Text(
                         '${fromDate?.toLocal().toString().split(' ')[0] ?? "N/A"} to ${toDate?.toLocal().toString().split(' ')[0] ?? "N/A"}',
                         style: GoogleFonts.poppins(
-                          color: Colors.white70,
+                          color: mainColor,
                           fontSize: 10,
                           fontWeight: FontWeight.w400,
                         ),
@@ -215,7 +221,7 @@ Widget build(BuildContext context) {
                         onPressed: () => _selectDate(context, true),
                         icon: Image.asset(
                           'assets/icons/magnifying-glass.png',
-                          color: Colors.white,
+                          color: mainColor,
                           width: 20,
                           height: 20,
                         ),
@@ -225,7 +231,7 @@ Widget build(BuildContext context) {
                         onPressed: () => _downloadCSV(),
                         icon: Icon(
                           Icons.download,
-                          color: Colors.white,
+                          color: mainColor,
                           size: 20,
                         ),
                       ),

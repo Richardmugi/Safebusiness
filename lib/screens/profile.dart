@@ -152,7 +152,7 @@ class _SettingsState extends State<Profile> {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
-    backgroundColor: mainColor,
+    backgroundColor: Colors.white,
     body: SafeArea(
       child: Column(
         children: [

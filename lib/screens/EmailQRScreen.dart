@@ -80,7 +80,7 @@ class _EmailQrScreenState extends State<EmailQrScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(0xFF4B0000),
+          backgroundColor: mainColor,
           leading: IconButton(
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
@@ -96,11 +96,11 @@ class _EmailQrScreenState extends State<EmailQrScreen> {
           centerTitle: true,
           elevation: 0,
         ),
-        backgroundColor: Colors.transparent, // Let the container handle the color
+        backgroundColor: Colors.white, // Let the container handle the color
     body: Container(
   width: double.infinity,
   height: MediaQuery.of(context).size.height,
-  decoration: const BoxDecoration(
+  /*decoration: const BoxDecoration(
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -110,7 +110,7 @@ class _EmailQrScreenState extends State<EmailQrScreen> {
         Color(0xFF8B0000),
       ],
     ),
-  ),
+  ),*/
         child: email == null
             ? const Center(child: CircularProgressIndicator())
             : Padding(
@@ -170,7 +170,7 @@ class _EmailQrScreenState extends State<EmailQrScreen> {
                       child: ElevatedButton.icon(
                         onPressed: () => _shareQrImage(context),
                         icon: const Icon(Icons.download),
-                        label: const Text("Download & Share QR Code"),
+                        label: const Text("Download & Share QR Code", style: TextStyle(color: mainColor),),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(

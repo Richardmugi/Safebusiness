@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:safebusiness/screens/EmailQRScreen.dart';
 import 'package:safebusiness/screens/QRCodeScanner.dart';
 import 'package:path_provider/path_provider.dart';
@@ -31,6 +32,7 @@ class _HomeState extends State<Home> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController companyEmailController = TextEditingController();
   final FlutterRingtonePlayer _ringtonePlayer = FlutterRingtonePlayer();
+  final String qrData = "EMP-2023-0012-John-Doe";
   String employeeId = "";
   String employeeName = "";
   String employeeEmail = "";
@@ -422,12 +424,30 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+        title: Text('Employee Profile'),
         backgroundColor: mainColor,
+        centerTitle: true,
+        elevation: 0,
+      ),
+        backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
+              Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Profile Section
+              _buildProfileSection(),
+              SizedBox(height: 12),
+              _buildQrCodeSection(),
+              SizedBox(height: 12),
+            ],
+          ),
+        ),
+              /*Column(
   children: [
     // First container (Employee info)
     Container(
@@ -570,13 +590,13 @@ class _HomeState extends State<Home> {
   ),
 )
   ],
-),
+),*/
               //verticalSpacing(MediaQuery.of(context).size.height * 0.05),
               Padding(
                 padding: const EdgeInsets.only(
                   left: 24,
                   right: 24,
-                  top: 30,
+                  //top: 30,
                   bottom: 15,
                 ),
                 child: FutureBuilder(
@@ -779,7 +799,7 @@ class _HomeState extends State<Home> {
                     Text(
                       'Adverts',
                       style: GoogleFonts.poppins(
-                        color: Colors.white,
+                        color: mainColor,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -886,6 +906,163 @@ class _HomeState extends State<Home> {
     );
   }
 
+
+Widget _buildProfileSection() {
+  return Card(
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          // Profile Picture with Image Picker
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(40), // Half of 80 for perfect circle
+              onTap: () async {
+                if (_isLoading) return;
+                setState(() {
+                  _isLoading = true;
+                });
+                await _pickImage();
+                setState(() {
+                  _isLoading = false;
+                });
+              },
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.blue[100],
+                  border: Border.all(
+                    color: Colors.grey.shade400,
+                    width: 2,
+                  ),
+                  image: _imageFile != null
+                      ? DecorationImage(
+                          image: FileImage(_imageFile!),
+                          fit: BoxFit.cover,
+                        )
+                      : DecorationImage(
+                          image: NetworkImage('https://randomuser.me/api/portraits/men/1.jpg'),
+                          fit: BoxFit.cover,
+                        ),
+                ),
+                child: _isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : (_imageFile == null
+                        ? Center(
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 30,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                          )
+                        : null),
+              ),
+            ),
+          ),
+          SizedBox(width: 16),
+          
+          // Employee Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  employeeName,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  employeeId,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+  Widget _buildQrCodeSection() {
+  return Card(
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          // QR Code
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border.all(color: mainColor, width: 2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: QrImageView(
+              data: qrData,
+              version: QrVersions.auto,
+              size: 70,
+            ),
+          ),
+          SizedBox(width: 16),
+          
+          // QR Code Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'QR Code',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 8),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const EmailQrScreen()),
+                );
+                  },
+                  child: Text(
+                    'Tap to generate QR Code',
+                    style: TextStyle(
+                      color: mainColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
   /*InkWell actionButton(
   BuildContext context, {
   required Function() onPressed,

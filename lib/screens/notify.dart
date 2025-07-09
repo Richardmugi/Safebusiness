@@ -37,7 +37,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   Future<void> _initNotifications() async {
   const AndroidInitializationSettings androidInitSettings =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
+      AndroidInitializationSettings('@mipmap/launcher_icon');
 
   const DarwinInitializationSettings iosInitSettings = DarwinInitializationSettings(
     requestAlertPermission: true,
@@ -102,7 +102,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       now.year,
       now.month,
       now.day,
-      7,
+      4,
       0,
     );
 

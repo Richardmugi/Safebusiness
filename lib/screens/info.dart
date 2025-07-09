@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:safebusiness/utils/color_resources.dart';
 import 'package:safebusiness/widgets/action_button.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -110,12 +111,12 @@ You will be contacted shortly. Thank you!
     print('Address: $address');
 
     // Example: send SMS to NC (admin/manager)
-    const adminPhone = "+256745410599";
-    const clientPhone = "+256745410599"; // Replace with valid test number
+    const adminPhone = "+256781794950";
+    var clientPhone = contact; // Replace with valid test number
     await sendSms(adminPhone, clientPhone, name, contact, address);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Your information has been sent. You will receive confirmation shortly!')),
+      const SnackBar(content: Text('Your information has been sent. You will receive confirmation shortly!'), backgroundColor: mainColor,),
     );
 
     _formKey.currentState!.reset();
@@ -132,24 +133,25 @@ You will be contacted shortly. Thank you!
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_outlined, size: 20, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_outlined, size: 20, color: mainColor),
         ),
         title: Text(
           'Your Information',
           style: GoogleFonts.poppins(
-            color: Colors.white,
+            color: mainColor,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: const Color(0xFF4B0000),
+        backgroundColor: Colors.white,
       ),
       body: Container(
         width: double.infinity,
         height: MediaQuery.of(context).size.height,
-        decoration: const BoxDecoration(
+        color: Colors.white,
+        /*decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -159,7 +161,7 @@ You will be contacted shortly. Thank you!
               Color(0xFF8B0000),
             ],
           ),
-        ),
+        ),*/
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           child: Column(
@@ -168,7 +170,7 @@ You will be contacted shortly. Thank you!
               Text(
                 'Your details',
                 style: GoogleFonts.poppins(
-                  color: Colors.white,
+                  color: mainColor,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),
@@ -177,7 +179,7 @@ You will be contacted shortly. Thank you!
               Text(
                 'We need this information to process your order',
                 style: GoogleFonts.poppins(
-                  color: Colors.white.withOpacity(0.8),
+                  color: mainColor,
                   fontSize: 14,
                 ),
               ),
@@ -255,38 +257,38 @@ You will be contacted shortly. Thank you!
       TextFormField(
         controller: controller,
         readOnly: !isEditable,
-        style: GoogleFonts.poppins(color: Colors.white),
+        style: GoogleFonts.poppins(color: mainColor),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: GoogleFonts.poppins(
-            color: Colors.white.withOpacity(0.9),
+            color: mainColor,
             fontWeight: FontWeight.w500,
           ),
           hintText: hint,
           hintStyle: GoogleFonts.poppins(
-            color: Colors.white.withOpacity(0.6),
+            color: mainColor,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white, width: 1.5),
+            borderSide: const BorderSide(color: mainColor, width: 1.5),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white, width: 1.5),
+            borderSide: const BorderSide(color: mainColor, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white, width: 2),
+            borderSide: const BorderSide(color: mainColor, width: 2),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
         keyboardType: keyboardType,
         maxLines: maxLines,
         validator: validator,
-        cursorColor: Colors.white,
+        cursorColor: mainColor,
       ),
       IconButton(
-        icon: Icon(Icons.edit, color: Colors.white.withOpacity(0.8), size: 20),
+        icon: Icon(Icons.edit, color: mainColor, size: 20),
         onPressed: onEditTap,
       ),
     ],

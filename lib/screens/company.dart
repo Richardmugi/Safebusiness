@@ -12,13 +12,19 @@ class QuickActionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+        title: Text('Quick Actions'),
         backgroundColor: mainColor,
+        centerTitle: true,
+        elevation: 0,
+      ),
+        backgroundColor: Colors.white,
         body: SingleChildScrollView( // Make the body scrollable
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verticalSpacing(25),
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.only(left: 24),
                 child: Text(
                   'Quick Actions',
@@ -28,9 +34,9 @@ class QuickActionsPage extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              verticalSpacing(5.0),
-              customDivider(thickness: 3, color: Color(0xFFD9D9D9)),
+              ),*/
+              //verticalSpacing(5.0),
+              //customDivider(thickness: 3, color: Color(0xFFD9D9D9)),
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
