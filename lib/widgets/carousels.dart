@@ -14,10 +14,10 @@ class ImageCarosel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 220, // overall height of carousel
+      height: 300, // overall height of carousel
       child: CarouselSlider(
         options: CarouselOptions(
-          height: 220.0,
+          height: 300.0,
           enlargeCenterPage: true,
           autoPlay: true,
           autoPlayInterval: const Duration(seconds: 3),
@@ -32,7 +32,7 @@ class ImageCarosel extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 5.0),
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: mainColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ClipRRect(
@@ -41,7 +41,7 @@ class ImageCarosel extends StatelessWidget {
                         imagePath,
                         fit: BoxFit.cover,
                         width: double.infinity,
-                        height: 160,
+                        height: 250,
                       ),
                     ),
                   ),

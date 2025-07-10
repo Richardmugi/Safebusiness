@@ -38,6 +38,9 @@ class _HomeState extends State<Home> {
   String employeeEmail = "";
   String companyEmail = "";
   String companyName = "";
+  String branchName = "";
+  String departmentName = "";
+  String designationName = "";
   int selectedIndex = -1; // Initially, no box is selected
   late Future<bool> _canCheckIn;
   late Future<bool> _canCheckOut;
@@ -54,39 +57,27 @@ class _HomeState extends State<Home> {
   final categoryData = [
   {
     'title': 'Health',
-    'desc': 'Wellbeing',
-    'icon': Icons.health_and_safety,
-    'index': 0,
+    'imagePath': 'assets/images/health.jpeg',
   },
   {
     'title': 'Travels',
-    'desc': 'Explore',
-    'icon': Icons.flight_takeoff,
-    'index': 1,
+    'imagePath': 'assets/images/travel.jpeg',
   },
   {
     'title': 'Vacations',
-    'desc': 'Relaxation',
-    'icon': Icons.beach_access,
-    'index': 2,
+    'imagePath': 'assets/images/vac.jpg',
   },
   {
     'title': 'Hangouts',
-    'desc': 'Social Fun',
-    'icon': Icons.people,
-    'index': 3,
+    'imagePath': 'assets/images/hangouts.jpg',
   },
   {
     'title': 'Food',
-    'desc': 'Tastes',
-    'icon': Icons.fastfood,
-    'index': 4,
+    'imagePath': 'assets/images/food.jpg',
   },
   {
     'title': 'Events',
-    'desc': 'Events',
-    'icon': Icons.party_mode,
-    'index': 5,
+   'imagePath': 'assets/images/events.jpg',
   },
 ];
 
@@ -160,8 +151,91 @@ class _HomeState extends State<Home> {
     await prefs.setString('profile_image', path);
   }
 
+  Future<void> _fetchBranchName(int branchId) async {
+    var url = Uri.parse(
+      "http://65.21.59.117/safe-business-api/public/api/v1/getCompanyBranches",
+    );
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"companyEmail": companyEmail}),
+    );
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      if (data["status"] == "SUCCESS") {
+        var branch = (data["branches"] as List).firstWhere(
+          (b) => b["id"] == branchId,
+          orElse: () => null,
+        );
+        setState(() {
+          branchName = branch != null ? branch["name"] : "Unknown Branch";
+        });
+      }
+    }
+  }
+
+  Future<void> _fetchDepartmentName(int branchId, int departmentId) async {
+    var url = Uri.parse(
+      "http://65.21.59.117/safe-business-api/public/api/v1/getCompanyDepartmentsByBranch",
+    );
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"companyEmail": companyEmail, "branchId": branchId}),
+    );
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      if (data["status"] == "SUCCESS") {
+        var department = (data["departments"] as List).firstWhere(
+          (d) => d["id"] == departmentId,
+          orElse: () => null,
+        );
+        setState(() {
+          departmentName =
+              department != null ? department["name"] : "Unknown Department";
+        });
+      }
+    }
+  }
+
+  Future<void> _fetchDesignationName(
+    int departmentId,
+    int designationId,
+  ) async {
+    var url = Uri.parse(
+      "http://65.21.59.117/safe-business-api/public/api/v1/getDesignationsByDepartment",
+    );
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "companyEmail": companyEmail,
+        "departmentId": departmentId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      if (data["status"] == "SUCCESS") {
+        var designation = (data["designations"] as List).firstWhere(
+          (d) => d["id"] == designationId,
+          orElse: () => null,
+        );
+        setState(() {
+          designationName =
+              designation != null ? designation["name"] : "Unknown Designation";
+        });
+      }
+    }
+  }
+
   Future<void> _loadEmployeeDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    int branchId = prefs.getInt("branchId") ?? 0;
+    int departmentId = prefs.getInt("departmentId") ?? 0;
+    int designationId = prefs.getInt("designationId") ?? 0;
     setState(() {
       employeeId = prefs.getString('employeeId') ?? "N/A";
       employeeName = prefs.getString('employeeName') ?? "N/A";
@@ -169,6 +243,9 @@ class _HomeState extends State<Home> {
       companyEmail = prefs.getString('companyEmail') ?? "N/A";
       companyName = prefs.getString('companyName') ?? "N/A";
     });
+    _fetchBranchName(branchId);
+  _fetchDepartmentName(branchId, departmentId);
+  _fetchDesignationName(departmentId, designationId);
   }
 
   void _loadStates() {
@@ -424,182 +501,180 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-        title: Text('Employee Profile'),
-        backgroundColor: mainColor,
+        //backgroundColor: Colors.white,
+      /*appBar: AppBar(
+        title: Text('Employee Dashboard'),
         centerTitle: true,
         elevation: 0,
-      ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+      ),*/
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Profile Section
-              _buildProfileSection(),
-              SizedBox(height: 12),
-              _buildQrCodeSection(),
-              SizedBox(height: 12),
-            ],
-          ),
-        ),
-              /*Column(
-  children: [
-    // First container (Employee info)
-    Container(
+              Container(
   width: MediaQuery.of(context).size.width,
-  height: MediaQuery.of(context).size.height * 0.35, // Combined height (0.21 + 0.12)
   decoration: const ShapeDecoration(
-    gradient: LinearGradient(
-      colors: [
-        Color(0xFF4B0000), // Deep Burgundy
-        Color(0xFFF80101), // Dark Red
-        Color(0xFF8B0000),
-      ],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
+    color: mainColor,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(30),
-        bottomRight: Radius.circular(30),
+        bottomLeft: Radius.circular(40),
+        bottomRight: Radius.circular(40),
       ),
     ),
   ),
-  child: Stack(
-    children: [
-      // Left section with name, ID, QR button, and company info
-      Padding(
-        padding: const EdgeInsets.only(left: 30, top: 20, right: 150), // Account for profile image
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _headerTextBold(employeeName),
-            const SizedBox(height: 14),
-            _headerTextBold(employeeId),
-            const SizedBox(height: 14),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const EmailQrScreen()),
-                );
-              },
-              child: Container(
-                width: 55,
-                height: 55,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white, width: 1.5),
+            Row(
+              children: [
+                // Profile Picture
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(40),
+                    onTap: () async {
+                      if (_isLoading) return;
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      await _pickImage();
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    },
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blue[100],
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
+                        ),
+                        image: _imageFile != null
+                            ? DecorationImage(
+                                image: FileImage(_imageFile!),
+                                fit: BoxFit.cover,
+                              )
+                            : const DecorationImage(
+                                image: NetworkImage(
+                                    'https://randomuser.me/api/portraits/men/1.jpg'),
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                      child: _isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : (_imageFile == null
+                              ? Center(
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    size: 30,
+                                    color: Colors.white.withOpacity(0.7),
+                                  ),
+                                )
+                              : null),
+                    ),
+                  ),
                 ),
-                child: Image.asset(
-                  'assets/icons/qr-code2.png',
-                  color: Colors.black,
+                const SizedBox(width: 10),
+                // Name and Employee ID
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        employeeName,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        employeeId,
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                // QR Code
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const EmailQrScreen()),
+                      );
+                    },
+                    child: const Icon(Icons.qr_code,
+                        size: 40, color: Colors.black),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 14),
-            RichText(
-              text: TextSpan(
-                style: GoogleFonts.poppins(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w400,
+            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(
+                  children: [
+                    const Text('Department', style: TextStyle(color: Colors.white)),
+                    Text(departmentName,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white)),
+                  ],
                 ),
-                children: const [
-                  TextSpan(text: 'Check', style: TextStyle(color: Colors.white)),
-                  TextSpan(text: 'Inpro', style: TextStyle(color: Colors.black)),
-                ],
-              ),
+                Column(
+                  children: [
+                    const Text('Designation', style: TextStyle(color: Colors.white)),
+                    Text(designationName,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white)),
+                  ],
+                ),
+              ],
             ),
-            //const SizedBox(height: 10),
-            _headerTextBold(companyName),
-            //const SizedBox(height: 10),
           ],
         ),
       ),
-
-      // Right-side profile image
-      Positioned(
-        right: 0,
-        bottom: 0,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(50),
-              bottomLeft: Radius.circular(50),
-            ),
-            onTap: () async {
-              if (_isLoading) return;
-              setState(() {
-                _isLoading = true;
-              });
-              await _pickImage();
-              setState(() {
-                _isLoading = false;
-              });
-            },
-            child: Container(
-              width: 130,
-              height: 190,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(50),
-                  bottomLeft: Radius.circular(50),
-                ),
-                border: Border.all(
-                  color: Colors.grey.shade400,
-                  width: 2,
-                ),
-                image: _imageFile != null
-                    ? DecorationImage(
-                        image: FileImage(_imageFile!),
-                        fit: BoxFit.cover,
-                        filterQuality: FilterQuality.high,
-                      )
-                    : null,
-              ),
-              child: _isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                      ),
-                    )
-                  : (_imageFile == null
-                      ? const Center(
-                          child: Icon(
-                            Icons.camera_alt,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
-                        )
-                      : null),
-            ),
-          ),
-        ),
-      ),
-    ],
-  ),
-)
-  ],
-),*/
-              //verticalSpacing(MediaQuery.of(context).size.height * 0.05),
+    
+),
               Padding(
-                padding: const EdgeInsets.only(
-                  left: 24,
-                  right: 24,
-                  //top: 30,
-                  bottom: 15,
-                ),
-                child: FutureBuilder(
+        padding: const EdgeInsets.all(14.0),
+        child: Column(
+          children: [
+            // Personal Info Card
+              Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'Attendance',
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 16),
+                FutureBuilder(
                   future: Future.wait([_canCheckIn, _canCheckOut]),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
@@ -697,7 +772,7 @@ class _HomeState extends State<Home> {
     ),
   ),
 ),
-
+SizedBox(width: 8),
 
                         // Check Out Button
                         GestureDetector(
@@ -781,13 +856,19 @@ class _HomeState extends State<Home> {
     ),
   ),
 ),
-
                       ],
                     );
                   },
                 ),
+                SizedBox(height: 14),
+                    Text(
+                      'Mark your Attendance here',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ],
               ),
-
+              ),),
+              SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -806,13 +887,12 @@ class _HomeState extends State<Home> {
                     ),
                     Icon(
                       Icons.arrow_forward_ios, // Right arrow
-                      color: Colors.white,
+                      color: mainColor,
                       size: 16,
                     ),
                   ],
                 ),
               ),
-
               // Horizontal scrollable category boxes
               Padding(
   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -831,6 +911,36 @@ class _HomeState extends State<Home> {
   });
           },
           child: Container(
+  margin: const EdgeInsets.symmetric(vertical: 6.4, horizontal: 10),
+  constraints: const BoxConstraints(
+    minWidth: 107,
+  ),
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(12),
+    border: Border.all(color: Colors.white, width: 0.4),
+    image: DecorationImage(
+      image: AssetImage(categoryData[index]['imagePath'] as String),
+      fit: BoxFit.cover,
+    ),
+  ),
+  alignment: Alignment.center,
+  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+  child: Container(
+    color: Colors.black.withOpacity(0.5), // dark overlay for readability
+    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+    child: Text(
+      categoryData[index]['title'] as String,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+      ),
+      textAlign: TextAlign.center,
+    ),
+  ),
+),
+
+          /*child: Container(
             margin: EdgeInsets.symmetric(vertical: 6.4, horizontal: 10),
             constraints: BoxConstraints(
               minWidth: 107,
@@ -880,7 +990,7 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-          ),
+          ),*/
         );
       },
     ),
@@ -889,7 +999,7 @@ class _HomeState extends State<Home> {
 
 
               // Spacer or additional content if needed
-              SizedBox(height: 10),
+              SizedBox(height: 16),
               Padding(
   padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
   child: ImageCarosel(
@@ -902,302 +1012,12 @@ class _HomeState extends State<Home> {
             ],
           ),
         ),
+            ],
+      ),
+        ),
       ),
     );
   }
-
-
-Widget _buildProfileSection() {
-  return Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          // Profile Picture with Image Picker
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(40), // Half of 80 for perfect circle
-              onTap: () async {
-                if (_isLoading) return;
-                setState(() {
-                  _isLoading = true;
-                });
-                await _pickImage();
-                setState(() {
-                  _isLoading = false;
-                });
-              },
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.blue[100],
-                  border: Border.all(
-                    color: Colors.grey.shade400,
-                    width: 2,
-                  ),
-                  image: _imageFile != null
-                      ? DecorationImage(
-                          image: FileImage(_imageFile!),
-                          fit: BoxFit.cover,
-                        )
-                      : DecorationImage(
-                          image: NetworkImage('https://randomuser.me/api/portraits/men/1.jpg'),
-                          fit: BoxFit.cover,
-                        ),
-                ),
-                child: _isLoading
-                    ? Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : (_imageFile == null
-                        ? Center(
-                            child: Icon(
-                              Icons.camera_alt,
-                              size: 30,
-                              color: Colors.white.withOpacity(0.7),
-                            ),
-                          )
-                        : null),
-              ),
-            ),
-          ),
-          SizedBox(width: 16),
-          
-          // Employee Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  employeeName,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  employeeId,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-  Widget _buildQrCodeSection() {
-  return Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          // QR Code
-          Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              border: Border.all(color: mainColor, width: 2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: QrImageView(
-              data: qrData,
-              version: QrVersions.auto,
-              size: 70,
-            ),
-          ),
-          SizedBox(width: 16),
-          
-          // QR Code Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'QR Code',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8),
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const EmailQrScreen()),
-                );
-                  },
-                  child: Text(
-                    'Tap to generate QR Code',
-                    style: TextStyle(
-                      color: mainColor,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-  /*InkWell actionButton(
-  BuildContext context, {
-  required Function() onPressed,
-  required String text,
-  required Color color, // Add a color parameter
-}) {
-  return InkWell(
-    onTap: onPressed,
-    splashColor: color.withOpacity(0.2), // Use the passed color for splash effect
-    highlightColor: color.withOpacity(0.1), // Use the passed color for highlight effect
-    borderRadius: BorderRadius.circular(10), // Match the border radius of the container
-    child: Ink(
-      width: MediaQuery.of(context).size.width * 0.4,
-      height: 44,
-      decoration: BoxDecoration(
-        color: Colors.transparent, // Transparent background
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color, // Use the passed color for the border
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.1), // Use the passed color for the shadow
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(
-            color: Colors.black, // Keep text color black
-            fontSize: 14,
-            fontWeight: FontWeight.w600, // Slightly bolder text
-          ),
-        ),
-      ),
-    ),
-  );
-}*/
-
- /* Widget _buildCategoryBox({
-    required int index,
-    required String title,
-    required IconData icon,
-    required Color color,
-    ImageProvider? image, // Make image optional
-  }) {
-    bool isSelected = selectedIndex == index; // Check if this box is selected
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedIndex = index; // Update the selected index
-        });
-      },
-      child: Container(
-        width: 110, // Limit width of each category box
-        height: 110,
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? color.withOpacity(0.8)
-                  : color, // Highlight selected box
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(
-                isSelected ? 0.3 : 0.15,
-              ), // Stronger shadow for selected
-              blurRadius: isSelected ? 8 : 5,
-              offset: Offset(0, isSelected ? -2 : 4), // Lift effect
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (image != null)
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(image: image, fit: BoxFit.cover),
-                ),
-              )
-            else
-              Icon(
-                icon,
-                size: 32,
-                color: Colors.white,
-              ), // Show icon if no image
-
-            SizedBox(height: 8),
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }*/
-
-  Widget _headerText(String title) {
-    return Text(
-      title,
-      style: GoogleFonts.poppins(
-        color: Colors.white,
-        fontSize: 10,
-        fontWeight: FontWeight.w500,
-      ),
-    );
-  }
-
-  Widget _headerTextBold(String title) {
-    return Text(
-      title,
-      style: GoogleFonts.poppins(
-        color: Colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
-      ),
-    );
-  }
-  
 }
 
 class CheckInManager {

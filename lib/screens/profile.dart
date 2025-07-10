@@ -152,21 +152,16 @@ class _SettingsState extends State<Profile> {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
-    backgroundColor: Colors.white,
+    //backgroundColor: Color(0xFF8B0000),
     body: SafeArea(
       child: Column(
         children: [
           // Profile Header Section
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            //color: mainColor,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF4B0000), // Deep Burgundy
-    Color(0xFFF80101), // Dark Red
-    Color(0xFF8B0000),
-                ],
-              ),
+              color: mainColor,
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
@@ -319,13 +314,7 @@ Widget _buildInfoCard({required String title, required Map<String, String> items
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF4B0000), // Deep Burgundy
-    Color(0xFFF80101), // Dark Red
-    Color(0xFF8B0000),
-                ],
-              ),
+      color: mainColor,
       borderRadius: BorderRadius.circular(12),
       boxShadow: [
         BoxShadow(
@@ -395,13 +384,7 @@ Widget _buildActionButton({
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-                colors: [
-                   Color(0xFF4B0000), // Deep Burgundy
-    Color(0xFFF80101), // Dark Red
-    Color(0xFF8B0000),
-                ],
-              ),
+        color: mainColor,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(

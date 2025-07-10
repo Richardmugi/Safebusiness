@@ -89,11 +89,11 @@ class _LocationAccessState extends State<LocationAccess> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.transparent, // Let the container handle the color
+        //backgroundColor: Colors.white, // Let the container handle the color
     body: Container(
   width: double.infinity,
   height: MediaQuery.of(context).size.height,
-  decoration: const BoxDecoration(
+  /*decoration: const BoxDecoration(
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -103,7 +103,7 @@ class _LocationAccessState extends State<LocationAccess> {
         Color(0xFF8B0000),
       ],
     ),
-  ),
+  ),*/
   child: SingleChildScrollView(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -114,7 +114,7 @@ class _LocationAccessState extends State<LocationAccess> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: mainColor,
                 ),
               ),
               verticalSpacing(MediaQuery.of(context).size.height * 0.03),
@@ -152,7 +152,7 @@ class _LocationAccessState extends State<LocationAccess> {
                 style: TextStyle(
                   fontSize: Dimensions.FONT_SIZE_EXTRA_LARGE,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: mainColor,
                 ),
               ),
               verticalSpacing(MediaQuery.of(context).size.height * 0.04),
@@ -162,7 +162,7 @@ class _LocationAccessState extends State<LocationAccess> {
                 style: TextStyle(
                   fontSize: Dimensions.FONT_SIZE_DEFAULT,
                   fontWeight: FontWeight.w400,
-                  color: Colors.white,
+                  color: mainColor,
                 ),
               ),
               verticalSpacing(MediaQuery.of(context).size.height * 0.16),

@@ -65,13 +65,7 @@ class _DefaultHomePageState extends State<BottomNavBar> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4B0000), // Deep Burgundy
-    Color(0xFFF80101), // Dark Red
-    Color(0xFF8B0000),],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+          color: mainColor,
         ),
         child: BottomNavigationBar(
           elevation: 5.0,

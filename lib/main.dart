@@ -43,14 +43,14 @@ void main() async {
     ),
   );*/
 
-  //runApp(const MyApp());
+  runApp(const MyApp());
 
-  runApp(
+  /*runApp(
     DevicePreview(
       //enabled: !kReleaseMode, // Only enable in debug/dev
       builder: (context) => const MyApp(),
     ),
-  );
+  );*/
 }
 
 // Utility: Schedule the task to start at 10:40AM today (or tomorrow if passed)
@@ -124,9 +124,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           builder: (context, value, child) {
             return MaterialApp(
               title: 'Safebusiness',
-              useInheritedMediaQuery: true,
-              locale: DevicePreview.locale(context),
-              builder: DevicePreview.appBuilder,
+              //useInheritedMediaQuery: true,
+              //locale: DevicePreview.locale(context),
+              //builder: DevicePreview.appBuilder,
               debugShowCheckedModeBanner: false,
               theme: Styles.themeData(themeChangeProvider.darkTheme, context),
               home: Stack(

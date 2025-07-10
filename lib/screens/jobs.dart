@@ -123,7 +123,7 @@ class _CompanyJobsPageState extends State<CompanyJobsPage> {
 Widget build(BuildContext context) {
   return SafeArea(
     child: Scaffold(
-      backgroundColor: Colors.white, // Light grey background
+      //backgroundColor: Colors.white, // Light grey background
       appBar: AppBar(
         backgroundColor: mainColor, // Dark blue app bar
         leading: IconButton(

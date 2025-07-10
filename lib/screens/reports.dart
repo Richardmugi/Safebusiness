@@ -150,13 +150,7 @@ class _ReportState extends State<Report> {
 Widget build(BuildContext context) {
   return SafeArea(
     child: Scaffold(
-      appBar: AppBar(
-        title: Text('Attendance Summary'),
-        backgroundColor: mainColor,
-        centerTitle: true,
-        elevation: 0,
-      ),
-      backgroundColor: Colors.white, // Let the Container handle the color
+      //backgroundColor: Colors.white, // Let the Container handle the color
       body: Container(
         /*decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -175,20 +169,20 @@ Widget build(BuildContext context) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verticalSpacing(25),
-              /*Text(
-                'Attendance',
+              Text(
+                'Daily Attendance Summary',
                 style: GoogleFonts.poppins(
-                  color: Colors.white,
+                  color: mainColor,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
-              ),*/
-              //verticalSpacing(5.0),
-              /*Divider(
-                thickness: 2,
-                color: Colors.white.withOpacity(0.3),
               ),
-              verticalSpacing(15),*/
+              verticalSpacing(5.0),
+              Divider(
+                thickness: 2,
+                color: Colors.grey,
+              ),
+              verticalSpacing(15),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

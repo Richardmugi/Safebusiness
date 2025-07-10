@@ -59,7 +59,7 @@ Future<void> _loadUserDetails() async {
         body: Container(
   width: double.infinity,
   height: MediaQuery.of(context).size.height,
-  decoration: const BoxDecoration(
+  /*decoration: const BoxDecoration(
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -69,7 +69,7 @@ Future<void> _loadUserDetails() async {
         Color(0xFF8B0000),
       ],
     ),
-  ),
+  ),*/
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +82,7 @@ Future<void> _loadUserDetails() async {
                         Navigator.pop(context);
                       },
                       icon:
-                          const Icon(Icons.arrow_back_ios_outlined, size: 20, color: Colors.white)),
+                          const Icon(Icons.arrow_back_ios_outlined, size: 20, color: mainColor)),
                   Padding(
                     padding: const EdgeInsets.only(left: 0),
                     child: _headerTextBold('Change your Pin'),
@@ -130,7 +130,7 @@ Future<void> _loadUserDetails() async {
                 padding: const EdgeInsets.only(left: 24, bottom: 10),
                 child: Text('Enter Old PIN',
                     style: GoogleFonts.poppins(
-                      color: Colors.white,
+                      color: mainColor,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     )),
@@ -162,7 +162,7 @@ Future<void> _loadUserDetails() async {
                 padding: const EdgeInsets.only(left: 24, bottom: 10),
                 child: Text('Enter New PIN',
                     style: GoogleFonts.poppins(
-                      color: Colors.white,
+                      color: mainColor,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     )),
@@ -253,7 +253,7 @@ Align(
     return Text(
       title,
       style: GoogleFonts.poppins(
-        color: Colors.white,
+        color: mainColor,
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
@@ -264,7 +264,7 @@ Align(
     return Text(
       title,
       style: GoogleFonts.poppins(
-        color: Colors.white,
+        color: mainColor,
         fontSize: 13,
         fontWeight: FontWeight.w400,
       ),

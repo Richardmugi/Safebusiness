@@ -42,7 +42,7 @@ class _PasswordInputFieldState extends State<ConfirmPassword> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.white, // You can change this color as needed
+            color: Colors.grey, // You can change this color as needed
           ),
         ),
         SizedBox(height: 10), // Add some space between the label and the input boxes
@@ -53,7 +53,7 @@ class _PasswordInputFieldState extends State<ConfirmPassword> {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.white),
+                border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: TextField(

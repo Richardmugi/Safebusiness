@@ -75,13 +75,7 @@ class _NotificationsState extends State<Notifications> {
 Widget build(BuildContext context) {
   return SafeArea(
     child: Scaffold(
-      appBar: AppBar(
-        title: Text('Notifications'),
-        backgroundColor: mainColor,
-        centerTitle: true,
-        elevation: 0,
-      ),
-      backgroundColor: Colors.white,
+      //backgroundColor: Colors.white,
       body: Container(
         /*decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -97,13 +91,13 @@ Widget build(BuildContext context) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            //verticalSpacing(25),
-            /*Padding(
+            verticalSpacing(25),
+            Padding(
               padding: const EdgeInsets.only(left: 24),
               child: Text(
                 'Notifications',
                 style: GoogleFonts.poppins(
-                  color: Colors.white,
+                  color: mainColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -112,8 +106,8 @@ Widget build(BuildContext context) {
             verticalSpacing(5.0),
             Divider(
               thickness: 2,
-              color: Colors.white.withOpacity(0.3),
-            ),*/
+              color: Colors.grey,
+            ),
             verticalSpacing(15),
             notifications.isEmpty
                 ? Padding(

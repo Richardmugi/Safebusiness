@@ -12,31 +12,25 @@ class QuickActionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-        title: Text('Quick Actions'),
-        backgroundColor: mainColor,
-        centerTitle: true,
-        elevation: 0,
-      ),
-        backgroundColor: Colors.white,
+        //backgroundColor: Colors.white,
         body: SingleChildScrollView( // Make the body scrollable
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verticalSpacing(25),
-              /*Padding(
+              Padding(
                 padding: const EdgeInsets.only(left: 24),
                 child: Text(
                   'Quick Actions',
                   style: GoogleFonts.poppins(
-                    color: Colors.white,
+                    color: mainColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),*/
-              //verticalSpacing(5.0),
-              //customDivider(thickness: 3, color: Color(0xFFD9D9D9)),
+              ),
+              verticalSpacing(5.0),
+              customDivider(thickness: 3, color: Colors.grey),
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
@@ -46,7 +40,7 @@ class QuickActionsPage extends StatelessWidget {
                       icon: Icons.notifications,
                       description: 'Check your announcements here',
                       color: Colors.blueAccent,
-                      context: context,
+                      context: context, imagePath: 'assets/images/announcemnt.jpg',
                     ),
                     verticalSpacing(20.0),
                     buildActionContainer(
@@ -54,7 +48,7 @@ class QuickActionsPage extends StatelessWidget {
                       icon: Icons.work_outline,
                       description: 'Access company vacancies here',
                       color: Colors.green,
-                      context: context,
+                      context: context, imagePath: 'assets/images/job.webp',
                     ),
                     verticalSpacing(20.0),
                     buildActionContainer(
@@ -62,7 +56,7 @@ class QuickActionsPage extends StatelessWidget {
                       icon: Icons.attach_money,
                       description: 'Apply for leave easily',
                       color: Colors.orangeAccent,
-                      context: context,
+                      context: context, imagePath: 'assets/images/leave.jpg',
                     ),
                   ],
                 ),
@@ -75,88 +69,85 @@ class QuickActionsPage extends StatelessWidget {
   }
 
   Widget buildActionContainer({
-    required String label,
-    required IconData icon,
-    required String description,
-    required Color color,
-    required BuildContext context,
-  }) {
-    return Container(
-      width: MediaQuery.of(context).size.width - 24, // Full width minus left and right padding (16 + 16)
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF4B0000), // Deep Burgundy
-    Color(0xFFF80101), // Dark Red
-    Color(0xFF8B0000),
-                ],
-              ),
-        borderRadius: BorderRadius.circular(10),
+  required String label,
+  required IconData icon,
+  required String description,
+  required Color color,
+  required BuildContext context,
+  required String imagePath, // 👈 New parameter
+}) {
+  return Container(
+    width: MediaQuery.of(context).size.width - 24,
+    padding: const EdgeInsets.all(16.0),
+    decoration: BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage(imagePath), // 👈 Use the passed image path
+        fit: BoxFit.cover,
+        colorFilter: ColorFilter.mode(
+          Colors.white.withOpacity(0.85), // Optional: soft overlay
+          BlendMode.lighten,
+        ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40, color: Colors.white),
-          verticalSpacing(10.0),
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, size: 40, color: mainColor),
+        verticalSpacing(10.0),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: mainColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        verticalSpacing(5.0),
+        Text(
+          description,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.poppins(
+            color: Colors.black,
+            fontSize: 12,
+          ),
+        ),
+        verticalSpacing(10.0),
+        ElevatedButton(
+          onPressed: () {
+            if (label == 'Jobs') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CompanyJobsPage()),
+              );
+            } else if (label == 'Announcements') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AnnouncementsPage()),
+              );
+            } else if (label == 'Leave') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LeaveApplicationPage()),
+              );
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: color,
+            backgroundColor: mainColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
-          verticalSpacing(5.0),
-          Text(
-            description,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 12,
-            ),
+          child: const Text(
+            'Open',
+            style: TextStyle(color: Colors.white),
           ),
-          verticalSpacing(10.0),
-          ElevatedButton(
-            onPressed: () {
-             
-  if (label == 'Jobs') {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CompanyJobsPage()),
-    );
-  }
-
-  if (label == 'Announcements') {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AnnouncementsPage()),
-    );
-  }
-
-   if (label == 'Leave') {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => LeaveApplicationPage()),
-    );
-  }
-            },
-            style: ElevatedButton.styleFrom(
-              foregroundColor: color,
-              backgroundColor: Colors.white, // Button background color
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(
-              'Open',
-              style: TextStyle(color: mainColor),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget verticalSpacing(double height) {
     return SizedBox(height: height);

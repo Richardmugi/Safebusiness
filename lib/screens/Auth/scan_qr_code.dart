@@ -20,11 +20,11 @@ class ScanQRCode extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.transparent, // Let the container handle the color
+        //backgroundColor: Colors.white, // Let the container handle the color
     body: Container(
   width: double.infinity,
   height: MediaQuery.of(context).size.height,
-  decoration: const BoxDecoration(
+  /*decoration: const BoxDecoration(
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -34,7 +34,7 @@ class ScanQRCode extends StatelessWidget {
         Color(0xFF8B0000),
       ],
     ),
-  ),
+  ),*/
         child: Column(
           children: [
             verticalSpacing(MediaQuery.of(context).size.height * 0.1),

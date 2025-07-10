@@ -154,7 +154,7 @@ class _OtpVerificationSmsState extends State<OtpVerificationSms> {
         body: Container(
   width: double.infinity,
   height: MediaQuery.of(context).size.height,
-  decoration: const BoxDecoration(
+  /*decoration: const BoxDecoration(
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -164,20 +164,20 @@ class _OtpVerificationSmsState extends State<OtpVerificationSms> {
         Color(0xFF8B0000),
       ],
     ),
-  ),
+  ),*/
         child: SingleChildScrollView(
           child: Column(
             children: [
               verticalSpacing(MediaQuery.of(context).size.height * 0.12),
               Transform.scale(
                 scale: 0.5,
-                child: Image.asset('assets/icons/checkin2.png'),
+                child: Image.asset('assets/icons/checkin.png'),
               ),
               verticalSpacing(MediaQuery.of(context).size.height * 0.06),
               Text(
                 'OTP Verification',
                 style: GoogleFonts.poppins(
-                  color: Colors.white,
+                  color: mainColor,
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
@@ -187,7 +187,7 @@ class _OtpVerificationSmsState extends State<OtpVerificationSms> {
                 'Enter the verification code that we have just sent to your phone.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  color: Colors.white,
+                  color: mainColor,
                   fontSize: Dimensions.FONT_SIZE_DEFAULT,
                   fontWeight: FontWeight.w400,
                 ),
@@ -224,7 +224,7 @@ class _OtpVerificationSmsState extends State<OtpVerificationSms> {
                     TextSpan(
                       text: _start > 0 ? '$_start seconds' : 'Resend now',
                       style: GoogleFonts.poppins(
-                        color: Colors.white,
+                        color: mainColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),

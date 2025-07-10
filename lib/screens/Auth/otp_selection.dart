@@ -67,7 +67,7 @@ class _OtpMethodSelectionState extends State<OtpMethodSelection> {
       body: Container(
   width: double.infinity,
   height: MediaQuery.of(context).size.height,
-  decoration: const BoxDecoration(
+  /*decoration: const BoxDecoration(
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -77,7 +77,7 @@ class _OtpMethodSelectionState extends State<OtpMethodSelection> {
         Color(0xFF8B0000),
       ],
     ),
-  ),
+  ),*/
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
@@ -87,7 +87,7 @@ class _OtpMethodSelectionState extends State<OtpMethodSelection> {
             Text(
               'Select your preferred OTP delivery method',
               style: GoogleFonts.poppins(
-                color: Colors.white,
+                color: mainColor,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),

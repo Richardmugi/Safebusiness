@@ -230,10 +230,11 @@ void initState() {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        //backgroundColor: Colors.white,
         body: Container(
   width: double.infinity,
   height: MediaQuery.of(context).size.height,
-  decoration: const BoxDecoration(
+  /*decoration: const BoxDecoration(
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -243,13 +244,13 @@ void initState() {
         Color(0xFF8B0000),
       ],
     ),
-  ),
+  ),*/
         child: Column(
           children: [
             verticalSpacing(20),
             const Text(
               'Register',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: mainColor),
             ),
             verticalSpacing(10),
             Expanded(
@@ -266,7 +267,7 @@ void initState() {
       "Company Email",
       style: const TextStyle(
         fontSize: 16,
-        color: Colors.white, 
+        color: Colors.grey, 
         fontWeight: FontWeight.bold,
       ),
     ),
@@ -284,7 +285,7 @@ void initState() {
       "Company Name",
       style: const TextStyle(
         fontSize: 16,
-        color: Colors.white, 
+        color: Colors.grey, 
         fontWeight: FontWeight.bold,
       ),
     ),
@@ -599,7 +600,7 @@ void initState() {
           child: Text(
             "I agree with the Terms of Service",
             style: GoogleFonts.poppins(
-              color: Colors.white,
+              color: mainColor,
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
@@ -626,7 +627,7 @@ void initState() {
             TextSpan(
               text: 'Login Here',
               style: GoogleFonts.poppins(
-                color: Colors.white,
+                color: mainColor,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
