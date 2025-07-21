@@ -59,7 +59,7 @@ dependencies:
   qr_flutter: ^4.1.0
   pdf: ^3.11.3
   printing: ^5.14.2
-  #shorebird_code_push: ^2.0.3
+  shorebird_code_push: ^2.0.3
   carousel_slider: ^5.1.1
   device_preview: ^1.2.0
   flutter_local_notifications: ^19.3.0
