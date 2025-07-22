@@ -36,11 +36,11 @@
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app requires location access in both foreground and background.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera for scanning QR codes</string>
+	<string>We need access to your camera for scanning QR codes and detecting faces for employee check-in and check-out. No photos or videos are saved.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone for audio recording during check-ins. No audio is saved or shared without your permission.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to select an image</string>
-	<key>NSCameraUsageDescription</key>
-	<string>We use your camera to scan QR codes for employee check-in and check-out. No photos or videos are saved.</string>
+	<string>We need access to your photo library to allow optional image selection and support ML Kit features.</string>
 	<key>NSCalendarsUsageDescription</key>
   	<string>This app may request calendar access for event-related features.</string>
 	<key>CFBundleDevelopmentRegion</key>
