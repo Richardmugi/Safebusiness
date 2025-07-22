@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
+import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
@@ -26,7 +27,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
   List<Face> _detectedFaces = [];
   List<CameraDescription> _cameras = [];
   int _selectedCameraIndex = 0;
-  bool _isProcessing = false;
+  bool _isLoading = false;
 
 
   @override
@@ -77,7 +78,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
 
   Future<void> _captureAndRegisterFace() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized || !_modelLoaded) return;
-     setState(() => _isProcessing = true);
+     setState(() => _isLoading = true);
     try {
       final file = await _cameraController!.takePicture();
       final inputImage = InputImage.fromFilePath(file.path);
@@ -85,7 +86,13 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       _detectedFaces = faces;
       if (mounted) setState(() {});
       if (faces.isEmpty) {
-        _showMessage('No face detected in selfie');
+        //_showMessage('No face detected in selfie');
+        ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("No face detected in selfie"),
+        backgroundColor: mainColor,
+      ),
+    );
         return;
       }
 
@@ -120,11 +127,23 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       List<double> embedding = List<double>.from(output[0]);
       embedding = _normalize(embedding);
       await _saveEmbedding(embedding);
-      _showMessage('✅ Face registered successfully!');
+      //_showMessage('✅ Face registered successfully!');
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("✅ Face registered successfully!"),
+        backgroundColor: mainColor,
+      ),
+    );
     } catch (e) {
-      _showMessage('❌ Error: $e');
+      //_showMessage('❌ Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("❌ Error: $e"),
+        backgroundColor: mainColor,
+      ),
+    );
     } finally {
-    if (mounted) setState(() => _isProcessing = false);
+    if (mounted) setState(() => _isLoading = false);
   }
   }
 
@@ -134,7 +153,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
     await prefs.setString('face_embedding', encoded);
   }
 
-  void _showMessage(String msg) {
+  /*void _showMessage(String msg) {
   if (!mounted) return;
   WidgetsBinding.instance.addPostFrameCallback((_) {
     if (!mounted) return;
@@ -142,7 +161,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       SnackBar(content: Text(msg)),
     );
   });
-}
+}*/
 
 
   @override
@@ -175,7 +194,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
           ? Stack(
               children: [
                 CameraPreview(_cameraController!),
-                if (_isProcessing)
+                if (_isLoading)
                   Container(
                     color: Colors.black.withOpacity(0.5),
                     child: const Center(child: CircularProgressIndicator()),
@@ -191,7 +210,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       left: 24,
       right: 24,
       child: ElevatedButton.icon(
-        onPressed: _isProcessing ? null : _captureAndRegisterFace,
+        onPressed: _isLoading ? null : _captureAndRegisterFace,
         icon: const Icon(Icons.camera_alt),
         label: const Text("Capture Selfie"),
         style: ElevatedButton.styleFrom(

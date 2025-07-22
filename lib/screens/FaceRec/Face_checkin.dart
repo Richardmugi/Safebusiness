@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
+import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'dart:math' as math;
@@ -26,7 +27,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
 
   List<CameraDescription> _cameras = [];
   int _selectedCameraIndex = 0;
-  bool _isProcessing = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -72,14 +73,20 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
 
   Future<void> _captureAndCheckFace() async {
   if (_cameraController == null || !_cameraController!.value.isInitialized || !_modelLoaded) return;
-  setState(() => _isProcessing = true);
+  setState(() => _isLoading = true);
   try {
     final file = await _cameraController!.takePicture();
     final inputImage = InputImage.fromFilePath(file.path);
     final faces = await _faceDetector.processImage(inputImage);
 
     if (faces.isEmpty) {
-      _showMessage('No face detected in selfie');
+      //_showMessage('No face detected in selfie');
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("No face detected in selfie"),
+        backgroundColor: mainColor,
+      ),
+    );
       return;
     }
 
@@ -120,7 +127,13 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
 
     final storedEmbedding = await _loadStoredEmbedding();
     if (storedEmbedding == null) {
-      _showMessage("No registered face found. Please register first.");
+      //_showMessage("No registered face found. Please register first.");
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("No registered face found. Please register first."),
+        backgroundColor: mainColor,
+      ),
+    );
       return;
     }
 
@@ -132,15 +145,33 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
     print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
     if (distance < 0.6) {
-      _showMessage('✅ Face matched! Check-in successful');
+      //_showMessage('✅ Face matched! Check-in successful');
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("✅ Face matched! Check-in successful"),
+        backgroundColor: mainColor,
+      ),
+    );
     } else {
-      _showMessage('❌ Face does not match! Check-in failed');
+      //_showMessage('❌ Face does not match! Check-in failed');
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("❌ Face does not match! Check-in failed"),
+        backgroundColor: mainColor,
+      ),
+    );
     }
 
   } catch (e) {
-    _showMessage('Error: $e');
+    //_showMessage('Error: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("❌ Error: $e"),
+        backgroundColor: mainColor,
+      ),
+    );
   } finally {
-    if (mounted) setState(() => _isProcessing = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 }
 
@@ -164,7 +195,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
   return distance;
   }
 
-  void _showMessage(String msg) {
+  /*void _showMessage(String msg) {
   if (!mounted) return;
   WidgetsBinding.instance.addPostFrameCallback((_) {
     if (!mounted) return;
@@ -172,7 +203,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       SnackBar(content: Text(msg)),
     );
   });
-}
+}*/
 
 
   List<double> _normalize(List<double> embedding) {
@@ -210,7 +241,7 @@ void dispose() {
           ? Stack(
               children: [
                 CameraPreview(_cameraController!),
-                if (_isProcessing)
+                if (_isLoading)
                   Container(
                     color: Colors.black.withOpacity(0.5),
                     child: const Center(child: CircularProgressIndicator()),
@@ -228,7 +259,7 @@ void dispose() {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32.0),
         child: ElevatedButton.icon(
-          onPressed: _isProcessing ? null : _captureAndCheckFace,
+          onPressed: _isLoading ? null : _captureAndCheckFace,
           icon: const Icon(Icons.check),
           label: const Text("Check-In"),
           style: ElevatedButton.styleFrom(
