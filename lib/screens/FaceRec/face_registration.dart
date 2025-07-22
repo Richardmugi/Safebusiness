@@ -135,8 +135,15 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
   }
 
   void _showMessage(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-  }
+  if (!mounted) return;
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
+    );
+  });
+}
+
 
   @override
   void dispose() {
@@ -168,7 +175,6 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
           ? Stack(
               children: [
                 CameraPreview(_cameraController!),
-                if (_detectedFaces.isNotEmpty)
                 if (_isProcessing)
                   Container(
                     color: Colors.black.withOpacity(0.5),

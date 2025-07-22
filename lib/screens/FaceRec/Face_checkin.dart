@@ -165,8 +165,15 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
   }
 
   void _showMessage(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-  }
+  if (!mounted) return;
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
+    );
+  });
+}
+
 
   List<double> _normalize(List<double> embedding) {
   double norm = math.sqrt(embedding.fold(0, (sum, val) => sum + val * val));
