@@ -129,6 +129,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               //builder: DevicePreview.appBuilder,
               debugShowCheckedModeBanner: false,
               theme: Styles.themeData(themeChangeProvider.darkTheme, context),
+              scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>(),
               home: Stack(
         children: [
           const MySplashScreen(
