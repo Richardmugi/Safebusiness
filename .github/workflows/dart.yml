@@ -14,13 +14,20 @@ jobs:
         with:
           channel: 'stable'
           architecture: x64
+
       - run: flutter pub get
-      
+
+      - name: Create XCConfig to prevent symbol stripping
+        run: |
+          echo "STRIP_STYLE = non-global" > ios/NoStripping.xcconfig
+          echo "STRIP_INSTALLED_PRODUCT = NO" >> ios/NoStripping.xcconfig
+          echo "DEAD_CODE_STRIPPING = NO" >> ios/NoStripping.xcconfig
 
       - run: pod repo update
         working-directory: ios
 
-      - run: flutter build ios --release --no-codesign
+      - name: Build iOS release (without codesign, using xcconfig)
+        run: flutter build ios --release --no-codesign --xcconfig-overrides=ios/NoStripping.xcconfig
 
       - run: mkdir Payload
         working-directory: build/ios/iphoneos
