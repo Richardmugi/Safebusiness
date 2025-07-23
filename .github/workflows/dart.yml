@@ -38,7 +38,10 @@ jobs:
         working-directory: ios
 
       # Build IPA with symbol preservation
-      - run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
+      - run: flutter build ipa \
+            --release \
+            --export-options-plist=ios/ExportOptions.plist \
+            --no-codesign 
 
       # Upload the IPA
       - name: Upload binaries to release
