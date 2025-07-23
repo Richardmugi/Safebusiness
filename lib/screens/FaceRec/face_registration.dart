@@ -73,6 +73,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
   }
 
   Future<void> _loadModel() async {
+  try {
     _interpreter = await Interpreter.fromAsset('assets/models/facenet.tflite');
     setState(() => _modelLoaded = true);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -81,7 +82,17 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
         backgroundColor: mainColor,
       ),
     );
+  } catch (e) {
+    debugPrint("❌ Error loading model: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("❌ Error loading model: $e"),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
 
   List<double> _normalize(List<double> embedding) {
     final norm = math.sqrt(embedding.fold(0.0, (sum, val) => sum + val * val));
