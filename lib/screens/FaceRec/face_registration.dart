@@ -56,6 +56,12 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       ResolutionPreset.medium,
     );
     await _cameraController!.initialize();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Camera Initialized"),
+        backgroundColor: mainColor,
+      ),
+    );
     if (mounted) setState(() {});
   }
 
@@ -69,6 +75,12 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
   Future<void> _loadModel() async {
     _interpreter = await Interpreter.fromAsset('assets/models/facenet.tflite');
     setState(() => _modelLoaded = true);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Model Loaded Successfully"),
+        backgroundColor: mainColor,
+      ),
+    );
   }
 
   List<double> _normalize(List<double> embedding) {
