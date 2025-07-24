@@ -352,6 +352,7 @@
 				SUPPORTED_PLATFORMS = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
+				STRIP_STYLE = non-global;
 			};
 			name = Profile;
 		};
@@ -373,6 +374,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				STRIP_STYLE = non-global;
 			};
 			name = Profile;
 		};
@@ -480,6 +482,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				STRIP_STYLE = non-global;
 			};
 			name = Debug;
 		};
@@ -534,6 +537,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
+				STRIP_STYLE = non-global;
 			};
 			name = Release;
 		};
