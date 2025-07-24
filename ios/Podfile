@@ -35,7 +35,7 @@ target 'Runner' do
   # target 'RunnerTests' do
   #   inherit! :search_paths
   # end
-  pod 'TensorFlowLiteSwift'
+  pod 'TensorFlowLiteC'
 end
 
 post_install do |installer|
