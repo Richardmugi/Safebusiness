@@ -60,7 +60,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Camera Initialized"),
-        backgroundColor: mainColor,
+        backgroundColor: Colors.green,
       ),
     );
     if (mounted) setState(() {});
@@ -80,7 +80,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Model Loaded Successfully"),
-        backgroundColor: mainColor,
+        backgroundColor: Colors.green,
       ),
     );
   } catch (e) {
@@ -170,7 +170,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("✅ Face registered successfully!"),
-        backgroundColor: mainColor,
+        backgroundColor: Colors.green,
       ),
     );
     } catch (e, stack) {
@@ -214,19 +214,48 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
       
       if (faces.isNotEmpty) {
         debugPrint("Face detected after rotation!");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("iOS: Face detected after rotation correction"),
-            backgroundColor: Colors.green,
-          ),
-        );
         
-        // Process the face with rotation correction
         final face = faces.first;
-        final resized = img.copyResizeCropSquare(rotated, size: 160);
         
-        // [Continue with your face processing using the rotated image]
+        // Process the rotated image
+        final x = face.boundingBox.left.toInt().clamp(0, rotated.width - 1);
+        final y = face.boundingBox.top.toInt().clamp(0, rotated.height - 1);
+        final w = face.boundingBox.width.toInt().clamp(0, rotated.width - x);
+        final h = face.boundingBox.height.toInt().clamp(0, rotated.height - y);
+
+        final cropped = img.copyCrop(rotated, x: x, y: y, width: w, height: h);
+        final resized = img.copyResizeCropSquare(cropped, size: 160);
+
+        // Generate embedding
+        const inputSize = 160;
+        var input = List.generate(1, (_) => List.generate(inputSize, (y) =>
+            List.generate(inputSize, (x) {
+              final pixel = resized.getPixel(x, y);
+              return [
+                pixel.r / 255.0,
+                pixel.g / 255.0,
+                pixel.b / 255.0,
+              ];
+            })
+        ));
+
+        var output = List.generate(1, (_) => List.filled(128, 0.0));
+        _interpreter.run(input, output);
+
+        List<double> embedding = List<double>.from(output[0]);
+        embedding = _normalize(embedding);
         
+        // Save the embedding
+        await _saveEmbedding(embedding);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("✅ Face registered successfully (iOS rotated)!"),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       } else {
         debugPrint("Still no face detected after rotation");
         ScaffoldMessenger.of(context).showSnackBar(
@@ -243,6 +272,15 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
     } catch (e, stack) {
       debugPrint("Error in rotated image processing: $e");
       debugPrint("Stack trace: $stack");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error processing rotated image: ${e.toString()}"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
