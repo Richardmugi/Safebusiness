@@ -22,12 +22,13 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
   late Interpreter _interpreter;
   bool _modelLoaded = false;
   final FaceDetector _faceDetector = FaceDetector(
-    options: FaceDetectorOptions(performanceMode: FaceDetectorMode.accurate),
+    options: FaceDetectorOptions(performanceMode: FaceDetectorMode.accurate, enableContours: true,),
   );
   List<Face> _detectedFaces = [];
   List<CameraDescription> _cameras = [];
   int _selectedCameraIndex = 0;
   bool _isLoading = false;
+  bool _isIOS = Platform.isIOS;
 
 
   @override
@@ -106,16 +107,30 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       final file = await _cameraController!.takePicture();
       final inputImage = InputImage.fromFilePath(file.path);
       final faces = await _faceDetector.processImage(inputImage);
+
+      if (_isIOS) {
+        debugPrint('iOS specific debug:');
+        final image = img.decodeImage(await File(file.path).readAsBytes());
+        debugPrint('Decoded image size: ${image?.width}x${image?.height}');
+      }
+
       _detectedFaces = faces;
       if (mounted) setState(() {});
       if (faces.isEmpty) {
-        //_showMessage('No face detected in selfie');
+        String errorMsg = "No face detected in selfie";
+        if (_isIOS) {
+          errorMsg += " (iOS may need image rotation correction)";
+          // Try with rotated image for iOS
+          await _tryWithRotatedImage(file.path);
+          return;
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("No face detected in selfie"),
-        backgroundColor: mainColor,
-      ),
-    );
+          SnackBar(
+            content: Text(errorMsg),
+            backgroundColor: Colors.orange,
+          ),
+        );
         return;
       }
 
@@ -158,17 +173,77 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
         backgroundColor: mainColor,
       ),
     );
-    } catch (e) {
-      //_showMessage('❌ Error: $e');
+    } catch (e, stack) {
+      debugPrint("Error in face detection: $e");
+      debugPrint("Stack trace: $stack");
+      
       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("❌ Error: $e"),
-        backgroundColor: mainColor,
-      ),
-    );
+        SnackBar(
+          content: Text("Error: ${e.toString()}"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+        ),
+      );
     } finally {
-    if (mounted) setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
+
+Future<void> _tryWithRotatedImage(String imagePath) async {
+    try {
+      debugPrint("Attempting with rotated image for iOS...");
+      final bytes = await File(imagePath).readAsBytes();
+      img.Image? image = img.decodeImage(bytes);
+      
+      if (image == null) {
+        debugPrint("Failed to decode image");
+        return;
+      }
+      
+      // Rotate 90 degrees clockwise for iOS front camera
+      final rotated = img.copyRotate(image, angle: 90);
+      
+      // Save rotated image temporarily for debugging
+      final rotatedPath = '${imagePath}_rotated.jpg';
+      await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated));
+      debugPrint("Saved rotated image to: $rotatedPath");
+      
+      // Try face detection again with rotated image
+      final inputImage = InputImage.fromFilePath(rotatedPath);
+      final faces = await _faceDetector.processImage(inputImage);
+      
+      if (faces.isNotEmpty) {
+        debugPrint("Face detected after rotation!");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("iOS: Face detected after rotation correction"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        // Process the face with rotation correction
+        final face = faces.first;
+        final resized = img.copyResizeCropSquare(rotated, size: 160);
+        
+        // [Continue with your face processing using the rotated image]
+        
+      } else {
+        debugPrint("Still no face detected after rotation");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("iOS: No face detected even after rotation"),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      
+      // Clean up temporary file
+      await File(rotatedPath).delete();
+      
+    } catch (e, stack) {
+      debugPrint("Error in rotated image processing: $e");
+      debugPrint("Stack trace: $stack");
+    }
   }
 
   Future<void> _saveEmbedding(List<double> embedding) async {
