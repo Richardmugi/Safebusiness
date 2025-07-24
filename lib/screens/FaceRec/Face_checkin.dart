@@ -42,28 +42,22 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
     _selectedCameraIndex = _cameras.indexWhere(
       (cam) => cam.lensDirection == CameraLensDirection.front,
     );
-    if (_selectedCameraIndex == -1) _selectedCameraIndex = 0;
     await _initializeCamera();
   }
 
-  Future<void> _initializeCamera() async {
-    if (_cameraController != null) {
-      await _cameraController!.dispose();
-    }
-
-    _cameraController = CameraController(
-      _cameras[_selectedCameraIndex],
-      ResolutionPreset.medium,
-    );
-    await _cameraController!.initialize();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Camera Initialized"),
-        backgroundColor: Colors.green,
-      ),
-    );
-    if (mounted) setState(() {});
+ Future<void> _initializeCamera() async {
+  if (_cameraController != null) {
+    await _cameraController!.dispose();
   }
+
+  _cameraController = CameraController(
+    _cameras[_selectedCameraIndex],
+    ResolutionPreset.medium,
+  );
+  await _cameraController!.initialize();
+  if (mounted) setState(() {});
+}
+
 
   void _switchCamera() async {
     if (_cameras.length < 2) return;
@@ -73,27 +67,176 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
   }
 
   Future<void> _loadModel() async {
-    try {
-      _interpreter = await Interpreter.fromAsset(
-        'assets/models/facenet.tflite',
-      );
-      setState(() => _modelLoaded = true);
+    _interpreter = await Interpreter.fromAsset('assets/models/facenet.tflite');
+    setState(() => _modelLoaded = true);
+  }
+
+
+  Future<void> _captureAndCheckFace() async {
+  if (_cameraController == null || !_cameraController!.value.isInitialized || !_modelLoaded) return;
+  setState(() => _isLoading = true);
+
+  try {
+    final file = await _cameraController!.takePicture();
+
+    if (_isIOS) {
+      debugPrint('🔧 iOS Check-in: Applying orientation fix before face detection...');
+      final image = img.decodeImage(await File(file.path).readAsBytes());
+      if (image != null) {
+        debugPrint('📷 Decoded image size: ${image.width}x${image.height}');
+        final fixedImage = img.bakeOrientation(image);
+        final correctedPath = '${file.path}_fixed.jpg';
+        await File(correctedPath).writeAsBytes(img.encodeJpg(fixedImage));
+        
+        final inputImage = InputImage.fromFilePath(correctedPath);
+        final faces = await _faceDetector.processImage(inputImage);
+
+        if (faces.isEmpty) {
+          debugPrint("🚫 No face detected (iOS, after fix). Trying rotated fallback...");
+          await _tryWithRotatedImageCheckin(file.path);
+          return;
+        }
+
+        await _processCheckinFace(fixedImage, faces.first);
+        return;
+      }
+    }
+
+    // Android or fallback
+    final inputImage = InputImage.fromFilePath(file.path);
+    final faces = await _faceDetector.processImage(inputImage);
+
+    if (faces.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Model Loaded Successfully"),
-          backgroundColor: Colors.green,
+          content: Text("No face detected in selfie"),
+          backgroundColor: mainColor,
         ),
       );
-    } catch (e) {
-      debugPrint("❌ Error loading model: $e");
+      return;
+    }
+
+    final image = img.decodeImage(await File(file.path).readAsBytes());
+    if (image == null) throw Exception("Failed to decode image");
+
+    await _processCheckinFace(image, faces.first);
+
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("❌ Error: $e"),
+        backgroundColor: mainColor,
+      ),
+    );
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
+  }
+}
+
+Future<void> _tryWithRotatedImageCheckin(String imagePath) async {
+  try {
+    final bytes = await File(imagePath).readAsBytes();
+    final image = img.decodeImage(bytes);
+
+    if (image == null) {
+      debugPrint("❌ Failed to decode image for rotation");
+      return;
+    }
+
+    final rotated = img.copyRotate(image, angle: 90);
+    final rotatedPath = '${imagePath}_rotated_checkin.jpg';
+    await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated));
+
+    final inputImage = InputImage.fromFilePath(rotatedPath);
+    final faces = await _faceDetector.processImage(inputImage);
+
+    if (faces.isNotEmpty) {
+      debugPrint("✅ Face detected after rotation (iOS check-in)");
+      await _processCheckinFace(rotated, faces.first);
+
+      // Delete temp image
+      await File(rotatedPath).delete();
+      return;
+    } else {
+      debugPrint("🚫 Still no face detected after rotation (iOS check-in)");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("❌ Error loading model: $e"),
-          backgroundColor: Colors.red,
+          content: Text("iOS: No face detected even after rotation"),
+          backgroundColor: Colors.orange,
         ),
       );
     }
+  } catch (e) {
+    debugPrint("❌ Error in rotated image check-in: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("❌ Error processing rotated image for check-in"),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
+Future<void> _processCheckinFace(img.Image image, Face face) async {
+  final x = face.boundingBox.left.toInt().clamp(0, image.width - 1);
+  final y = face.boundingBox.top.toInt().clamp(0, image.height - 1);
+  final w = face.boundingBox.width.toInt().clamp(0, image.width - x);
+  final h = face.boundingBox.height.toInt().clamp(0, image.height - y);
+
+  final cropped = img.copyCrop(image, x: x, y: y, width: w, height: h);
+  final resized = img.copyResizeCropSquare(cropped, size: 160);
+
+  const inputSize = 160;
+  var input = List.generate(1, (_) => List.generate(inputSize, (y) =>
+      List.generate(inputSize, (x) {
+        final pixel = resized.getPixel(x, y);
+        return [
+          pixel.r / 255.0,
+          pixel.g / 255.0,
+          pixel.b / 255.0,
+        ];
+      })
+  ));
+
+  var output = List.generate(1, (_) => List.filled(128, 0.0));
+  _interpreter.run(input, output);
+
+  List<double> currentEmbedding = List<double>.from(output[0]);
+  final normCurrent = _normalize(currentEmbedding);
+
+  final storedEmbedding = await _loadStoredEmbedding();
+  if (storedEmbedding == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("No registered face found. Please register first."),
+        backgroundColor: mainColor,
+      ),
+    );
+    return;
+  }
+
+  final normStored = _normalize(storedEmbedding);
+  final distance = _euclideanDistance(normCurrent, normStored);
+  debugPrint("🧠 Euclidean Distance: $distance");
+
+  if (distance < 0.6) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("✅ Face matched! Check-in successful"),
+        backgroundColor: mainColor,
+      ),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("❌ Face does not match! Check-in failed"),
+        backgroundColor: mainColor,
+      ),
+    );
+  }
+}
+
+
 
   Future<List<double>?> _loadStoredEmbedding() async {
     final prefs = await SharedPreferences.getInstance();
@@ -109,8 +252,8 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       sum += math.pow((e1[i] - e2[i]), 2);
     }
     double distance = math.sqrt(sum);
-    print("🔍 Euclidean Distance between embeddings: $distance");
-    return distance;
+  print("🔍 Euclidean Distance between embeddings: $distance");
+  return distance;
   }
 
   /*void _showMessage(String msg) {
@@ -123,139 +266,20 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
   });
 }*/
 
+
   List<double> _normalize(List<double> embedding) {
-    double norm = math.sqrt(embedding.fold(0, (sum, val) => sum + val * val));
-    return embedding.map((e) => e / norm).toList();
-  }
-
-Future<void> _captureAndCheckFace() async {
-  if (_cameraController == null || !_cameraController!.value.isInitialized || !_modelLoaded) {
-    return;
-  }
-
-  setState(() => _isLoading = true);
-  try {
-    final file = await _cameraController!.takePicture();
-    double? distance;
-    List<double>? currentEmbedding;
-
-    // First try with original image
-    currentEmbedding = await _processImageForEmbedding(file.path);
-    
-    // If no face detected on iOS, try with rotation
-    if (currentEmbedding == null && _isIOS) {
-      debugPrint("Trying with rotated image for iOS...");
-      currentEmbedding = await _processImageForEmbedding(file.path, rotated: true);
-    }
-
-    if (currentEmbedding == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("No face detected"), backgroundColor: Colors.orange),
-      );
-      return;
-    }
-
-    final storedEmbedding = await _loadStoredEmbedding();
-    if (storedEmbedding == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("No registered face found"), backgroundColor: Colors.orange),
-      );
-      return;
-    }
-
-    distance = _euclideanDistance(
-      _normalize(currentEmbedding),
-      _normalize(storedEmbedding)
-    );
-
-    debugPrint("Match distance: $distance");
-    debugPrint("Current embedding (first 5): ${currentEmbedding.take(5)}");
-    debugPrint("Stored embedding (first 5): ${storedEmbedding.take(5)}");
-
-    if (distance < 0.6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("✅ Face matched!"), backgroundColor: Colors.green),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Face does not match"), backgroundColor: Colors.red),
-      );
-    }
-
-  } catch (e, stack) {
-    debugPrint("Error: $e\n$stack");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Error: ${e.toString()}"), backgroundColor: Colors.red),
-    );
-  } finally {
-    if (mounted) setState(() => _isLoading = false);
-  }
+  double norm = math.sqrt(embedding.fold(0, (sum, val) => sum + val * val));
+  return embedding.map((e) => e / norm).toList();
 }
 
-Future<List<double>?> _processImageForEmbedding(String imagePath, {bool rotated = false}) async {
-  try {
-    final bytes = await File(imagePath).readAsBytes();
-    img.Image? image = img.decodeImage(bytes);
-    if (image == null) return null;
-
-    if (rotated) {
-      image = img.copyRotate(image, angle: 90);
-    } else {
-      image = img.bakeOrientation(image);
-    }
-
-    final inputImage = InputImage.fromFilePath(imagePath);
-    final faces = await _faceDetector.processImage(inputImage);
-    if (faces.isEmpty) return null;
-
-    final face = faces.first;
-    final box = face.boundingBox;
-
-    // Convert coordinates for rotated image if needed
-    final x = rotated ? box.top.toInt() : box.left.toInt();
-    final y = rotated ? image.width - box.right.toInt() : box.top.toInt();
-    final w = rotated ? box.height.toInt() : box.width.toInt();
-    final h = rotated ? box.width.toInt() : box.height.toInt();
-
-    final cropped = img.copyCrop(
-      image,
-      x: x.clamp(0, image.width - 1),
-      y: y.clamp(0, image.height - 1),
-      width: w.clamp(0, image.width - x),
-      height: h.clamp(0, image.height - y),
-    );
-
-    final resized = img.copyResizeCropSquare(cropped, size: 160);
-
-    // Generate embedding
-    const inputSize = 160;
-    var input = List.generate(
-      1,
-      (_) => List.generate(
-        inputSize,
-        (y) => List.generate(inputSize, (x) {
-          final pixel = resized.getPixel(x, y);
-          return [pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
-        },
-      ),
-    ));
-
-    var output = List.generate(1, (_) => List.filled(128, 0.0));
-    _interpreter.run(input, output);
-
-    return List<double>.from(output[0]);
-  } catch (e) {
-    debugPrint("Error processing image: $e");
-    return null;
-  }
-}
 
   @override
-  void dispose() {
-    _cameraController?.dispose();
-    _faceDetector.close();
-    super.dispose();
-  }
+void dispose() {
+  _cameraController?.dispose();
+  _faceDetector.close();
+  super.dispose();
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -271,46 +295,43 @@ Future<List<double>?> _processImageForEmbedding(String imagePath, {bool rotated 
         ],
       ),
       body: Stack(
-        children: [
-          // Fullscreen camera preview
-          Positioned.fill(
-            child:
-                _cameraController?.value.isInitialized == true
-                    ? Stack(
-                      children: [
-                        CameraPreview(_cameraController!),
-                        if (_isLoading)
-                          Container(
-                            color: Colors.black.withOpacity(0.5),
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          ),
-                      ],
-                    )
-                    : const Center(child: CircularProgressIndicator()),
-          ),
+  children: [
+    // Fullscreen camera preview
+    Positioned.fill(
+      child: _cameraController?.value.isInitialized == true
+          ? Stack(
+              children: [
+                CameraPreview(_cameraController!),
+                if (_isLoading)
+                  Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
+              ],
+            )
+          : const Center(child: CircularProgressIndicator()),
+    ),
 
-          // Button at bottom center
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: ElevatedButton.icon(
-                onPressed: _isLoading ? null : _captureAndCheckFace,
-                icon: const Icon(Icons.check),
-                label: const Text("Check-In"),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                  textStyle: const TextStyle(fontSize: 18),
-                ),
-              ),
-            ),
+    // Button at bottom center
+    Positioned(
+      bottom: 40,
+      left: 0,
+      right: 0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+        child: ElevatedButton.icon(
+          onPressed: _isLoading ? null : _captureAndCheckFace,
+          icon: const Icon(Icons.check),
+          label: const Text("Check-In"),
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+            textStyle: const TextStyle(fontSize: 18),
           ),
-        ],
+        ),
       ),
+    ),
+  ],
+)
     );
   }
 }
