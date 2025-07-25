@@ -138,7 +138,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
 
       final bytes = await File(file.path).readAsBytes();
       img.Image image = img.decodeImage(bytes)!;
-      image = img.bakeOrientation(image); // ✅ Fix rotation on iOS
+      //image = img.bakeOrientation(image); // ✅ Fix rotation on iOS
 
       final x = face.boundingBox.left.toInt().clamp(0, image.width - 1);
       final y = face.boundingBox.top.toInt().clamp(0, image.height - 1);
