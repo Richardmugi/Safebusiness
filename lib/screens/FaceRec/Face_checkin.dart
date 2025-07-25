@@ -166,7 +166,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
     print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
     print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-    if (distance < 0.6) {
+    if (distance < 0.3) {
       _showMessage('✅ Face matched! Check-in successful');
     } else {
       _showMessage('❌ Face does not match! Check-in failed');
@@ -248,10 +248,15 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
     print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
     print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-    if (distance < 0.6) {
-      _showMessage('✅ Face matched! Check-in successful');
+    if (distance < 0.3) {
+      _showMessage('✅ Face matched! Check-in successful: $distance');
+      _showMessage('✅ Face matched! Check-in successful: $storedEmbedding');
+      _showMessage('✅ Face matched! Check-in successful: $currentEmbedding');
     } else {
       _showMessage('❌ Face does not match! Check-in failed');
+       _showMessage('✅ Face matched! Check-in successful: $distance');
+      _showMessage('✅ Face matched! Check-in successful: $storedEmbedding');
+      _showMessage('✅ Face matched! Check-in successful: $currentEmbedding');
     }
 
   }
