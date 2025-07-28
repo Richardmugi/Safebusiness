@@ -55,12 +55,12 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       ResolutionPreset.medium,
     );
     await _cameraController!.initialize();
-    ScaffoldMessenger.of(context).showSnackBar(
+    /*ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Camera Initialized"),
         backgroundColor: Colors.green,
       ),
-    );
+    );*/
     if (mounted) setState(() {});
   }
 
@@ -75,12 +75,12 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
   try {
     _interpreter = await Interpreter.fromAsset('assets/models/facenet.tflite');
     setState(() => _modelLoaded = true);
-    ScaffoldMessenger.of(context).showSnackBar(
+    /*ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Model Loaded Successfully"),
         backgroundColor: Colors.green,
       ),
-    );
+    );*/
   } catch (e) {
     debugPrint("❌ Error loading model: $e");
     ScaffoldMessenger.of(context).showSnackBar(
@@ -249,14 +249,9 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
     print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
     if (distance < 0.3) {
-      _showMessage('✅ Face matched! Check-in successful: $distance');
-      _showMessage('✅ Face matched! Check-in successful: $storedEmbedding');
-      _showMessage('✅ Face matched! Check-in successful: $currentEmbedding');
+      _showMessage('✅ Face matched! Check-in successful');
     } else {
       _showMessage('❌ Face does not match! Check-in failed');
-       _showMessage('✅ Face matched! Check-in successful: $distance');
-      _showMessage('✅ Face matched! Check-in successful: $storedEmbedding');
-      _showMessage('✅ Face matched! Check-in successful: $currentEmbedding');
     }
 
   }
