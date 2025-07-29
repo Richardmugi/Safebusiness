@@ -26,7 +26,6 @@ class Home extends StatefulWidget {
 
   @override
   State<Home> createState() => _HomeState();
-  
 }
 
 class _HomeState extends State<Home> {
@@ -50,38 +49,19 @@ class _HomeState extends State<Home> {
   bool _isLoading = false;
   String? selectedCategory;
   final List<String> defaultImages = [
-  'assets/images/camera.jpg',
-  'assets/images/image2.jpg',
-  //'assets/images/image6.jpg',
-];
+    'assets/images/camera.jpg',
+    'assets/images/image2.jpg',
+    //'assets/images/image6.jpg',
+  ];
 
   final categoryData = [
-  {
-    'title': 'Health',
-    'imagePath': 'assets/images/health.jpeg',
-  },
-  {
-    'title': 'Travels',
-    'imagePath': 'assets/images/travel.jpeg',
-  },
-  {
-    'title': 'Vacations',
-    'imagePath': 'assets/images/vac.jpg',
-  },
-  {
-    'title': 'Hangouts',
-    'imagePath': 'assets/images/hangouts.jpg',
-  },
-  {
-    'title': 'Food',
-    'imagePath': 'assets/images/food.jpg',
-  },
-  {
-    'title': 'Events',
-   'imagePath': 'assets/images/events.jpg',
-  },
-];
-
+    {'title': 'Health', 'imagePath': 'assets/images/health.jpeg'},
+    {'title': 'Travels', 'imagePath': 'assets/images/travel.jpeg'},
+    {'title': 'Vacations', 'imagePath': 'assets/images/vac.jpg'},
+    {'title': 'Hangouts', 'imagePath': 'assets/images/hangouts.jpg'},
+    {'title': 'Food', 'imagePath': 'assets/images/food.jpg'},
+    {'title': 'Events', 'imagePath': 'assets/images/events.jpg'},
+  ];
 
   bool isValidEmail(String input) {
     final RegExp emailRegex = RegExp(
@@ -97,8 +77,8 @@ class _HomeState extends State<Home> {
     _loadStates();
     _loadSavedImage();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    NotificationService(context).init(); // 🔥 RUN IN BACKGROUND
-  });
+      NotificationService(context).init(); // 🔥 RUN IN BACKGROUND
+    });
   }
 
   /// Load the saved image path from SharedPreferences
@@ -245,14 +225,14 @@ class _HomeState extends State<Home> {
       companyName = prefs.getString('companyName') ?? "N/A";
     });
     _fetchBranchName(branchId);
-  _fetchDepartmentName(branchId, departmentId);
-  _fetchDesignationName(departmentId, designationId);
+    _fetchDepartmentName(branchId, departmentId);
+    _fetchDesignationName(departmentId, designationId);
   }
 
   void _loadStates() {
-  _canCheckIn = CheckInManager.isCheckedIn().then((value) => !value);
-  _canCheckOut = CheckOutManager.isCheckedOut().then((value) => !value);
-}
+    _canCheckIn = CheckInManager.isCheckedIn().then((value) => !value);
+    _canCheckOut = CheckOutManager.isCheckedOut().then((value) => !value);
+  }
 
   Future<void> _saveNotification(String message) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -268,22 +248,24 @@ class _HomeState extends State<Home> {
     if (!mounted) return false;
 
     Position? userPosition = await _determinePosition();
-  if (userPosition == null) {
-    if (!mounted) return false;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Unable to determine location, Please turn on your location"),
-        backgroundColor: mainColor,
-      ),
-    );
-    _saveNotification("Check-in failed: Unable to determine location");
-    return false;
-  }
+    if (userPosition == null) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Unable to determine location, Please turn on your location",
+          ),
+          backgroundColor: mainColor,
+        ),
+      );
+      _saveNotification("Check-in failed: Unable to determine location");
+      return false;
+    }
 
-  double userLatitude = userPosition.latitude;
-  double userLongitude = userPosition.longitude;
+    double userLatitude = userPosition.latitude;
+    double userLongitude = userPosition.longitude;
 
-  /*var branchLocation = await _getBranchLocation(companyEmail);
+    /*var branchLocation = await _getBranchLocation(companyEmail);
   if (branchLocation == null || branchLocation['latitude'] == null || branchLocation['longitude'] == null) {
     if (!mounted) return false;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -390,7 +372,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-   Future<Position?> _determinePosition() async {
+  Future<Position?> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -503,7 +485,7 @@ class _HomeState extends State<Home> {
     return SafeArea(
       child: Scaffold(
         //backgroundColor: Colors.white,
-      /*appBar: AppBar(
+        /*appBar: AppBar(
         title: Text('Employee Dashboard'),
         centerTitle: true,
         elevation: 0,
@@ -514,454 +496,597 @@ class _HomeState extends State<Home> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-  width: MediaQuery.of(context).size.width,
-  decoration: const ShapeDecoration(
-    color: mainColor,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(40),
-        bottomRight: Radius.circular(40),
-      ),
-    ),
-  ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                // Profile Picture
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(40),
-                    onTap: () async {
-                      if (_isLoading) return;
-                      setState(() {
-                        _isLoading = true;
-                      });
-                      await _pickImage();
-                      setState(() {
-                        _isLoading = false;
-                      });
-                    },
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.blue[100],
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 2,
-                        ),
-                        image: _imageFile != null
-                            ? DecorationImage(
-                                image: FileImage(_imageFile!),
-                                fit: BoxFit.cover,
-                              )
-                            : const DecorationImage(
-                                image: NetworkImage(
-                                    'https://randomuser.me/api/portraits/men/1.jpg'),
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                      child: _isLoading
-                          ? const Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : (_imageFile == null
-                              ? Center(
-                                  child: Icon(
-                                    Icons.camera_alt,
-                                    size: 30,
-                                    color: Colors.white.withOpacity(0.7),
-                                  ),
-                                )
-                              : null),
+                width: MediaQuery.of(context).size.width,
+                decoration: const ShapeDecoration(
+                  color: mainColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(40),
+                      bottomRight: Radius.circular(40),
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                // Name and Employee ID
-                Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        employeeName,
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                      Row(
+                        children: [
+                          // Profile Picture
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(40),
+                              onTap: () async {
+                                if (_isLoading) return;
+                                setState(() {
+                                  _isLoading = true;
+                                });
+                                await _pickImage();
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              },
+                              child: Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.blue[100],
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
+                                  image:
+                                      _imageFile != null
+                                          ? DecorationImage(
+                                            image: FileImage(_imageFile!),
+                                            fit: BoxFit.cover,
+                                          )
+                                          : const DecorationImage(
+                                            image: NetworkImage(
+                                              'https://randomuser.me/api/portraits/men/1.jpg',
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
+                                ),
+                                child:
+                                    _isLoading
+                                        ? const Center(
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Colors.white,
+                                                ),
+                                          ),
+                                        )
+                                        : (_imageFile == null
+                                            ? Center(
+                                              child: Icon(
+                                                Icons.camera_alt,
+                                                size: 30,
+                                                color: Colors.white.withOpacity(
+                                                  0.7,
+                                                ),
+                                              ),
+                                            )
+                                            : null),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          // Name and Employee ID
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  employeeName,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  employeeId,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // QR Code
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.white),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const EmailQrScreen(),
+                                  ),
+                                );
+                              },
+                              child: const Icon(
+                                Icons.qr_code,
+                                size: 40,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        employeeId,
-                        style: TextStyle(fontSize: 14, color: Colors.white),
+                      const Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              const Text(
+                                'Department',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              Text(
+                                departmentName,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              const Text(
+                                'Designation',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              Text(
+                                designationName,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                // QR Code
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const EmailQrScreen()),
-                      );
-                    },
-                    child: const Icon(Icons.qr_code,
-                        size: 40, color: Colors.black),
-                  ),
-                ),
-              ],
-            ),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Column(
-                  children: [
-                    const Text('Department', style: TextStyle(color: Colors.white)),
-                    Text(departmentName,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white)),
-                  ],
-                ),
-                Column(
-                  children: [
-                    const Text('Designation', style: TextStyle(color: Colors.white)),
-                    Text(designationName,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white)),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    
-),
-              Padding(
-        padding: const EdgeInsets.all(14.0),
-        child: Column(
-          children: [
-            // Personal Info Card
-              Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
+              Padding(
+                padding: const EdgeInsets.all(14.0),
                 child: Column(
                   children: [
-                    Text(
-                      'Attendance',
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 16),
-                FutureBuilder(
-                  future: Future.wait([_canCheckIn, _canCheckOut]),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+                    // Personal Info Card
+                    Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Attendance',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            FutureBuilder(
+                              future: Future.wait([_canCheckIn, _canCheckOut]),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
 
-                    var canCheckIn = snapshot.data![0];
-                    var canCheckOut = snapshot.data![1];
+                                var canCheckIn = snapshot.data![0];
+                                var canCheckOut = snapshot.data![1];
 
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Check In Button
-                        GestureDetector(
-  onTap: canCheckIn
-      ? () async {
-          // 1️⃣ Navigate to QR Scanner First
-          final scannedEmail = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const QRCodeScanner(
-                isReturningUser: true,
-              ),
-            ),
-          );
+                                return Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // Check In Button
+                                    GestureDetector(
+                                      onTap:
+                                          canCheckIn
+                                              ? () async {
+                                                // 1️⃣ Navigate to QR Scanner First
+                                                final scannedEmail =
+                                                    await Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder:
+                                                            (
+                                                              context,
+                                                            ) => const QRCodeScanner(
+                                                              isReturningUser:
+                                                                  true,
+                                                            ),
+                                                      ),
+                                                    );
 
-          // 2️⃣ If QR Scan Successful
-          if (scannedEmail != null && isValidEmail(scannedEmail)) {
-            await Future.delayed(const Duration(milliseconds: 500));
-            // 3️⃣ Navigate to Face Detection Page
-            final faceCheckPassed = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const FaceCheckInPage(),
-              ),
-            );
+                                                // 2️⃣ If QR Scan Successful
+                                                if (scannedEmail != null &&
+                                                    isValidEmail(
+                                                      scannedEmail,
+                                                    )) {
+                                                  await Future.delayed(
+                                                    const Duration(
+                                                      milliseconds: 500,
+                                                    ),
+                                                  );
+                                                  // 3️⃣ Navigate to Face Detection Page
+                                                  final faceCheckPassed =
+                                                      await Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder:
+                                                              (context) =>
+                                                                  const FaceCheckInPage(),
+                                                        ),
+                                                      );
 
-            // 4️⃣ If Face Matches → Perform Check-in
-            if (faceCheckPassed == true) {
-              bool success = await _clockin(
-                employeeEmail,
-                companyEmail,
-              );
-              if (success) {
-                await CheckInManager.setCheckedIn(true);
-                setState(() {
-                  _loadStates(); // Reload UI
-                });
-              }
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Face verification failed!"),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Invalid QR code!"),
-                backgroundColor: mainColor,
-              ),
-            );
-          }
-        }
-      : null, // Disable button when canCheckIn is false
+                                                  // 4️⃣ If Face Matches → Perform Check-in
+                                                  if (faceCheckPassed == true) {
+                                                    bool success =
+                                                        await _clockin(
+                                                          employeeEmail,
+                                                          companyEmail,
+                                                        );
+                                                    if (success) {
+                                                      await CheckInManager.setCheckedIn(
+                                                        true,
+                                                      );
+                                                      setState(() {
+                                                        _loadStates(); // Reload UI
+                                                      });
+                                                    }
+                                                  } else {
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                          "Face verification failed!",
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                      ),
+                                                    );
+                                                  }
+                                                } else {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        "Invalid QR code!",
+                                                      ),
+                                                      backgroundColor:
+                                                          mainColor,
+                                                    ),
+                                                  );
+                                                }
+                                              }
+                                              : null, // Disable button when canCheckIn is false
 
-  child: AnimatedContainer(
-    duration: const Duration(milliseconds: 200),
-    width: MediaQuery.of(context).size.width * 0.42,
-    height: 50,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(15),
-      border: Border.all(
-        color: Colors.white,
-        width: 0.5,
-      ),
-      gradient: canCheckIn
-          ? const LinearGradient(
-              colors: [
-                Color(0xFF4B0000), // Deep Burgundy
-                Color(0xFFF80101), // Dark Red
-                Color(0xFF8B0000), // Crimson/Dark Red
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            )
-          : LinearGradient(
-              colors: [
-                Colors.grey,
-                Colors.grey,
-              ],
-            ),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(
-          Icons.login, // Checkout-style icon
-          color: Colors.white,
-          size: 20,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          'CHECK IN',
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.0,
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-SizedBox(width: 8),
+                                      child: AnimatedContainer(
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                            0.42,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 0.5,
+                                          ),
+                                          gradient:
+                                              canCheckIn
+                                                  ? const LinearGradient(
+                                                    colors: [
+                                                      Color(
+                                                        0xFF4B0000,
+                                                      ), // Deep Burgundy
+                                                      Color(
+                                                        0xFFF80101,
+                                                      ), // Dark Red
+                                                      Color(
+                                                        0xFF8B0000,
+                                                      ), // Crimson/Dark Red
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  )
+                                                  : LinearGradient(
+                                                    colors: [
+                                                      Colors.grey,
+                                                      Colors.grey,
+                                                    ],
+                                                  ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(
+                                              Icons
+                                                  .login, // Checkout-style icon
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'CHECK IN',
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                letterSpacing: 1.0,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
 
-                        // Check Out Button
-                        GestureDetector(
-  onTap: canCheckOut
-      ? () async {
-          final scannedEmail = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const QRCodeScanner(
-                isReturningUser: true,
-              ),
-            ),
-          );
+                                    // Check Out Button
+                                    GestureDetector(
+                                      onTap:
+                                          canCheckOut
+                                              ? () async {
+                                                final scannedEmail =
+                                                    await Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder:
+                                                            (
+                                                              context,
+                                                            ) => const QRCodeScanner(
+                                                              isReturningUser:
+                                                                  true,
+                                                            ),
+                                                      ),
+                                                    );
 
-          if (scannedEmail != null && isValidEmail(scannedEmail)) {
-            bool success = await _clockout(
-              employeeEmail,
-              companyEmail,
-            );
-            if (success) {
-              await CheckOutManager.setCheckedOut(true);
-              setState(() {
-                _loadStates(); // Reload Future values to update UI
-              });
-            }
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Invalid QR code!"),
-                backgroundColor: mainColor,
-              ),
-            );
-          }
-        }
-      : null,
+                                                if (scannedEmail != null &&
+                                                    isValidEmail(
+                                                      scannedEmail,
+                                                    )) {
+                                                  await Future.delayed(
+                                                    const Duration(
+                                                      milliseconds: 500,
+                                                    ),
+                                                  );
+                                                  // 3️⃣ Navigate to Face Detection Page
+                                                  final faceCheckPassed =
+                                                      await Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder:
+                                                              (context) =>
+                                                                  const FaceCheckInPage(),
+                                                        ),
+                                                      );
+                                                  if (faceCheckPassed == true) {
+                                                    bool success =
+                                                        await _clockout(
+                                                          employeeEmail,
+                                                          companyEmail,
+                                                        );
+                                                    if (success) {
+                                                      await CheckOutManager.setCheckedOut(
+                                                        true,
+                                                      );
+                                                      setState(() {
+                                                        _loadStates(); // Reload Future values to update UI
+                                                      });
+                                                    }
+                                                  } else {
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                          "Invalid QR code!",
+                                                        ),
+                                                        backgroundColor:
+                                                            mainColor,
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+                                              }
+                                              : null,
 
-  child: AnimatedContainer(
-    duration: const Duration(milliseconds: 200),
-    width: MediaQuery.of(context).size.width * 0.42,
-    height: 50,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(15),
-      border: Border.all(
-        color: Colors.white,
-        width: 0.5,
-      ),
-      gradient: canCheckOut
-          ? const LinearGradient(
-              colors: [
-                 Color(0xFF4B0000), // Deep Burgundy
-    Color(0xFFF80101), // Dark Red
-    Color(0xFF8B0000),
-              ],
-            )
-          : LinearGradient(
-              colors: [
-                Colors.grey,
-                Colors.grey,
-              ],
-            ),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.logout, // Checkout-style icon
-          color: Colors.white,
-          size: 20,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          'CHECK OUT',
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.0,
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-                      ],
-                    );
-                  },
-                ),
-                SizedBox(height: 14),
-                    Text(
-                      'Mark your Attendance here',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-              ),
-              ),),
-              SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Adverts',
-                      style: GoogleFonts.poppins(
-                        color: mainColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                                      child: AnimatedContainer(
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                            0.42,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 0.5,
+                                          ),
+                                          gradient:
+                                              canCheckOut
+                                                  ? const LinearGradient(
+                                                    colors: [
+                                                      Color(
+                                                        0xFF4B0000,
+                                                      ), // Deep Burgundy
+                                                      Color(
+                                                        0xFFF80101,
+                                                      ), // Dark Red
+                                                      Color(0xFF8B0000),
+                                                    ],
+                                                  )
+                                                  : LinearGradient(
+                                                    colors: [
+                                                      Colors.grey,
+                                                      Colors.grey,
+                                                    ],
+                                                  ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons
+                                                  .logout, // Checkout-style icon
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'CHECK OUT',
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                letterSpacing: 1.0,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            SizedBox(height: 14),
+                            Text(
+                              'Mark your Attendance here',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios, // Right arrow
-                      color: mainColor,
-                      size: 16,
+                    SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Adverts',
+                            style: GoogleFonts.poppins(
+                              color: mainColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios, // Right arrow
+                            color: mainColor,
+                            size: 16,
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-              ),
-              // Horizontal scrollable category boxes
-              Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 16),
-  child: SizedBox(
-    height: 100,
-    child: ListView.builder(
-      clipBehavior: Clip.none,
-      padding: const EdgeInsets.all(0),
-      scrollDirection: Axis.horizontal,
-      itemCount: categoryData.length,
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () {
-              setState(() {
-    selectedCategory = categoryData[index]['title'] as String;
-  });
-          },
-          child: Container(
-  margin: const EdgeInsets.symmetric(vertical: 6.4, horizontal: 10),
-  constraints: const BoxConstraints(
-    minWidth: 107,
-  ),
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(12),
-    border: Border.all(color: Colors.white, width: 0.4),
-    image: DecorationImage(
-      image: AssetImage(categoryData[index]['imagePath'] as String),
-      fit: BoxFit.cover,
-    ),
-  ),
-  alignment: Alignment.center,
-  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-  child: Container(
-    color: Colors.black.withOpacity(0.5), // dark overlay for readability
-    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-    child: Text(
-      categoryData[index]['title'] as String,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 12,
-        fontWeight: FontWeight.bold,
-      ),
-      textAlign: TextAlign.center,
-    ),
-  ),
-),
+                    // Horizontal scrollable category boxes
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: SizedBox(
+                        height: 100,
+                        child: ListView.builder(
+                          clipBehavior: Clip.none,
+                          padding: const EdgeInsets.all(0),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: categoryData.length,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedCategory =
+                                      categoryData[index]['title'] as String;
+                                });
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  vertical: 6.4,
+                                  horizontal: 10,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 107,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 0.4,
+                                  ),
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      categoryData[index]['imagePath']
+                                          as String,
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 12,
+                                ),
+                                child: Container(
+                                  color: Colors.black.withOpacity(
+                                    0.5,
+                                  ), // dark overlay for readability
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                    horizontal: 6,
+                                  ),
+                                  child: Text(
+                                    categoryData[index]['title'] as String,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
 
-          /*child: Container(
+                              /*child: Container(
             margin: EdgeInsets.symmetric(vertical: 6.4, horizontal: 10),
             constraints: BoxConstraints(
               minWidth: 107,
@@ -1012,29 +1137,33 @@ SizedBox(width: 8),
               ],
             ),
           ),*/
-        );
-      },
-    ),
-  ),
-),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
 
-
-              // Spacer or additional content if needed
-              SizedBox(height: 16),
-              Padding(
-  padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
-  child: ImageCarosel(
-    imageList: selectedCategory != null && categoryImages[selectedCategory!] != null
-        ? categoryImages[selectedCategory!]!
-        : defaultImages,
-  ),
-)
-
+                    // Spacer or additional content if needed
+                    SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 18,
+                        right: 18,
+                        bottom: 15,
+                      ),
+                      child: ImageCarosel(
+                        imageList:
+                            selectedCategory != null &&
+                                    categoryImages[selectedCategory!] != null
+                                ? categoryImages[selectedCategory!]!
+                                : defaultImages,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-        ),
-            ],
-      ),
         ),
       ),
     );
@@ -1049,7 +1178,10 @@ class CheckInManager {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_checkedInKey, value);
     if (value) {
-      await prefs.setInt(_checkedInTimeKey, DateTime.now().millisecondsSinceEpoch);
+      await prefs.setInt(
+        _checkedInTimeKey,
+        DateTime.now().millisecondsSinceEpoch,
+      );
     } else {
       await prefs.remove(_checkedInTimeKey);
     }
@@ -1077,7 +1209,6 @@ class CheckInManager {
   }
 }
 
-
 class CheckOutManager {
   static const String _checkedOutKey = 'checked_out';
   static const String _checkedOutTimeKey = 'checked_out_time';
@@ -1086,7 +1217,10 @@ class CheckOutManager {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_checkedOutKey, value);
     if (value) {
-      await prefs.setInt(_checkedOutTimeKey, DateTime.now().millisecondsSinceEpoch);
+      await prefs.setInt(
+        _checkedOutTimeKey,
+        DateTime.now().millisecondsSinceEpoch,
+      );
     } else {
       await prefs.remove(_checkedOutTimeKey);
     }

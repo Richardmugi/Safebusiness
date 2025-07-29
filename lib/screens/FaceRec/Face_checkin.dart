@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
+import 'package:safebusiness/screens/FaceRec/face_registration.dart';
+import 'package:safebusiness/utils/color_resources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'dart:math' as math;
@@ -72,142 +74,164 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
   }
 
   Future<void> _loadModel() async {
-  try {
-    _interpreter = await Interpreter.fromAsset('assets/models/facenet.tflite');
-    setState(() => _modelLoaded = true);
-    /*ScaffoldMessenger.of(context).showSnackBar(
+    try {
+      _interpreter = await Interpreter.fromAsset(
+        'assets/models/facenet.tflite',
+      );
+      setState(() => _modelLoaded = true);
+      /*ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Model Loaded Successfully"),
         backgroundColor: Colors.green,
       ),
     );*/
-  } catch (e) {
-    debugPrint("❌ Error loading model: $e");
-    /*ScaffoldMessenger.of(context).showSnackBar(
+    } catch (e) {
+      debugPrint("❌ Error loading model: $e");
+      /*ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("❌ Error loading model: $e"),
         backgroundColor: Colors.red,
       ),
     );*/
+    }
   }
-}
 
   Future<void> _captureAndCheckFace() async {
-  if (_cameraController == null || !_cameraController!.value.isInitialized || !_modelLoaded) return;
-  setState(() => _isProcessing = true);
-  try {
-    final file = await _cameraController!.takePicture();
-    final inputImage = InputImage.fromFilePath(file.path);
-    final faces = await _faceDetector.processImage(inputImage);
+    if (_cameraController == null ||
+        !_cameraController!.value.isInitialized ||
+        !_modelLoaded)
+      return;
+    setState(() => _isProcessing = true);
+    try {
+      final file = await _cameraController!.takePicture();
+      final inputImage = InputImage.fromFilePath(file.path);
+      final faces = await _faceDetector.processImage(inputImage);
 
-    if (faces.isEmpty) {
-      String errorMsg = "No face detected in selfie";
+      if (faces.isEmpty) {
+        String errorMsg = "No face detected in selfie";
         if (_isIOS) {
           errorMsg += " (iOS may need image rotation correction)";
           // Try with rotated image for iOS
           await _tryWithRotatedImage(file.path);
           return;
         }
-        
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMsg), backgroundColor: Colors.orange),
+        );
+        return;
+      }
+
+      final face = faces.first;
+
+      final bytes = await File(file.path).readAsBytes();
+      img.Image image = img.decodeImage(bytes)!;
+
+      // Crop and align face
+      final x = face.boundingBox.left.toInt().clamp(0, image.width - 1);
+      final y = face.boundingBox.top.toInt().clamp(0, image.height - 1);
+      final w = face.boundingBox.width.toInt().clamp(0, image.width - x);
+      final h = face.boundingBox.height.toInt().clamp(0, image.height - y);
+
+      final cropped = img.copyCrop(image, x: x, y: y, width: w, height: h);
+      final resized = img.copyResizeCropSquare(
+        cropped,
+        size: 160,
+      ); // Match your model input
+
+      // Normalize pixel values to [0, 1] for float32 model
+      const inputSize = 160;
+      var input = List.generate(
+        1,
+        (_) => List.generate(
+          inputSize,
+          (y) => List.generate(inputSize, (x) {
+            final pixel = resized.getPixel(x, y);
+            return [pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
+          }),
+        ),
+      );
+
+      // Output: [1, 128] for float model
+      var output = List.generate(1, (_) => List.filled(128, 0.0));
+      _interpreter.run(input, output);
+
+      List<double> currentEmbedding = List<double>.from(output[0]);
+      final normCurrent = _normalize(currentEmbedding);
+
+      final storedEmbedding = await _loadStoredEmbedding();
+      if (storedEmbedding == null) {
+        //_showMessage("No registered face found. Please register first.");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(errorMsg),
+            content: Text("No registered face found. Please register first."),
             backgroundColor: Colors.orange,
           ),
         );
         return;
+      }
+
+      final normStored = _normalize(storedEmbedding);
+      final distance = _euclideanDistance(normCurrent, normStored);
+
+      print("✅ Normalized Euclidean Distance: $distance");
+      print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
+      print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
+
+      if (distance < 0.3) {
+        //_showMessage('✅ Face matched!');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("✅ Face matched!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true); // ✅ Return success
+      } else {
+        //_showMessage('❌ Face does not match! Check-in failed');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("❌ Face does not match! Check-in failed"),
+            backgroundColor: mainColor,
+          ),
+        );
+        Navigator.pop(context, false); // ❌ Return failure
+      }
+    } catch (e) {
+      _showMessage('Error: $e');
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
-
-    final face = faces.first;
-
-    final bytes = await File(file.path).readAsBytes();
-    img.Image image = img.decodeImage(bytes)!;
-
-    // Crop and align face
-    final x = face.boundingBox.left.toInt().clamp(0, image.width - 1);
-    final y = face.boundingBox.top.toInt().clamp(0, image.height - 1);
-    final w = face.boundingBox.width.toInt().clamp(0, image.width - x);
-    final h = face.boundingBox.height.toInt().clamp(0, image.height - y);
-
-    final cropped = img.copyCrop(image, x: x, y: y, width: w, height: h);
-    final resized = img.copyResizeCropSquare(cropped, size: 160); // Match your model input
-
-    // Normalize pixel values to [0, 1] for float32 model
-    const inputSize = 160;
-    var input = List.generate(1, (_) => List.generate(inputSize, (y) =>
-        List.generate(inputSize, (x) {
-          final pixel = resized.getPixel(x, y);
-          return [
-            pixel.r / 255.0,
-            pixel.g / 255.0,
-            pixel.b / 255.0,
-          ];
-        })
-      )
-    );
-
-    // Output: [1, 128] for float model
-    var output = List.generate(1, (_) => List.filled(128, 0.0));
-    _interpreter.run(input, output);
-
-    List<double> currentEmbedding = List<double>.from(output[0]);
-    final normCurrent = _normalize(currentEmbedding);
-
-    final storedEmbedding = await _loadStoredEmbedding();
-    if (storedEmbedding == null) {
-      _showMessage("No registered face found. Please register first.");
-      return;
-    }
-
-    final normStored = _normalize(storedEmbedding);
-    final distance = _euclideanDistance(normCurrent, normStored);
-
-    print("✅ Normalized Euclidean Distance: $distance");
-    print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
-    print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
-
-    if (distance < 0.3) {
-  _showMessage('✅ Face matched!');
-  Navigator.pop(context, true);  // ✅ Return success
-} else {
-  _showMessage('❌ Face does not match! Check-in failed');
-  Navigator.pop(context, false); // ❌ Return failure
-}
-  } catch (e) {
-    _showMessage('Error: $e');
-  } finally {
-    if (mounted) setState(() => _isProcessing = false);
   }
-}
 
-Future<void> _tryWithRotatedImage(String imagePath) async {
+  Future<void> _tryWithRotatedImage(String imagePath) async {
     try {
       debugPrint("Attempting with rotated image for iOS...");
       final bytes = await File(imagePath).readAsBytes();
       img.Image? image = img.decodeImage(bytes);
-      
+
       if (image == null) {
         debugPrint("Failed to decode image");
         return;
       }
-      
+
       // Rotate 90 degrees clockwise for iOS front camera
       final rotated = img.copyRotate(image, angle: 90);
-      
+
       // Save rotated image temporarily for debugging
       final rotatedPath = '${imagePath}_rotated.jpg';
       await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated));
       debugPrint("Saved rotated image to: $rotatedPath");
-      
+
       // Try face detection again with rotated image
       final inputImage = InputImage.fromFilePath(rotatedPath);
       final faces = await _faceDetector.processImage(inputImage);
-      
+
       if (faces.isNotEmpty) {
         debugPrint("Face detected after rotation!");
-        
+
         final face = faces.first;
-        
+
         // Process the rotated image
         final x = face.boundingBox.left.toInt().clamp(0, rotated.width - 1);
         final y = face.boundingBox.top.toInt().clamp(0, rotated.height - 1);
@@ -219,50 +243,67 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
 
         // Generate embedding
         const inputSize = 160;
-        var input = List.generate(1, (_) => List.generate(inputSize, (y) =>
-            List.generate(inputSize, (x) {
+        var input = List.generate(
+          1,
+          (_) => List.generate(
+            inputSize,
+            (y) => List.generate(inputSize, (x) {
               final pixel = resized.getPixel(x, y);
-              return [
-                pixel.r / 255.0,
-                pixel.g / 255.0,
-                pixel.b / 255.0,
-              ];
-            })
-        ));
+              return [pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
+            }),
+          ),
+        );
 
         var output = List.generate(1, (_) => List.filled(128, 0.0));
-    _interpreter.run(input, output);
+        _interpreter.run(input, output);
 
-    List<double> currentEmbedding = List<double>.from(output[0]);
-    final normCurrent = _normalize(currentEmbedding);
+        List<double> currentEmbedding = List<double>.from(output[0]);
+        final normCurrent = _normalize(currentEmbedding);
 
-    final storedEmbedding = await _loadStoredEmbedding();
-    if (storedEmbedding == null) {
-      _showMessage("No registered face found. Please register first.");
-      return;
-    }
+        final storedEmbedding = await _loadStoredEmbedding();
+        if (storedEmbedding == null) {
+          //_showMessage("No registered face found. Please register first.");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("No registered face found. Please register first."),
+              backgroundColor: mainColor,
+            ),
+          );
+          return;
+        }
 
-    final normStored = _normalize(storedEmbedding);
-    final distance = _euclideanDistance(normCurrent, normStored);
+        final normStored = _normalize(storedEmbedding);
+        final distance = _euclideanDistance(normCurrent, normStored);
 
-    print("✅ Normalized Euclidean Distance: $distance");
-    print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
-    print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
+        print("✅ Normalized Euclidean Distance: $distance");
+        print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
+        print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-    if (distance < 0.3) {
-  _showMessage('✅ Face matched!');
-  Navigator.pop(context, true);  // ✅ Return success
-} else {
-  _showMessage('❌ Face does not match! Check-in failed');
-  Navigator.pop(context, false); // ❌ Return failure
-}
+        if (distance < 0.3) {
+          //_showMessage('✅ Face matched!');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("✅ Face matched!"),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context, true); // ✅ Return success
+        } else {
+          //_showMessage('❌ Face does not match! Check-in failed');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("❌ Face does not match! Check-in failed"),
+              backgroundColor: mainColor,
+            ),
+          );
+          Navigator.pop(context, false); // ❌ Return failure
+        }
+      }
 
-  }
-        
-        // Save the embedding
-        //await _saveEmbedding(embedding);
-        
-        /*if (mounted) {
+      // Save the embedding
+      //await _saveEmbedding(embedding);
+
+      /*if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("✅ Face registered successfully (iOS rotated)!"),
@@ -279,14 +320,14 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
           ),
         );
       }*/
-      
+
       // Clean up temporary file
       //await File(rotatedPath).delete();
-      
     } catch (e, stack) {
       debugPrint("Error in rotated image processing: $e");
       debugPrint("Stack trace: $stack");
-      if (mounted) setState(() => _isProcessing = false); {
+      if (mounted) setState(() => _isProcessing = false);
+      {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error processing rotated image: ${e.toString()}"),
@@ -297,8 +338,6 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
       }
     }
   }
-
-
 
   Future<List<double>?> _loadStoredEmbedding() async {
     final prefs = await SharedPreferences.getInstance();
@@ -314,8 +353,8 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
       sum += math.pow((e1[i] - e2[i]), 2);
     }
     double distance = math.sqrt(sum);
-  print("🔍 Euclidean Distance between embeddings: $distance");
-  return distance;
+    print("🔍 Euclidean Distance between embeddings: $distance");
+    return distance;
   }
 
   void _showMessage(String msg) {
@@ -323,18 +362,16 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
   }
 
   List<double> _normalize(List<double> embedding) {
-  double norm = math.sqrt(embedding.fold(0, (sum, val) => sum + val * val));
-  return embedding.map((e) => e / norm).toList();
-}
-
+    double norm = math.sqrt(embedding.fold(0, (sum, val) => sum + val * val));
+    return embedding.map((e) => e / norm).toList();
+  }
 
   @override
-void dispose() {
-  _cameraController?.dispose();
-  _faceDetector.close();
-  super.dispose();
-}
-
+  void dispose() {
+    _cameraController?.dispose();
+    _faceDetector.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -350,43 +387,72 @@ void dispose() {
         ],
       ),
       body: Stack(
-  children: [
-    // Fullscreen camera preview
-    Positioned.fill(
-      child: _cameraController?.value.isInitialized == true
-          ? Stack(
-              children: [
-                CameraPreview(_cameraController!),
-                if (_isProcessing)
-                  Container(
-                    color: Colors.black.withOpacity(0.5),
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-              ],
-            )
-          : const Center(child: CircularProgressIndicator()),
-    ),
-
-    // Button at bottom center
-    Positioned(
-      bottom: 40,
-      left: 0,
-      right: 0,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-        child: ElevatedButton.icon(
-          onPressed: _isProcessing ? null : _captureAndCheckFace,
-          icon: const Icon(Icons.check),
-          label: const Text("Check-In"),
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
-            textStyle: const TextStyle(fontSize: 18),
+        children: [
+          // Fullscreen camera preview
+          Positioned.fill(
+            child:
+                _cameraController?.value.isInitialized == true
+                    ? Stack(
+                      children: [
+                        CameraPreview(_cameraController!),
+                        if (_isProcessing)
+                          Container(
+                            color: Colors.black.withOpacity(0.5),
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                      ],
+                    )
+                    : const Center(child: CircularProgressIndicator()),
           ),
-        ),
+
+          // Buttons at bottom center
+          Positioned(
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ✅ Check-In Button
+                  ElevatedButton.icon(
+                    onPressed: _isProcessing ? null : _captureAndCheckFace,
+                    icon: const Icon(Icons.check),
+                    label: const Text("Check-In"),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                      textStyle: const TextStyle(fontSize: 18),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // ✅ Register Face Button
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FaceRegisterPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.person_add),
+                    label: const Text("Register Face"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: mainColor,
+                      minimumSize: const Size.fromHeight(50),
+                      textStyle: const TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
-    ),
-  ],
-)
     );
   }
 }
