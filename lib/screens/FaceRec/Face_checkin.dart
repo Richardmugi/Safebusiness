@@ -83,12 +83,12 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
     );*/
   } catch (e) {
     debugPrint("❌ Error loading model: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
+    /*ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("❌ Error loading model: $e"),
         backgroundColor: Colors.red,
       ),
-    );
+    );*/
   }
 }
 
@@ -167,11 +167,12 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
     print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
     if (distance < 0.3) {
-      _showMessage('✅ Face matched! Check-in successful');
-    } else {
-      _showMessage('❌ Face does not match! Check-in failed');
-    }
-
+  _showMessage('✅ Face matched!');
+  Navigator.pop(context, true);  // ✅ Return success
+} else {
+  _showMessage('❌ Face does not match! Check-in failed');
+  Navigator.pop(context, false); // ❌ Return failure
+}
   } catch (e) {
     _showMessage('Error: $e');
   } finally {
@@ -249,10 +250,12 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
     print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
     if (distance < 0.3) {
-      _showMessage('✅ Face matched! Check-in successful');
-    } else {
-      _showMessage('❌ Face does not match! Check-in failed');
-    }
+  _showMessage('✅ Face matched!');
+  Navigator.pop(context, true);  // ✅ Return success
+} else {
+  _showMessage('❌ Face does not match! Check-in failed');
+  Navigator.pop(context, false); // ❌ Return failure
+}
 
   }
         

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:safebusiness/screens/EmailQRScreen.dart';
+import 'package:safebusiness/screens/FaceRec/Face_checkin.dart';
 import 'package:safebusiness/screens/QRCodeScanner.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:safebusiness/screens/notification.dart';
@@ -355,10 +356,10 @@ class _HomeState extends State<Home> {
             backgroundColor: Colors.green,
           ),
         );
+        print("✅checkin successful");
         return true; // Indicate success
       } else {
         _saveNotification("Check-in failed: $message");
-
         if (await Vibration.hasVibrator()) {
           Vibration.vibrate(duration: 200);
         }
@@ -691,6 +692,7 @@ class _HomeState extends State<Home> {
                         GestureDetector(
   onTap: canCheckIn
       ? () async {
+          // 1️⃣ Navigate to QR Scanner First
           final scannedEmail = await Navigator.push(
             context,
             MaterialPageRoute(
@@ -700,16 +702,36 @@ class _HomeState extends State<Home> {
             ),
           );
 
+          // 2️⃣ If QR Scan Successful
           if (scannedEmail != null && isValidEmail(scannedEmail)) {
-            bool success = await _clockin(
-              employeeEmail,
-              companyEmail,
+            await Future.delayed(const Duration(milliseconds: 500));
+            // 3️⃣ Navigate to Face Detection Page
+            final faceCheckPassed = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const FaceCheckInPage(),
+              ),
             );
-            if (success) {
-              await CheckInManager.setCheckedIn(true);
-              setState(() {
-                _loadStates(); // Reload Future values to update UI
-              });
+
+            // 4️⃣ If Face Matches → Perform Check-in
+            if (faceCheckPassed == true) {
+              bool success = await _clockin(
+                employeeEmail,
+                companyEmail,
+              );
+              if (success) {
+                await CheckInManager.setCheckedIn(true);
+                setState(() {
+                  _loadStates(); // Reload UI
+                });
+              }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Face verification failed!"),
+                  backgroundColor: Colors.red,
+                ),
+              );
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -734,26 +756,25 @@ class _HomeState extends State<Home> {
       ),
       gradient: canCheckIn
           ? const LinearGradient(
-  colors: [
-    Color(0xFF4B0000), // Deep Burgundy
-    Color(0xFFF80101), // Dark Red
-    Color(0xFF8B0000), // Crimson/Dark Red
-  ],
-  begin: Alignment.topLeft,
-  end: Alignment.bottomRight,
-)
-
+              colors: [
+                Color(0xFF4B0000), // Deep Burgundy
+                Color(0xFFF80101), // Dark Red
+                Color(0xFF8B0000), // Crimson/Dark Red
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            )
           : LinearGradient(
               colors: [
-                Colors.grey[500]!,
-                Colors.grey[500]!,
+                Colors.grey,
+                Colors.grey,
               ],
             ),
     ),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
+        const Icon(
           Icons.login, // Checkout-style icon
           color: Colors.white,
           size: 20,

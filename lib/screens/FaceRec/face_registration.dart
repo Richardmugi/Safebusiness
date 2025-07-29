@@ -57,12 +57,12 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       ResolutionPreset.medium,
     );
     await _cameraController!.initialize();
-    ScaffoldMessenger.of(context).showSnackBar(
+    /*ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Camera Initialized"),
         backgroundColor: Colors.green,
       ),
-    );
+    );*/
     if (mounted) setState(() {});
   }
 
@@ -77,20 +77,20 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
   try {
     _interpreter = await Interpreter.fromAsset('assets/models/facenet.tflite');
     setState(() => _modelLoaded = true);
-    ScaffoldMessenger.of(context).showSnackBar(
+    /*ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Model Loaded Successfully"),
         backgroundColor: Colors.green,
       ),
-    );
+    );*/
   } catch (e) {
     debugPrint("❌ Error loading model: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
+    /*ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("❌ Error loading model: $e"),
         backgroundColor: Colors.red,
       ),
-    );
+    );*/
   }
 }
 
@@ -251,7 +251,7 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("✅ Face registered successfully (iOS rotated)!"),
+              content: Text("✅ Face registered successfully"),
               backgroundColor: Colors.green,
             ),
           );
@@ -260,7 +260,7 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
         debugPrint("Still no face detected after rotation");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("iOS: No face detected even after rotation"),
+            content: Text("No face detected"),
             backgroundColor: Colors.orange,
           ),
         );
