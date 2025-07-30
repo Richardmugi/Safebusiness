@@ -96,7 +96,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
     }
   }
 
-  Future<void> _captureAndCheckFace() async {
+  /*Future<void> _captureAndCheckFace() async {
     if (_cameraController == null ||
         !_cameraController!.value.isInitialized ||
         !_modelLoaded)
@@ -337,7 +337,180 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         );
       }
     }
+  }*/
+
+  Future<void> _captureAndCheckFace() async {
+  if (_cameraController == null || 
+      !_cameraController!.value.isInitialized || 
+      !_modelLoaded) {
+    return;
   }
+
+  setState(() => _isProcessing = true);
+  String? imagePath;
+  
+  try {
+    final file = await _cameraController!.takePicture();
+    imagePath = file.path;
+    
+    // For iOS, handle image orientation properly
+    if (_isIOS) {
+      final bytes = await File(imagePath).readAsBytes();
+      img.Image? image = img.decodeImage(bytes);
+      if (image != null) {
+        image = img.bakeOrientation(image);
+        final orientedPath = '${imagePath}_oriented.jpg';
+        await File(orientedPath).writeAsBytes(img.encodeJpg(image));
+        imagePath = orientedPath;
+      }
+    }
+
+    // First attempt with original/oriented image
+    bool success = await _processFaceVerification(imagePath);
+    if (success) return;
+
+    // If no face detected on iOS, try with rotated versions
+    if (_isIOS && !success) {
+      final anglesToTry = [90, 180, 270];
+      for (final angle in anglesToTry) {
+        success = await _tryWithRotatedImage(imagePath, angle);
+        if (success) break;
+      }
+    }
+
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("No face detected or verification failed"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
+  } catch (e) {
+    debugPrint("Error in face verification: $e");
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: ${e.toString()}"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+        ),
+      );
+    }
+  } finally {
+    // Clean up temporary files
+    if (_isIOS && imagePath != null && imagePath.endsWith('_oriented.jpg')) {
+      await File(imagePath).delete();
+    }
+    if (mounted) setState(() => _isProcessing = false);
+  }
+}
+
+Future<bool> _processFaceVerification(String imagePath) async {
+  try {
+    final inputImage = InputImage.fromFilePath(imagePath);
+    final faces = await _faceDetector.processImage(inputImage);
+
+    if (faces.isEmpty) return false;
+
+    final face = faces.first;
+    final bytes = await File(imagePath).readAsBytes();
+    img.Image image = img.decodeImage(bytes)!;
+
+    // Crop and align face
+    final x = face.boundingBox.left.toInt().clamp(0, image.width - 1);
+    final y = face.boundingBox.top.toInt().clamp(0, image.height - 1);
+    final w = face.boundingBox.width.toInt().clamp(0, image.width - x);
+    final h = face.boundingBox.height.toInt().clamp(0, image.height - y);
+
+    final cropped = img.copyCrop(image, x: x, y: y, width: w, height: h);
+    final resized = img.copyResizeCropSquare(cropped, size: 160);
+
+    // Generate embedding
+    const inputSize = 160;
+    var input = List.generate(
+      1,
+      (_) => List.generate(
+        inputSize,
+        (y) => List.generate(inputSize, (x) {
+          final pixel = resized.getPixel(x, y);
+          return [pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
+        }),
+      ),
+    );
+
+    var output = List.generate(1, (_) => List.filled(128, 0.0));
+    _interpreter.run(input, output);
+
+    List<double> currentEmbedding = List.from(output[0]);
+    final normCurrent = _normalize(currentEmbedding);
+
+    final storedEmbedding = await _loadStoredEmbedding();
+    if (storedEmbedding == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("No registered face found. Please register first."),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return false;
+    }
+
+    final normStored = _normalize(storedEmbedding);
+    final distance = _euclideanDistance(normCurrent, normStored);
+
+    debugPrint("Distance: $distance");
+    
+    if (distance < 0.3) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("✅ Face matched!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+      }
+      return true;
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("❌ Face does not match!"),
+            backgroundColor: mainColor,
+          ),
+        );
+        Navigator.pop(context, false);
+      }
+      return false;
+    }
+  } catch (e) {
+    debugPrint("Error in face processing: $e");
+    return false;
+  }
+}
+
+Future<bool> _tryWithRotatedImage(String originalPath, int angle) async {
+  String? rotatedPath;
+  try {
+    final bytes = await File(originalPath).readAsBytes();
+    img.Image? image = img.decodeImage(bytes);
+    if (image == null) return false;
+
+    final rotated = img.copyRotate(image, angle: angle);
+    rotatedPath = '${originalPath}_rotated_$angle.jpg';
+    await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated));
+
+    return await _processFaceVerification(rotatedPath);
+  } catch (e) {
+    debugPrint("Error in rotated image processing: $e");
+    return false;
+  } finally {
+    if (rotatedPath != null) await File(rotatedPath).delete();
+  }
+}
 
   Future<List<double>?> _loadStoredEmbedding() async {
     final prefs = await SharedPreferences.getInstance();
