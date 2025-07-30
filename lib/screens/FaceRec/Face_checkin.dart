@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -278,13 +279,30 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         }
 
         final normStored = _normalize(storedEmbedding);
-        final distance = _euclideanDistance(normCurrent, normStored);
+        //final distance = _euclideanDistance(normCurrent, normStored);
 
-        print("✅ Normalized Euclidean Distance: $distance");
+        final similarity = _cosineSimilarity(normCurrent, normStored);
+        print("✅ Cosine Similarity: $similarity");
+
+
+        //print("✅ Normalized Euclidean Distance: $distance");
         print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
         print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-        if (distance < 0.3) {
+
+if (similarity > 0.85) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("✅ Face matched!"), backgroundColor: Colors.green),
+  );
+  Navigator.pop(context, true);
+} else {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("❌ Face does not match! Check-in failed"), backgroundColor: mainColor),
+  );
+  Navigator.pop(context, false);
+}
+
+        /*if (distance < 0.3) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("✅ Face matched!"),
@@ -300,7 +318,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
             ),
           );
           Navigator.pop(context, false); // ❌ Return failure
-        }
+        }*/
 
         await File(rotatedPath).delete();
         break; // ✅ Stop trying other rotations
@@ -341,6 +359,21 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
     final decoded = jsonDecode(data);
     return List<double>.from(decoded);
   }
+
+  double _cosineSimilarity(List<double> a, List<double> b) {
+  double dot = 0.0;
+  double normA = 0.0;
+  double normB = 0.0;
+
+  for (int i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+
+  return dot / (sqrt(normA) * sqrt(normB));
+}
+
 
   double _euclideanDistance(List<double> e1, List<double> e2) {
     double sum = 0.0;
