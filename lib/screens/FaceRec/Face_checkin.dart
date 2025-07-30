@@ -416,7 +416,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
                   ElevatedButton.icon(
                     onPressed: _isProcessing ? null : _captureAndCheckFace,
                     icon: const Icon(Icons.check),
-                    label: const Text("Check-In"),
+                    label: const Text("Capture Face"),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                       textStyle: const TextStyle(fontSize: 18),

@@ -367,7 +367,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
             child: ElevatedButton.icon(
               onPressed: _isLoading ? null : _captureAndRegisterFace,
               icon: const Icon(Icons.camera_alt),
-              label: const Text("Capture Selfie"),
+              label: const Text("Capture face"),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(50),
                 textStyle: const TextStyle(fontSize: 18),
