@@ -22,14 +22,16 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
   late Interpreter _interpreter;
   bool _modelLoaded = false;
   final FaceDetector _faceDetector = FaceDetector(
-    options: FaceDetectorOptions(performanceMode: FaceDetectorMode.accurate, enableContours: true,),
+    options: FaceDetectorOptions(
+      performanceMode: FaceDetectorMode.accurate,
+      enableContours: true,
+    ),
   );
   List<Face> _detectedFaces = [];
   List<CameraDescription> _cameras = [];
   int _selectedCameraIndex = 0;
   bool _isLoading = false;
   bool _isIOS = Platform.isIOS;
-
 
   @override
   void initState() {
@@ -74,35 +76,39 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
   }
 
   Future<void> _loadModel() async {
-  try {
-    _interpreter = await Interpreter.fromAsset('assets/models/facenet.tflite');
-    setState(() => _modelLoaded = true);
-    /*ScaffoldMessenger.of(context).showSnackBar(
+    try {
+      _interpreter = await Interpreter.fromAsset(
+        'assets/models/facenet.tflite',
+      );
+      setState(() => _modelLoaded = true);
+      /*ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Model Loaded Successfully"),
         backgroundColor: Colors.green,
       ),
     );*/
-  } catch (e) {
-    debugPrint("❌ Error loading model: $e");
-    /*ScaffoldMessenger.of(context).showSnackBar(
+    } catch (e) {
+      debugPrint("❌ Error loading model: $e");
+      /*ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("❌ Error loading model: $e"),
         backgroundColor: Colors.red,
       ),
     );*/
+    }
   }
-}
-
 
   List<double> _normalize(List<double> embedding) {
     final norm = math.sqrt(embedding.fold(0.0, (sum, val) => sum + val * val));
     return embedding.map((e) => e / norm).toList();
   }
 
-  /*Future<void> _captureAndRegisterFace() async {
-    if (_cameraController == null || !_cameraController!.value.isInitialized || !_modelLoaded) return;
-     setState(() => _isLoading = true);
+  Future<void> _captureAndRegisterFace() async {
+    if (_cameraController == null ||
+        !_cameraController!.value.isInitialized ||
+        !_modelLoaded)
+      return;
+    setState(() => _isLoading = true);
     try {
       final file = await _cameraController!.takePicture();
       final inputImage = InputImage.fromFilePath(file.path);
@@ -124,12 +130,9 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
           await _tryWithRotatedImage(file.path);
           return;
         }
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMsg),
-            backgroundColor: Colors.orange,
-          ),
+          SnackBar(content: Text(errorMsg), backgroundColor: Colors.orange),
         );
         return;
       }
@@ -149,16 +152,16 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       final resized = img.copyResizeCropSquare(cropped, size: 160);
 
       const inputSize = 160;
-      var input = List.generate(1, (_) => List.generate(inputSize, (y) =>
-          List.generate(inputSize, (x) {
+      var input = List.generate(
+        1,
+        (_) => List.generate(
+          inputSize,
+          (y) => List.generate(inputSize, (x) {
             final pixel = resized.getPixel(x, y);
-            return [
-              pixel.r / 255.0,
-              pixel.g / 255.0,
-              pixel.b / 255.0,
-            ];
-          })
-      ));
+            return [pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
+          }),
+        ),
+      );
 
       var output = List.generate(1, (_) => List.filled(128, 0.0));
       _interpreter.run(input, output);
@@ -168,15 +171,15 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       await _saveEmbedding(embedding);
       //_showMessage('✅ Face registered successfully!');
       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("✅ Face registered successfully!"),
-        backgroundColor: Colors.green,
-      ),
-    );
+        SnackBar(
+          content: Text("✅ Face registered successfully!"),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e, stack) {
       debugPrint("Error in face detection: $e");
       debugPrint("Stack trace: $stack");
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Error: ${e.toString()}"),
@@ -189,34 +192,40 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
     }
   }
 
-Future<void> _tryWithRotatedImage(String imagePath) async {
-    try {
-      debugPrint("Attempting with rotated image for iOS...");
-      final bytes = await File(imagePath).readAsBytes();
-      img.Image? image = img.decodeImage(bytes);
-      
-      if (image == null) {
-        debugPrint("Failed to decode image");
-        return;
-      }
-      
-      // Rotate 90 degrees clockwise for iOS front camera
-      final rotated = img.copyRotate(image, angle: 90);
-      
+  Future<void> _tryWithRotatedImage(String imagePath) async {
+  try {
+    debugPrint("Attempting with rotated image for iOS...");
+    final bytes = await File(imagePath).readAsBytes();
+    img.Image? image = img.decodeImage(bytes);
+
+    if (image == null) {
+      debugPrint("Failed to decode image");
+      return;
+    }
+
+    // Try multiple rotation angles
+    final rotationAngles = [90, 180, 270];
+    bool faceDetected = false;
+
+    for (int angle in rotationAngles) {
+      debugPrint("Trying rotation: $angle degrees");
+      final rotated = img.copyRotate(image, angle: angle);
+
       // Save rotated image temporarily for debugging
-      final rotatedPath = '${imagePath}_rotated.jpg';
+      final rotatedPath = '${imagePath}_rotated_$angle.jpg';
       await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated));
       debugPrint("Saved rotated image to: $rotatedPath");
-      
+
       // Try face detection again with rotated image
       final inputImage = InputImage.fromFilePath(rotatedPath);
       final faces = await _faceDetector.processImage(inputImage);
-      
+
       if (faces.isNotEmpty) {
-        debugPrint("Face detected after rotation!");
-        
+        debugPrint("Face detected after $angle° rotation!");
+        faceDetected = true;
+
         final face = faces.first;
-        
+
         // Process the rotated image
         final x = face.boundingBox.left.toInt().clamp(0, rotated.width - 1);
         final y = face.boundingBox.top.toInt().clamp(0, rotated.height - 1);
@@ -228,26 +237,26 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
 
         // Generate embedding
         const inputSize = 160;
-        var input = List.generate(1, (_) => List.generate(inputSize, (y) =>
-            List.generate(inputSize, (x) {
+        var input = List.generate(
+          1,
+          (_) => List.generate(
+            inputSize,
+            (y) => List.generate(inputSize, (x) {
               final pixel = resized.getPixel(x, y);
-              return [
-                pixel.r / 255.0,
-                pixel.g / 255.0,
-                pixel.b / 255.0,
-              ];
-            })
-        ));
+              return [pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
+            }),
+          ),
+        );
 
         var output = List.generate(1, (_) => List.filled(128, 0.0));
         _interpreter.run(input, output);
 
         List<double> embedding = List<double>.from(output[0]);
         embedding = _normalize(embedding);
-        
+
         // Save the embedding
         await _saveEmbedding(embedding);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -256,203 +265,45 @@ Future<void> _tryWithRotatedImage(String imagePath) async {
             ),
           );
         }
-      } else {
-        debugPrint("Still no face detected after rotation");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("No face detected"),
-            backgroundColor: Colors.orange,
-          ),
-        );
+
+        await File(rotatedPath).delete();
+        break; // Stop trying once a face is detected
       }
-      
-      // Clean up temporary file
+
+      // Clean up before next try
       await File(rotatedPath).delete();
-      
-    } catch (e, stack) {
-      debugPrint("Error in rotated image processing: $e");
-      debugPrint("Stack trace: $stack");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error processing rotated image: ${e.toString()}"),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 5),
-          ),
-        );
-      }
-    }
-  }*/
-
-  Future<void> _captureAndRegisterFace() async {
-  if (_cameraController == null || !_cameraController!.value.isInitialized || !_modelLoaded) return;
-  
-  setState(() => _isLoading = true);
-  
-  try {
-    final file = await _cameraController!.takePicture();
-    String imagePath = file.path;
-    
-    // For iOS, we'll process the image with proper orientation handling
-    if (_isIOS) {
-      // Read the original image bytes
-      final originalBytes = await File(imagePath).readAsBytes();
-      // Decode with orientation baked in
-      img.Image? orientedImage = img.decodeImage(originalBytes);
-      
-      if (orientedImage != null) {
-        // Apply the baked orientation which handles EXIF data
-        orientedImage = img.bakeOrientation(orientedImage);
-        
-        // Save the properly oriented image temporarily
-        final orientedPath = '${imagePath}_oriented.jpg';
-        await File(orientedPath).writeAsBytes(img.encodeJpg(orientedImage));
-        imagePath = orientedPath;
-      }
     }
 
-    final inputImage = InputImage.fromFilePath(imagePath);
-    final faces = await _faceDetector.processImage(inputImage);
-
-    _detectedFaces = faces;
-    if (mounted) setState(() {});
-    
-    if (faces.isEmpty) {
-      String errorMsg = "No face detected in selfie";
-      if (_isIOS) {
-        errorMsg += " (iOS may need image rotation correction)";
-        // Try with additional rotation if needed
-        final success = await _tryWithRotatedImage(imagePath);
-        if (!success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMsg),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
-        return;
-      }
-      
+    if (!faceDetected) {
+      debugPrint("No face detected after trying all rotations");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMsg),
+          content: Text("No face detected"),
           backgroundColor: Colors.orange,
         ),
       );
-      return;
     }
 
-    await _processAndSaveFace(imagePath, faces.first);
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("✅ Face registered successfully!"),
-        backgroundColor: Colors.green,
-      ),
-    );
-    
-  } catch (e, stack) {
-    debugPrint("Error in face detection: $e");
-    debugPrint("Stack trace: $stack");
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Error: ${e.toString()}"),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 5),
-      ),
-    );
-  } finally {
-    // Clean up temporary files
-    /*if (_isIOS && imagePath.endsWith('_oriented.jpg')) {
-      await File(imagePath).delete();
-    }*/
-    if (mounted) setState(() => _isLoading = false);
-  }
-}
-
-Future<bool> _tryWithRotatedImage(String imagePath) async {
-  try {
-    debugPrint("Attempting with rotated image for iOS...");
-    final bytes = await File(imagePath).readAsBytes();
-    img.Image? image = img.decodeImage(bytes);
-    
-    if (image == null) {
-      debugPrint("Failed to decode image");
-      return false;
-    }
-    
-    // Try multiple rotation angles if needed
-    final anglesToTry = [90, 180, 270];
-    for (final angle in anglesToTry) {
-      final rotated = img.copyRotate(image, angle: angle);
-      
-      final rotatedPath = '${imagePath}_rotated_$angle.jpg';
-      await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated));
-      
-      final inputImage = InputImage.fromFilePath(rotatedPath);
-      final faces = await _faceDetector.processImage(inputImage);
-      
-      if (faces.isNotEmpty) {
-        debugPrint("Face detected after $angle° rotation!");
-        await _processAndSaveFace(rotatedPath, faces.first);
-        
-        // Clean up
-        await File(rotatedPath).delete();
-        return true;
-      }
-      
-      // Clean up if no face detected
-      await File(rotatedPath).delete();
-    }
-    
-    debugPrint("No face detected after trying all rotations");
-    return false;
-    
   } catch (e, stack) {
     debugPrint("Error in rotated image processing: $e");
     debugPrint("Stack trace: $stack");
-    return false;
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error processing rotated image: ${e.toString()}"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+        ),
+      );
+    }
   }
-}
-
-Future<void> _processAndSaveFace(String imagePath, Face face) async {
-  final bytes = await File(imagePath).readAsBytes();
-  img.Image image = img.decodeImage(bytes)!;
-  
-  final x = face.boundingBox.left.toInt().clamp(0, image.width - 1);
-  final y = face.boundingBox.top.toInt().clamp(0, image.height - 1);
-  final w = face.boundingBox.width.toInt().clamp(0, image.width - x);
-  final h = face.boundingBox.height.toInt().clamp(0, image.height - y);
-
-  final cropped = img.copyCrop(image, x: x, y: y, width: w, height: h);
-  final resized = img.copyResizeCropSquare(cropped, size: 160);
-
-  const inputSize = 160;
-  var input = List.generate(1, (_) => List.generate(inputSize, (y) =>
-      List.generate(inputSize, (x) {
-        final pixel = resized.getPixel(x, y);
-        return [
-          pixel.r / 255.0,
-          pixel.g / 255.0,
-          pixel.b / 255.0,
-        ];
-      })
-  ));
-
-  var output = List.generate(1, (_) => List.filled(128, 0.0));
-  _interpreter.run(input, output);
-
-  List<double> embedding = List<double>.from(output[0]);
-  embedding = _normalize(embedding);
-  await _saveEmbedding(embedding);
 }
 
   Future<void> _saveEmbedding(List<double> embedding) async {
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode(embedding);
     await prefs.setString('face_embedding', encoded);
+    print('face_embedding $encoded');
   }
 
   /*void _showMessage(String msg) {
@@ -464,7 +315,6 @@ Future<void> _processAndSaveFace(String imagePath, Face face) async {
     );
   });
 }*/
-
 
   @override
   void dispose() {
@@ -489,40 +339,43 @@ Future<void> _processAndSaveFace(String imagePath, Face face) async {
         ],
       ),
       body: Stack(
-  children: [
-    // Fullscreen camera view
-    Positioned.fill(
-      child: _cameraController?.value.isInitialized == true
-          ? Stack(
-              children: [
-                CameraPreview(_cameraController!),
-                if (_isLoading)
-                  Container(
-                    color: Colors.black.withOpacity(0.5),
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-              ],
-            )
-          : const Center(child: CircularProgressIndicator()),
-    ),
+        children: [
+          // Fullscreen camera view
+          Positioned.fill(
+            child:
+                _cameraController?.value.isInitialized == true
+                    ? Stack(
+                      children: [
+                        CameraPreview(_cameraController!),
+                        if (_isLoading)
+                          Container(
+                            color: Colors.black.withOpacity(0.5),
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                      ],
+                    )
+                    : const Center(child: CircularProgressIndicator()),
+          ),
 
-    // Button pinned to bottom
-    Positioned(
-      bottom: 30,
-      left: 24,
-      right: 24,
-      child: ElevatedButton.icon(
-        onPressed: _isLoading ? null : _captureAndRegisterFace,
-        icon: const Icon(Icons.camera_alt),
-        label: const Text("Capture Selfie"),
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(50),
-          textStyle: const TextStyle(fontSize: 18),
-        ),
+          // Button pinned to bottom
+          Positioned(
+            bottom: 30,
+            left: 24,
+            right: 24,
+            child: ElevatedButton.icon(
+              onPressed: _isLoading ? null : _captureAndRegisterFace,
+              icon: const Icon(Icons.camera_alt),
+              label: const Text("Capture Selfie"),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+                textStyle: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
+        ],
       ),
-    ),
-  ],
-),
     );
   }
 }
