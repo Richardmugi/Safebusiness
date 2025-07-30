@@ -425,7 +425,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
                   const SizedBox(height: 10),
 
                   // ✅ Register Face Button
-                  ElevatedButton.icon(
+                  /*ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -441,7 +441,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
                       minimumSize: const Size.fromHeight(50),
                       textStyle: const TextStyle(fontSize: 18),
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             ),
