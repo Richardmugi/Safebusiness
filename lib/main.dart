@@ -6,6 +6,7 @@ import 'package:safebusiness/providers/dark_theme_provider.dart';
 import 'package:safebusiness/screens/notify.dart';
 import 'package:safebusiness/screens/splash.dart';
 import 'package:safebusiness/utils/dark_theme_styles.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'helpers/route_helper.dart';
@@ -25,6 +26,8 @@ void callbackDispatcher() {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  print("🔹 Restored embedding: ${prefs.getString('face_embedding')}");
   tz.initializeTimeZones();
   //final String timeZoneName = await FlutterNativeTimezoneLatest.getLocalTimezone();
 

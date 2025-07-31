@@ -167,7 +167,7 @@ Widget build(BuildContext context) {
                       );
                     },
                   ),
-                  /*_buildActionButton(
+                  _buildActionButton(
                     icon: Icons.logout,
                     label: 'Checkin',
                     color: Colors.white,
@@ -177,7 +177,7 @@ Widget build(BuildContext context) {
                         MaterialPageRoute(builder: (context) => const FaceCheckInPage()),
                       );
                     },
-                  ),*/
+                  ),
                   _buildActionButton(
                     icon: Icons.lock_outline,
                     label: 'Change PIN',

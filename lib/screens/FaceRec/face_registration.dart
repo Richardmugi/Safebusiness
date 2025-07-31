@@ -31,7 +31,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
   List<CameraDescription> _cameras = [];
   int _selectedCameraIndex = 0;
   bool _isLoading = false;
-  bool _isIOS = Platform.isIOS;
+  final bool _isIOS = Platform.isIOS;
 
   @override
   void initState() {

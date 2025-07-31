@@ -30,7 +30,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
   List<CameraDescription> _cameras = [];
   int _selectedCameraIndex = 0;
   bool _isProcessing = false;
-  bool _isIOS = Platform.isIOS;
+  final bool _isIOS = Platform.isIOS;
 
   @override
   void initState() {
@@ -173,13 +173,27 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       }
 
       final normStored = _normalize(storedEmbedding);
-      final distance = _euclideanDistance(normCurrent, normStored);
+      //final distance = _euclideanDistance(normCurrent, normStored);
 
-      print("✅ Normalized Euclidean Distance: $distance");
+      final similarity = _cosineSimilarity(normCurrent, normStored);
+        print("✅ Cosine Similarity: $similarity");
+
+      //print("✅ Normalized Euclidean Distance: $distance");
       print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
       print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-      if (distance < 0.3) {
+if (similarity > 0.85) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("✅ Face matched!"), backgroundColor: Colors.green),
+  );
+  Navigator.pop(context, true);
+} else {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("❌ Face does not match! Check-in failed"), backgroundColor: mainColor),
+  );
+  Navigator.pop(context, false);
+}
+      /*if (distance < 0.3) {
         //_showMessage('✅ Face matched!');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -197,7 +211,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
           ),
         );
         Navigator.pop(context, false); // ❌ Return failure
-      }
+      }*/
     } catch (e) {
       _showMessage('Error: $e');
     } finally {
@@ -375,7 +389,7 @@ if (similarity > 0.85) {
 }
 
 
-  double _euclideanDistance(List<double> e1, List<double> e2) {
+  /*double _euclideanDistance(List<double> e1, List<double> e2) {
     double sum = 0.0;
     for (int i = 0; i < e1.length; i++) {
       sum += math.pow((e1[i] - e2[i]), 2);
@@ -383,7 +397,7 @@ if (similarity > 0.85) {
     double distance = math.sqrt(sum);
     print("🔍 Euclidean Distance between embeddings: $distance");
     return distance;
-  }
+  }*/
 
   void _showMessage(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
