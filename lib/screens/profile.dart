@@ -172,7 +172,7 @@ Widget build(BuildContext context) {
                     label: 'Checkin',
                     color: Colors.white,
                     onTap: () async {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => const FaceCheckInPage()),
                       );

@@ -884,7 +884,7 @@ class _HomeState extends State<Home> {
                                                   );
                                                   // 3️⃣ Navigate to Face Detection Page
                                                   final faceCheckPassed =
-                                                      await Navigator.push(
+                                                      await Navigator.pushReplacement(
                                                         context,
                                                         MaterialPageRoute(
                                                           builder:
@@ -907,6 +907,7 @@ class _HomeState extends State<Home> {
                                                       });
                                                     }
                                                   } else {
+                                                    if (mounted) return;
                                                     ScaffoldMessenger.of(
                                                       context,
                                                     ).showSnackBar(
