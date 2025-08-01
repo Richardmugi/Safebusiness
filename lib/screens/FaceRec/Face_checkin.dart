@@ -31,6 +31,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
   int _selectedCameraIndex = 0;
   bool _isProcessing = false;
   final bool _isIOS = Platform.isIOS;
+  List<Face> _detectedFaces = [];
 
   @override
   void initState() {
@@ -108,6 +109,14 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       final inputImage = InputImage.fromFilePath(file.path);
       final faces = await _faceDetector.processImage(inputImage);
 
+      if (_isIOS) {
+        debugPrint('iOS specific debug:');
+        final image = img.decodeImage(await File(file.path).readAsBytes());
+        debugPrint('Decoded image size: ${image?.width}x${image?.height}');
+      }
+
+      _detectedFaces = faces;
+      if (mounted) setState(() {});
       if (faces.isEmpty) {
         String errorMsg = "No face detected in selfie";
         if (_isIOS) {
@@ -127,20 +136,16 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
 
       final bytes = await File(file.path).readAsBytes();
       img.Image image = img.decodeImage(bytes)!;
+      //image = img.bakeOrientation(image); // ✅ Fix rotation on iOS
 
-      // Crop and align face
       final x = face.boundingBox.left.toInt().clamp(0, image.width - 1);
       final y = face.boundingBox.top.toInt().clamp(0, image.height - 1);
       final w = face.boundingBox.width.toInt().clamp(0, image.width - x);
       final h = face.boundingBox.height.toInt().clamp(0, image.height - y);
 
       final cropped = img.copyCrop(image, x: x, y: y, width: w, height: h);
-      final resized = img.copyResizeCropSquare(
-        cropped,
-        size: 160,
-      ); // Match your model input
+      final resized = img.copyResizeCropSquare(cropped, size: 160);
 
-      // Normalize pixel values to [0, 1] for float32 model
       const inputSize = 160;
       var input = List.generate(
         1,
@@ -152,6 +157,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
           }),
         ),
       );
+
 
       // Output: [1, 128] for float model
       var output = List.generate(1, (_) => List.filled(128, 0.0));
@@ -220,36 +226,30 @@ if (similarity > 0.85) {
   }
 
   Future<void> _tryWithRotatedImage(String imagePath) async {
-  try {
-    debugPrint("Attempting with rotated image for iOS...");
-    final bytes = await File(imagePath).readAsBytes();
-    img.Image? image = img.decodeImage(bytes);
+    try {
+      debugPrint("Attempting with rotated image for iOS...");
+      final bytes = await File(imagePath).readAsBytes();
+      img.Image? image = img.decodeImage(bytes);
 
-    if (image == null) {
-      debugPrint("Failed to decode image");
-      return;
-    }
+      if (image == null) {
+        debugPrint("Failed to decode image");
+        return;
+      }
 
-    // Try multiple rotations
-    final rotationAngles = [90, 180, 270];
-    bool faceDetected = false;
+      // Rotate 90 degrees clockwise for iOS front camera
+      final rotated = img.copyRotate(image, angle: 90);
 
-    for (int angle in rotationAngles) {
-      debugPrint("Trying rotation: $angle degrees");
-      final rotated = img.copyRotate(image, angle: angle);
-
-      // Save rotated image temporarily
-      final rotatedPath = '${imagePath}_rotated_$angle.jpg';
+      // Save rotated image temporarily for debugging
+      final rotatedPath = '${imagePath}_rotated.jpg';
       await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated));
       debugPrint("Saved rotated image to: $rotatedPath");
 
-      // Try face detection
+      // Try face detection again with rotated image
       final inputImage = InputImage.fromFilePath(rotatedPath);
       final faces = await _faceDetector.processImage(inputImage);
 
       if (faces.isNotEmpty) {
-        faceDetected = true;
-        debugPrint("Face detected after $angle° rotation!");
+        debugPrint("Face detected after rotation!");
 
         final face = faces.first;
 
@@ -283,6 +283,7 @@ if (similarity > 0.85) {
 
         final storedEmbedding = await _loadStoredEmbedding();
         if (storedEmbedding == null) {
+          //_showMessage("No registered face found. Please register first.");
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("No registered face found. Please register first."),
@@ -298,25 +299,24 @@ if (similarity > 0.85) {
         final similarity = _cosineSimilarity(normCurrent, normStored);
         print("✅ Cosine Similarity: $similarity");
 
-
         //print("✅ Normalized Euclidean Distance: $distance");
         print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
         print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-
-if (similarity > 0.85) {
+        if (similarity > 0.85) {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("✅ Face matched!"), backgroundColor: Colors.green),
+    SnackBar(content: Text("✅ Face matched! $similarity"), backgroundColor: Colors.green),
   );
   Navigator.pop(context, true);
 } else {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("❌ Face does not match! Check-in failed"), backgroundColor: mainColor),
+    SnackBar(content: Text("❌ Face does not match! Check-in failed: $similarity"), backgroundColor: mainColor),
   );
   Navigator.pop(context, false);
 }
 
         /*if (distance < 0.3) {
+          //_showMessage('✅ Face matched!');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("✅ Face matched!"),
@@ -325,6 +325,7 @@ if (similarity > 0.85) {
           );
           Navigator.pop(context, true); // ✅ Return success
         } else {
+          //_showMessage('❌ Face does not match! Check-in failed');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("❌ Face does not match! Check-in failed"),
@@ -333,38 +334,46 @@ if (similarity > 0.85) {
           );
           Navigator.pop(context, false); // ❌ Return failure
         }*/
-
-        await File(rotatedPath).delete();
-        break; // ✅ Stop trying other rotations
       }
 
-      // Clean up file before next rotation
-      await File(rotatedPath).delete();
-    }
+      // Save the embedding
+      //await _saveEmbedding(embedding);
 
-    if (!faceDetected) {
-      debugPrint("No face detected after trying all rotations");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("iOS: No face detected even after rotation"),
-          backgroundColor: Colors.orange,
-        ),
-      );
-    }
+      /*if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("✅ Face registered successfully (iOS rotated)!"),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }*/
+      /*} else {
+        debugPrint("Still no face detected after rotation");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("iOS: No face detected even after rotation"),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }*/
 
-  } catch (e, stack) {
-    debugPrint("Error in rotated image processing: $e");
-    debugPrint("Stack trace: $stack");
-    if (mounted) setState(() => _isProcessing = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Error processing rotated image: ${e.toString()}"),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 5),
-      ),
-    );
-  }
-}
+      // Clean up temporary file
+      //await File(rotatedPath).delete();
+    } catch (e, stack) {
+      debugPrint("Error in rotated image processing: $e");
+      debugPrint("Stack trace: $stack");
+      if (mounted) setState(() => _isProcessing = false);
+      {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error processing rotated image: ${e.toString()}"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }  
 
   Future<List<double>?> _loadStoredEmbedding() async {
     final prefs = await SharedPreferences.getInstance();

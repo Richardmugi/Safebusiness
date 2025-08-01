@@ -193,26 +193,21 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
   }
 
   Future<void> _tryWithRotatedImage(String imagePath) async {
-  try {
-    debugPrint("Attempting with rotated image for iOS...");
-    final bytes = await File(imagePath).readAsBytes();
-    img.Image? image = img.decodeImage(bytes);
+    try {
+      debugPrint("Attempting with rotated image for iOS...");
+      final bytes = await File(imagePath).readAsBytes();
+      img.Image? image = img.decodeImage(bytes);
 
-    if (image == null) {
-      debugPrint("Failed to decode image");
-      return;
-    }
+      if (image == null) {
+        debugPrint("Failed to decode image");
+        return;
+      }
 
-    // Try multiple rotation angles
-    final rotationAngles = [90, 180, 270];
-    bool faceDetected = false;
-
-    for (int angle in rotationAngles) {
-      debugPrint("Trying rotation: $angle degrees");
-      final rotated = img.copyRotate(image, angle: angle);
+      // Rotate 90 degrees clockwise for iOS front camera
+      final rotated = img.copyRotate(image, angle: 90);
 
       // Save rotated image temporarily for debugging
-      final rotatedPath = '${imagePath}_rotated_$angle.jpg';
+      final rotatedPath = '${imagePath}_rotated.jpg';
       await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated));
       debugPrint("Saved rotated image to: $rotatedPath");
 
@@ -221,8 +216,7 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       final faces = await _faceDetector.processImage(inputImage);
 
       if (faces.isNotEmpty) {
-        debugPrint("Face detected after $angle° rotation!");
-        faceDetected = true;
+        debugPrint("Face detected after rotation!");
 
         final face = faces.first;
 
@@ -265,39 +259,32 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
             ),
           );
         }
-
-        await File(rotatedPath).delete();
-        break; // Stop trying once a face is detected
+      } else {
+        debugPrint("Still no face detected after rotation");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("No face detected"),
+            backgroundColor: Colors.orange,
+          ),
+        );
       }
 
-      // Clean up before next try
+      // Clean up temporary file
       await File(rotatedPath).delete();
+    } catch (e, stack) {
+      debugPrint("Error in rotated image processing: $e");
+      debugPrint("Stack trace: $stack");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error processing rotated image: ${e.toString()}"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     }
-
-    if (!faceDetected) {
-      debugPrint("No face detected after trying all rotations");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("No face detected"),
-          backgroundColor: Colors.orange,
-        ),
-      );
-    }
-
-  } catch (e, stack) {
-    debugPrint("Error in rotated image processing: $e");
-    debugPrint("Stack trace: $stack");
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error processing rotated image: ${e.toString()}"),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 5),
-        ),
-      );
-    }
-  }
-}
+  } 
 
   Future<void> _saveEmbedding(List<double> embedding) async {
     final prefs = await SharedPreferences.getInstance();
