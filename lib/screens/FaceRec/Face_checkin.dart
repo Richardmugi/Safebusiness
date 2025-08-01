@@ -178,10 +178,10 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         return;
       }
 
-      final normStored = _normalize(storedEmbedding);
+      //final normStored = _normalize(storedEmbedding);
       //final distance = _euclideanDistance(normCurrent, normStored);
 
-      final similarity = _cosineSimilarity(normCurrent, normStored);
+      final similarity = _cosineSimilarity(normCurrent, storedEmbedding);
         print("✅ Cosine Similarity: $similarity");
 
       //print("✅ Normalized Euclidean Distance: $distance");
@@ -294,10 +294,10 @@ if (similarity > 0.95) {
           return;
         }
 
-        final normStored = _normalize(storedEmbedding);
+        //final normStored = _normalize(storedEmbedding);
         //final distance = _euclideanDistance(normCurrent, normStored);
 
-        final similarity = _cosineSimilarity(normCurrent, normStored);
+        final similarity = _cosineSimilarity(normCurrent, storedEmbedding);
         print("✅ Cosine Similarity: $similarity");
 
         //print("✅ Normalized Euclidean Distance: $distance");
