@@ -118,25 +118,17 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       _detectedFaces = faces;
       if (mounted) setState(() {});
       if (faces.isEmpty) {
-        if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("❌ No face detected. Please try again."),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-        //String errorMsg = "No face detected in selfie";
+        String errorMsg = "No face detected in selfie";
         if (_isIOS) {
-          //errorMsg += " (iOS may need image rotation correction)";
+          errorMsg += " (iOS may need image rotation correction)";
           // Try with rotated image for iOS
           await _tryWithRotatedImage(file.path);
           return;
         }
 
-        /*ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMsg), backgroundColor: Colors.orange),
-        );*/
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("No face detected"), backgroundColor: Colors.orange),
+        );
         return;
       }
 
@@ -195,7 +187,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
       print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-      if (similarity > 0.85) {
+      if (similarity > 0.95) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
