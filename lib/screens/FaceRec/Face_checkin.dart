@@ -178,10 +178,10 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         return;
       }
 
-      final normStored = _normalize(storedEmbedding);
+      //final normStored = _normalize(storedEmbedding);
       //final distance = _euclideanDistance(normCurrent, normStored);
 
-      final similarity = _cosineSimilarity(normCurrent, normStored);
+      final similarity = _cosineSimilarity(normCurrent, storedEmbedding);
         print("✅ Cosine Similarity: $similarity");
 
       //print("✅ Normalized Euclidean Distance: $distance");
@@ -293,17 +293,17 @@ if (similarity > 0.85) {
           return;
         }
 
-        final normStored = _normalize(storedEmbedding);
+        //final normStored = _normalize(storedEmbedding);
         //final distance = _euclideanDistance(normCurrent, normStored);
 
-        final similarity = _cosineSimilarity(normCurrent, normStored);
+        final similarity = _cosineSimilarity(normCurrent, storedEmbedding);
         print("✅ Cosine Similarity: $similarity");
 
         //print("✅ Normalized Euclidean Distance: $distance");
         print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
         print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-        if (similarity > 0.85) {
+        if (similarity > 0.95) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text("✅ Face matched! $similarity"), backgroundColor: Colors.green),
   );
