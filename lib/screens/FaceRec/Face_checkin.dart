@@ -127,7 +127,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("No face detected"), backgroundColor: Colors.orange),
+          SnackBar(content: Text(errorMsg), backgroundColor: Colors.orange),
         );
         return;
       }
@@ -158,6 +158,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         ),
       );
 
+
       // Output: [1, 128] for float model
       var output = List.generate(1, (_) => List.filled(128, 0.0));
       _interpreter.run(input, output);
@@ -177,35 +178,27 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         return;
       }
 
-      //final normStored = _normalize(storedEmbedding);
+      final normStored = _normalize(storedEmbedding);
       //final distance = _euclideanDistance(normCurrent, normStored);
 
-      final similarity = _cosineSimilarity(normCurrent, storedEmbedding);
-      print("✅ Cosine Similarity: $similarity");
+      final similarity = _cosineSimilarity(normCurrent, normStored);
+        print("✅ Cosine Similarity: $similarity");
 
       //print("✅ Normalized Euclidean Distance: $distance");
       print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
       print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-      if (similarity > 0.95) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("✅ Face matched!"),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pop(context, true);
-      } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("❌ Face does not match! Check-in failed"),
-            backgroundColor: mainColor,
-          ),
-        );
-        Navigator.pop(context, false);
-      }
+if (similarity > 0.95) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("✅ Face matched!"), backgroundColor: Colors.green),
+  );
+  Navigator.pop(context, true);
+} else {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("❌ Face does not match! Check-in failed"), backgroundColor: mainColor),
+  );
+  Navigator.pop(context, false);
+}
       /*if (distance < 0.3) {
         //_showMessage('✅ Face matched!');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -290,7 +283,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
 
         final storedEmbedding = await _loadStoredEmbedding();
         if (storedEmbedding == null) {
-          if (!mounted) {
+          if (!mounted) return;
           //_showMessage("No registered face found. Please register first.");
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -298,14 +291,13 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
               backgroundColor: mainColor,
             ),
           );
-          }
           return;
         }
 
-        //final normStored = _normalize(storedEmbedding);
+        final normStored = _normalize(storedEmbedding);
         //final distance = _euclideanDistance(normCurrent, normStored);
 
-        final similarity = _cosineSimilarity(normCurrent, storedEmbedding);
+        final similarity = _cosineSimilarity(normCurrent, normStored);
         print("✅ Cosine Similarity: $similarity");
 
         //print("✅ Normalized Euclidean Distance: $distance");
@@ -313,32 +305,18 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
         if (similarity > 0.95) {
-          if (!mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("✅ Face matched! $similarity"),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-          await Future.delayed(Duration(milliseconds: 700));
           if (!mounted) return;
-          Navigator.pop(context, true);
-        } else {
-          if (!mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "❌ Face does not match! Check-in failed: $similarity",
-                ),
-                backgroundColor: mainColor,
-              ),
-            );
-          }
-          await Future.delayed(Duration(milliseconds: 700));
-          if (!mounted) return;
-          Navigator.pop(context, false);
-        }
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("✅ Face matched! $similarity"), backgroundColor: Colors.green),
+  );
+  Navigator.pop(context, true);
+} else {
+  if (!mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("❌ Face does not match! Check-in failed: $similarity"), backgroundColor: mainColor),
+  );
+  Navigator.pop(context, false);
+}
 
         /*if (distance < 0.3) {
           //_showMessage('✅ Face matched!');
@@ -389,18 +367,16 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       debugPrint("Stack trace: $stack");
       if (mounted) setState(() => _isProcessing = false);
       {
-        if (!mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Error processing rotated image: ${e.toString()}"),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 5),
-            ),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error processing rotated image: ${e.toString()}"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
+          ),
+        );
       }
     }
-  }
+  }  
 
   Future<List<double>?> _loadStoredEmbedding() async {
     final prefs = await SharedPreferences.getInstance();
@@ -411,18 +387,19 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
   }
 
   double _cosineSimilarity(List<double> a, List<double> b) {
-    double dot = 0.0;
-    double normA = 0.0;
-    double normB = 0.0;
+  double dot = 0.0;
+  double normA = 0.0;
+  double normB = 0.0;
 
-    for (int i = 0; i < a.length; i++) {
-      dot += a[i] * b[i];
-      normA += a[i] * a[i];
-      normB += b[i] * b[i];
-    }
-
-    return dot / (sqrt(normA) * sqrt(normB));
+  for (int i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
   }
+
+  return dot / (sqrt(normA) * sqrt(normB));
+}
+
 
   /*double _euclideanDistance(List<double> e1, List<double> e2) {
     double sum = 0.0;

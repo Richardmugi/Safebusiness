@@ -130,14 +130,13 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
           await _tryWithRotatedImage(file.path);
           return;
         }
-        if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMsg), backgroundColor: Colors.orange),
         );
         return;
       }
-       
-      if (faces.isNotEmpty) {
+
       final face = faces.first;
 
       final bytes = await File(file.path).readAsBytes();
@@ -170,28 +169,17 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       List<double> embedding = List<double>.from(output[0]);
       embedding = _normalize(embedding);
       await _saveEmbedding(embedding);
-      if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("✅ Face registered successfully"),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      } else {
-        debugPrint("Still no face detected after rotation");
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("No face detected"),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
+      //_showMessage('✅ Face registered successfully!');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("✅ Face registered successfully!"),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e, stack) {
       debugPrint("Error in face detection: $e");
       debugPrint("Stack trace: $stack");
-      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Error: ${e.toString()}"),
