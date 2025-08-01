@@ -189,11 +189,13 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
 if (similarity > 0.85) {
+  if (!mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text("✅ Face matched!"), backgroundColor: Colors.green),
   );
   Navigator.pop(context, true);
 } else {
+  if (!mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text("❌ Face does not match! Check-in failed"), backgroundColor: mainColor),
   );
@@ -283,6 +285,7 @@ if (similarity > 0.85) {
 
         final storedEmbedding = await _loadStoredEmbedding();
         if (storedEmbedding == null) {
+          if (!mounted) return;
           //_showMessage("No registered face found. Please register first.");
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -304,14 +307,20 @@ if (similarity > 0.85) {
         print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
         if (similarity > 0.95) {
+          if (!mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text("✅ Face matched! $similarity"), backgroundColor: Colors.green),
   );
+  await Future.delayed(Duration(milliseconds: 700));
+  if (!mounted) return;
   Navigator.pop(context, true);
 } else {
+  if (!mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text("❌ Face does not match! Check-in failed: $similarity"), backgroundColor: mainColor),
   );
+  await Future.delayed(Duration(milliseconds: 700));
+  if (!mounted) return;
   Navigator.pop(context, false);
 }
 
@@ -364,6 +373,7 @@ if (similarity > 0.85) {
       debugPrint("Stack trace: $stack");
       if (mounted) setState(() => _isProcessing = false);
       {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error processing rotated image: ${e.toString()}"),
