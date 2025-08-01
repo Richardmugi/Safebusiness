@@ -136,7 +136,8 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
         );
         return;
       }
-
+       
+      if (faces.isNotEmpty) {
       final face = faces.first;
 
       final bytes = await File(file.path).readAsBytes();
@@ -169,14 +170,24 @@ class _FaceRegisterPageState extends State<FaceRegisterPage> {
       List<double> embedding = List<double>.from(output[0]);
       embedding = _normalize(embedding);
       await _saveEmbedding(embedding);
-      if (!mounted) return;
-      //_showMessage('✅ Face registered successfully!');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("✅ Face registered successfully!"),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("✅ Face registered successfully"),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        debugPrint("Still no face detected after rotation");
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("No face detected"),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
     } catch (e, stack) {
       debugPrint("Error in face detection: $e");
       debugPrint("Stack trace: $stack");

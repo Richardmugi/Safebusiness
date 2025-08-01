@@ -884,7 +884,7 @@ class _HomeState extends State<Home> {
                                                   );
                                                   // 3️⃣ Navigate to Face Detection Page
                                                   final faceCheckPassed =
-                                                      await Navigator.pushReplacement(
+                                                      await Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
                                                           builder:

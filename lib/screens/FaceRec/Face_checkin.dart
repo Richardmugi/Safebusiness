@@ -131,7 +131,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         );
         return;
       }
-
+      if (faces.isNotEmpty) {
       final face = faces.first;
 
       final bytes = await File(file.path).readAsBytes();
@@ -164,6 +164,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
 
       List<double> currentEmbedding = List<double>.from(output[0]);
       final normCurrent = _normalize(currentEmbedding);
+      
 
       final storedEmbedding = await _loadStoredEmbedding();
       if (storedEmbedding == null) {
@@ -177,6 +178,8 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         return;
       }
 
+      
+
       //final normStored = _normalize(storedEmbedding);
       //final distance = _euclideanDistance(normCurrent, normStored);
 
@@ -186,7 +189,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       //print("✅ Normalized Euclidean Distance: $distance");
       print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
       print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
-
+      
       if (similarity > 0.85) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -205,6 +208,25 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
           ),
         );
         Navigator.pop(context, false);
+      }
+
+      if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("✅ Face matched successfully"),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        debugPrint("Still no face detected after rotation");
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("No face detected"),
+            backgroundColor: Colors.orange,
+          ),
+        );
       }
       /*if (distance < 0.3) {
         //_showMessage('✅ Face matched!');
@@ -366,15 +388,15 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       // Save the embedding
       //await _saveEmbedding(embedding);
 
-      /*if (mounted) {
+      if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("✅ Face registered successfully (iOS rotated)!"),
+              content: Text("✅ Face matched successfully"),
               backgroundColor: Colors.green,
             ),
           );
-        }*/
-      /*} else {
+        }
+      else {
         debugPrint("Still no face detected after rotation");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -382,7 +404,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
             backgroundColor: Colors.orange,
           ),
         );
-      }*/
+      }
 
       // Clean up temporary file
       //await File(rotatedPath).delete();
@@ -391,7 +413,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       debugPrint("Stack trace: $stack");
       if (mounted) setState(() => _isProcessing = false);
       {
-        if (!mounted) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Error processing rotated image: ${e.toString()}"),
