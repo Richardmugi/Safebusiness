@@ -258,6 +258,7 @@ class _HomeState extends State<Home> {
           backgroundColor: mainColor,
         ),
       );
+      print("Unable to determine location, Please turn on your location");
       _saveNotification("Check-in failed: Unable to determine location");
       return false;
     }
@@ -266,39 +267,43 @@ class _HomeState extends State<Home> {
     double userLongitude = userPosition.longitude;
 
     /*var branchLocation = await _getBranchLocation(companyEmail);
-  if (branchLocation == null || branchLocation['latitude'] == null || branchLocation['longitude'] == null) {
-    if (!mounted) return false;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Branch location not found, Please try again"),
-        backgroundColor: mainColor,
-      ),
+    if (branchLocation == null ||
+        branchLocation['latitude'] == null ||
+        branchLocation['longitude'] == null) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Branch location not found, Please try again"),
+          backgroundColor: mainColor,
+        ),
+      );
+      print("Branch location not found, Please try again");
+      _saveNotification("Check-in failed: Branch location not found");
+      return false;
+    }
+
+    double? branchLatitude = branchLocation['latitude'];
+    double? branchLongitude = branchLocation['longitude'];
+
+    double distanceInMeters = Geolocator.distanceBetween(
+      userLatitude,
+      userLongitude,
+      branchLatitude!,
+      branchLongitude!,
     );
-    _saveNotification("Check-in failed: Branch location not found");
-    return false;
-  }
 
-  double? branchLatitude = branchLocation['latitude'];
-  double? branchLongitude = branchLocation['longitude'];
-
-  double distanceInMeters = Geolocator.distanceBetween(
-    userLatitude,
-    userLongitude,
-    branchLatitude!,
-    branchLongitude!,
-  );
-
-  if (distanceInMeters < 20) {
-    if (!mounted) return false;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("You are too far from your branch to check in"),
-        backgroundColor: mainColor,
-      ),
-    );
-    _saveNotification("Check-in failed: Too far from branch");
-    return false;
-  }*/
+    if (distanceInMeters > 20) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("You are too far from your branch to check in"),
+          backgroundColor: mainColor,
+        ),
+      );
+      print("You are too far from your branch to check in");
+      _saveNotification("Check-in failed: Too far from branch");
+      return false;
+    }*/
 
     var url = Uri.parse(
       'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockIn',
@@ -357,6 +362,7 @@ class _HomeState extends State<Home> {
         return false; // Indicate failure
       }
     } catch (e) {
+      print("Error during check-in: $e"); // Log the error
       _saveNotification("Check-in error: $e");
 
       if (await Vibration.hasVibrator()) {
@@ -385,10 +391,12 @@ class _HomeState extends State<Home> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.deniedForever) {
+        print("Location permission denied."); // Log the error
         return null;
       }
 
       if (permission == LocationPermission.denied) {
+        print("Location permission denied."); // Log the error
         return null;
       }
     }
@@ -398,7 +406,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  /*Future<Map<String, double>?> _getBranchLocation(String companyEmail) async {
+  Future<Map<String, double>?> _getBranchLocation(String companyEmail) async {
     var url = Uri.parse(
       "http://65.21.59.117/safe-business-api/public/api/v1/getCompanyBranches",
     );
@@ -409,19 +417,25 @@ class _HomeState extends State<Home> {
       body: jsonEncode({"companyEmail": companyEmail}),
     );
 
+    print("Branch Location Response: ${response.body}");
+
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       if (data["status"] == "SUCCESS" && data["branches"].isNotEmpty) {
         var branch = data["branches"].first;
+        if (branch["latitude"] != null && branch["longitude"] != null) {
         return {
           "latitude": double.parse(branch["latitude"]),
           "longitude": double.parse(branch["longitude"]),
         };
+      } else {
+        print("Branch coordinates are missing (latitude/longitude is null).");
+        return null; // ✅ Handle missing coordinates
       }
     }
-
-    return null;
-  }*/
+  }
+  return null;
+}
 
   Future<bool> _clockout(String email, String companyEmail) async {
     var url = Uri.parse(
