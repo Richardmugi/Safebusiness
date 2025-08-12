@@ -503,7 +503,7 @@ void initState() {
   Widget _PhoneinputField(String s, TextEditingController phoneController) {
     return CustomTextFormField(
       controller: phoneController,
-      hintText: "Enter Phone Number",
+      hintText: "Phone Number Example: 256745410599",
       label: "Phone Number",
       isBoldLabel: false,
       hasLable: false,
