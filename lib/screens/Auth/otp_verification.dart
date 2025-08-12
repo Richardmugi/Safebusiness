@@ -117,6 +117,7 @@ class _OtpVerificationState extends State<OtpVerification> {
     if (savedOtp == enteredOtp) {
       // OTP is correct, proceed with verification
       await saveOTPCompletion();
+      await prefs.clear();
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
