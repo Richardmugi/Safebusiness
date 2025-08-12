@@ -266,7 +266,7 @@ class _HomeState extends State<Home> {
     double userLatitude = userPosition.latitude;
     double userLongitude = userPosition.longitude;
 
-    /*var branchLocation = await _getBranchLocation(companyEmail);
+    var branchLocation = await _getBranchLocation(companyEmail);
     if (branchLocation == null ||
         branchLocation['latitude'] == null ||
         branchLocation['longitude'] == null) {
@@ -292,7 +292,7 @@ class _HomeState extends State<Home> {
       branchLongitude!,
     );
 
-    if (distanceInMeters > 20) {
+    if (distanceInMeters > 100) {
       if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -303,7 +303,7 @@ class _HomeState extends State<Home> {
       print("You are too far from your branch to check in");
       _saveNotification("Check-in failed: Too far from branch");
       return false;
-    }*/
+    }
 
     var url = Uri.parse(
       'http://65.21.59.117/safe-business-api/public/api/v1/employeeClockIn',
@@ -742,13 +742,13 @@ class _HomeState extends State<Home> {
                                                     isValidEmail(
                                                       scannedEmail,
                                                     )) {
-                                                  await Future.delayed(
+                                                  /*await Future.delayed(
                                                     const Duration(
                                                       milliseconds: 500,
                                                     ),
-                                                  );
+                                                  );*/
                                                   // 3️⃣ Navigate to Face Detection Page
-                                                  final faceCheckPassed =
+                                                  /*final faceCheckPassed =
                                                       await Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
@@ -756,10 +756,10 @@ class _HomeState extends State<Home> {
                                                               (context) =>
                                                                   const FaceCheckInPage(),
                                                         ),
-                                                      );
+                                                      );*/
 
                                                   // 4️⃣ If Face Matches → Perform Check-in
-                                                  if (faceCheckPassed == true) {
+                                                  //if (faceCheckPassed == true) {
                                                     bool success =
                                                         await _clockin(
                                                           employeeEmail,
@@ -773,7 +773,7 @@ class _HomeState extends State<Home> {
                                                         _loadStates(); // Reload UI
                                                       });
                                                     }
-                                                  } else {
+                                                  /*}*/ else {
                                                     ScaffoldMessenger.of(
                                                       context,
                                                     ).showSnackBar(
@@ -891,13 +891,13 @@ class _HomeState extends State<Home> {
                                                     isValidEmail(
                                                       scannedEmail,
                                                     )) {
-                                                  await Future.delayed(
+                                                  /*await Future.delayed(
                                                     const Duration(
                                                       milliseconds: 500,
                                                     ),
-                                                  );
+                                                  );*/
                                                   // 3️⃣ Navigate to Face Detection Page
-                                                  final faceCheckPassed =
+                                                  /*final faceCheckPassed =
                                                       await Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
@@ -905,8 +905,8 @@ class _HomeState extends State<Home> {
                                                               (context) =>
                                                                   const FaceCheckInPage(),
                                                         ),
-                                                      );
-                                                  if (faceCheckPassed == true) {
+                                                      );*/
+                                                  //if (faceCheckPassed == true) {
                                                     bool success =
                                                         await _clockout(
                                                           employeeEmail,
@@ -920,7 +920,7 @@ class _HomeState extends State<Home> {
                                                         _loadStates(); // Reload Future values to update UI
                                                       });
                                                     }
-                                                  } else {
+                                                  /*}*/ else {
                                                     if (mounted) return;
                                                     ScaffoldMessenger.of(
                                                       context,
