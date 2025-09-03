@@ -774,17 +774,17 @@ class _HomeState extends State<Home> {
                                                       });
                                                     }
                                                   /*}*/ else {
-                                                    ScaffoldMessenger.of(
-                                                      context,
-                                                    ).showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                          "Face verification failed!",
-                                                        ),
-                                                        backgroundColor:
-                                                            Colors.red,
-                                                      ),
-                                                    );
+                                                    // ScaffoldMessenger.of(
+                                                    //   context,
+                                                    // ).showSnackBar(
+                                                    //   const SnackBar(
+                                                    //     content: Text(
+                                                    //       "Face verification failed!",
+                                                    //     ),
+                                                    //     backgroundColor:
+                                                    //         Colors.red,
+                                                    //   ),
+                                                    // );
                                                   }
                                                 } else {
                                                   ScaffoldMessenger.of(
