@@ -304,7 +304,7 @@ if (similarity > 0.6) {
         print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
         print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-        if (similarity > 0.95) {
+        if (similarity > 0.60) {
           if (!mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text("✅ Face matched! $similarity"), backgroundColor: Colors.green),
