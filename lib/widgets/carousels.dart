@@ -45,30 +45,30 @@ class ImageCarosel extends StatelessWidget {
                       ),
                     ),
                   ),
-//                   Positioned(
-//                     top: 12,
-//                     right: 12,
-//                     child: ElevatedButton(
-//                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: mainColor,
-//                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(8),
-//                         ),
-//                       ),
-//                       onPressed: () {
-//                         Navigator.push(
-//   context,
-//   MaterialPageRoute(builder: (_) => const UserInfoFormPage()),
-// );
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: mainColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+  context,
+  MaterialPageRoute(builder: (_) => const UserInfoFormPage()),
+);
 
-//                       },
-//                       child: const Text(
-//                         'Get Started',
-//                         style: TextStyle(color: Colors.white),
-//                       ),
-//                     ),
-//                   ),
+                      },
+                      child: const Text(
+                        'Get Started',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ],
               );
             },
