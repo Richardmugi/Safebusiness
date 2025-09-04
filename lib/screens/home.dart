@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -509,7 +510,10 @@ class _HomeState extends State<Home> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
+              FadeInUp(
+                duration: const Duration(milliseconds: 400),
+                   delay: Duration(milliseconds: 100),
+              child: Container(
                 width: MediaQuery.of(context).size.width,
                 decoration: const ShapeDecoration(
                   color: mainColor,
@@ -679,12 +683,17 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               ),
+              ),
+              
               Padding(
                 padding: const EdgeInsets.all(14.0),
                 child: Column(
                   children: [
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 400),
+                   delay: Duration(milliseconds: 100),
                     // Personal Info Card
-                    Card(
+                    child: Card(
                       elevation: 5,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
@@ -742,13 +751,13 @@ class _HomeState extends State<Home> {
                                                     isValidEmail(
                                                       scannedEmail,
                                                     )) {
-                                                  /*await Future.delayed(
+                                                  await Future.delayed(
                                                     const Duration(
                                                       milliseconds: 500,
                                                     ),
-                                                  );*/
+                                                  );
                                                   // 3️⃣ Navigate to Face Detection Page
-                                                  /*final faceCheckPassed =
+                                                  final faceCheckPassed =
                                                       await Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
@@ -756,10 +765,10 @@ class _HomeState extends State<Home> {
                                                               (context) =>
                                                                   const FaceCheckInPage(),
                                                         ),
-                                                      );*/
+                                                      );
 
                                                   // 4️⃣ If Face Matches → Perform Check-in
-                                                  //if (faceCheckPassed == true) {
+                                                  if (faceCheckPassed == true) {
                                                     bool success =
                                                         await _clockin(
                                                           employeeEmail,
@@ -773,7 +782,7 @@ class _HomeState extends State<Home> {
                                                         _loadStates(); // Reload UI
                                                       });
                                                     }
-                                                  /*}*/ else {
+                                                  } else {
                                                     // ScaffoldMessenger.of(
                                                     //   context,
                                                     // ).showSnackBar(
@@ -891,13 +900,13 @@ class _HomeState extends State<Home> {
                                                     isValidEmail(
                                                       scannedEmail,
                                                     )) {
-                                                  /*await Future.delayed(
+                                                  await Future.delayed(
                                                     const Duration(
                                                       milliseconds: 500,
                                                     ),
-                                                  );*/
+                                                  );
                                                   // 3️⃣ Navigate to Face Detection Page
-                                                  /*final faceCheckPassed =
+                                                  final faceCheckPassed =
                                                       await Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
@@ -905,8 +914,8 @@ class _HomeState extends State<Home> {
                                                               (context) =>
                                                                   const FaceCheckInPage(),
                                                         ),
-                                                      );*/
-                                                  //if (faceCheckPassed == true) {
+                                                      );
+                                                  if (faceCheckPassed == true) {
                                                     bool success =
                                                         await _clockout(
                                                           employeeEmail,
@@ -920,7 +929,7 @@ class _HomeState extends State<Home> {
                                                         _loadStates(); // Reload Future values to update UI
                                                       });
                                                     }
-                                                  /*}*/ else {
+                                                  } else {
                                                     if (mounted) return;
                                                     ScaffoldMessenger.of(
                                                       context,
@@ -1011,8 +1020,12 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                     ),
+                ),
                     SizedBox(height: 16),
-                    Padding(
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 400),
+                   delay: Duration(milliseconds: 100),
+                    child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
                         vertical: 8,
@@ -1036,8 +1049,12 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                     ),
+                    ),
                     // Horizontal scrollable category boxes
-                    Padding(
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 400),
+                   delay: Duration(milliseconds: 100),
+                    child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: SizedBox(
                         height: 100,
@@ -1157,10 +1174,14 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                     ),
+                    ),
 
                     // Spacer or additional content if needed
                     SizedBox(height: 16),
-                    Padding(
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 400),
+                   delay: Duration(milliseconds: 100),
+                    child: Padding(
                       padding: const EdgeInsets.only(
                         left: 18,
                         right: 18,
@@ -1173,6 +1194,7 @@ class _HomeState extends State<Home> {
                                 ? categoryImages[selectedCategory!]!
                                 : defaultImages,
                       ),
+                    ),
                     ),
                   ],
                 ),

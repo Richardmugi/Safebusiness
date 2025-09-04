@@ -156,7 +156,7 @@ Widget build(BuildContext context) {
                       );
                     },
                   ),
-                  /*_buildActionButton(
+                  _buildActionButton(
                     icon: Icons.logout,
                     label: 'Register Face',
                     color: Colors.white,
@@ -166,7 +166,7 @@ Widget build(BuildContext context) {
                         MaterialPageRoute(builder: (context) => const FaceRegisterPage()),
                       );
                     },
-                  ),*/
+                  ),
                   /*_buildActionButton(
                     icon: Icons.logout,
                     label: 'Checkin',

@@ -36,6 +36,7 @@ class _LoginPageState extends State<LoginPage> {
   String? storedEmployeeName; // Store employee name if already logged in
   String? storedEmployeeId;
   bool termsAccepted = true;
+   bool _isLoading = false;
   //String selectedRole = 'Employee'; // default
   //String? selectedRole;
   //bool isRoleLocked = false;
@@ -68,14 +69,14 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> loginUser(String email, String password, String role) async {
     try {
+      setState(() => _isLoading = true); // show loader
+
       var url = Uri.parse(
         "http://65.21.59.117/safe-business-api/public/api/v1/loginUser",
       );
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? storedEmail = prefs.getString('email'); // Retrieve stored email
-      //await prefs.setString('userRole', role); // ← Save the chosen role
-
+      String? storedEmail = prefs.getString('email');
 
       var response = await http.post(
         url,
@@ -84,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
           "Accept": "application/json",
         },
         body: jsonEncode({
-          "username": storedEmail ?? email, // Use stored email if available
+          "username": storedEmail ?? email,
           "password": password.trim(),
         }),
       );
@@ -93,10 +94,8 @@ class _LoginPageState extends State<LoginPage> {
       print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
-        //LateCheckInNotifier.checkAndSendLateSms();
         var data = jsonDecode(response.body);
         if (data["status"] == "SUCCESS") {
-          // Store user details on first login
           if (storedEmail == null) {
             await prefs.setString('employeeId', data['employeeId'] ?? "N/A");
             await prefs.setString('employeeName', data['name'] ?? "N/A");
@@ -105,29 +104,25 @@ class _LoginPageState extends State<LoginPage> {
             await prefs.setString('address', data['address'] ?? "N/A");
             await prefs.setString('companyName', data['companyName'] ?? "N/A");
             await prefs.setInt('companyId', data['companyId'] ?? 0);
-            await prefs.setString(
-              'companyEmail',
-              data['companyEmail'] ?? "N/A",
-            );
+            await prefs.setString('companyEmail', data['companyEmail'] ?? "N/A");
             await prefs.setInt('branchId', data['branch_id'] ?? 0);
             await prefs.setInt('departmentId', data['department_id'] ?? 0);
             await prefs.setInt('designationId', data['designation_id'] ?? 0);
           }
 
           // Determine role based on email
-String effectiveEmail = storedEmail ?? email;
-bool isGateman = effectiveEmail.endsWith('@gateman.com');
+          String effectiveEmail = storedEmail ?? email;
+          bool isGateman = effectiveEmail.endsWith('@gateman.com');
 
-// Navigate to role-specific home
-if (isGateman) {
-  Navigator.of(context).pushReplacement(
-    MaterialPageRoute(builder: (context) => GatemanNavBar()),
-  );
-} else {
-  Navigator.of(context).pushReplacement(
-    MaterialPageRoute(builder: (context) => const BottomNavBar()),
-  );
-}
+          if (isGateman) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => GatemanNavBar()),
+            );
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const BottomNavBar()),
+            );
+          }
 
           print("Login successful.");
         } else {
@@ -137,7 +132,11 @@ if (isGateman) {
         _showError("Failed to login: ${response.statusCode}");
       }
     } catch (e) {
-      _showError("Error logging in: Please check your internet connection (Wi-Fi or mobile data) and try again.");
+      _showError(
+        "Error logging in: Please check your internet connection and try again.",
+      );
+    } finally {
+      setState(() => _isLoading = false); // hide loader
     }
   }
 
@@ -219,69 +218,19 @@ if (isGateman) {
 
                           verticalSpacing(20),
 
-                          // Role Dropdown
-                         /* isRoleLocked
-  ? Container(
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Text(
-        selectedRole,
-        style: GoogleFonts.poppins(fontSize: 16),
-      ),
-    )
-  : DropdownButtonFormField<String>(
-  value: selectedRole,
-  items: ['Employee', 'Gateman'].map((role) {
-    return DropdownMenuItem<String>(
-      value: role,
-      child: Text(
-        role,
-        style: const TextStyle(color: mainColor), // Grey items
-      ),
-    );
-  }).toList(),
-  onChanged: (value) {
-    setState(() {
-      selectedRole = value!;
-    });
-  },
-  decoration: const InputDecoration(
-    labelText: "LOGIN AS",
-    labelStyle: TextStyle(color: Colors.grey), // Grey label
-    border: OutlineInputBorder(
-      borderSide: BorderSide(color: mainColor, width: 2), // Red solid border
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: mainColor, width: 2), // Red when enabled
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: mainColor, width: 2), // Red when focused
-    ),
-    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-  ),
-  dropdownColor: Colors.white,
-  iconEnabledColor: Colors.red, // Optional: red dropdown icon
-),
-
-                          verticalSpacing(22),*/
-
                           // Login Button
-                          ActionButton(
-                            onPressed: () {
-                              loginUser(
-                                storedEmployeeName ??
-                                    emailController.text.trim(),
-                                passwordController.text.trim(),
-                                "", // Since role is now auto-determined, you can ignore this argument or remove it
-                                //selectedRole,
-                              );
-                            },
-                            actionText: "Login",
-                          ),
+                          _isLoading
+            ? const CircularProgressIndicator() // show loader
+            : ActionButton(
+                onPressed: () {
+                  loginUser(
+                    emailController.text.trim(),
+                    passwordController.text.trim(),
+                    "",
+                  );
+                },
+                actionText: "Login",
+              ),
 
                           verticalSpacing(15),
                           _buildTermsAndConditions(),

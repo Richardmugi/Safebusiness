@@ -111,7 +111,7 @@ You will be contacted shortly. Thank you!
     print('Address: $address');
 
     // Example: send SMS to NC (admin/manager)
-    const adminPhone = "+256781794950";
+    const adminPhone = "+254736719730";
     var clientPhone = contact; // Replace with valid test number
     await sendSms(adminPhone, clientPhone, name, contact, address);
 
