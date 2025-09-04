@@ -167,7 +167,7 @@ Widget build(BuildContext context) {
                       );
                     },
                   ),
-                  /*_buildActionButton(
+                  _buildActionButton(
                     icon: Icons.logout,
                     label: 'Checkin',
                     color: Colors.white,
@@ -177,7 +177,7 @@ Widget build(BuildContext context) {
                         MaterialPageRoute(builder: (context) => const FaceCheckInPage()),
                       );
                     },
-                  ),*/
+                  ),
                   _buildActionButton(
                     icon: Icons.lock_outline,
                     label: 'Change PIN',
@@ -200,7 +200,17 @@ Widget build(BuildContext context) {
                     color: Colors.white,
                     onTap: () async {
                       SharedPreferences prefs = await SharedPreferences.getInstance();
-                      await prefs.clear();
+
+// Save face_embedding before clearing
+String? faceEmbedding = prefs.getString('face_embedding');
+
+// Clear everything
+await prefs.clear();
+
+// Restore face_embedding if it existed
+if (faceEmbedding != null) {
+  await prefs.setString('face_embedding', faceEmbedding);
+}
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => const LoginPage()),
