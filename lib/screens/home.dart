@@ -50,12 +50,13 @@ class _HomeState extends State<Home> {
   bool _isLoading = false;
   String? selectedCategory;
   final List<String> defaultImages = [
-    'assets/images/camera.jpg',
-    'assets/images/image2.jpg',
+    "assets/images/westminister.jpg",
+    "assets/images/hcash1.jpg",
     //'assets/images/image6.jpg',
   ];
 
   final categoryData = [
+    {'title': 'Payments', 'imagePath': 'assets/images/westminister.jpg'},
     {'title': 'Health', 'imagePath': 'assets/images/health.jpeg'},
     {'title': 'Travels', 'imagePath': 'assets/images/travel.jpeg'},
     {'title': 'Vacations', 'imagePath': 'assets/images/vac.jpg'},

@@ -32,7 +32,7 @@ class ImageCarosel extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 5.0),
                     decoration: BoxDecoration(
-                      color: mainColor,
+                      //color: mainColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ClipRRect(
@@ -64,7 +64,7 @@ class ImageCarosel extends StatelessWidget {
 
                       },
                       child: const Text(
-                        'Place Order',
+                        'Get Started',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

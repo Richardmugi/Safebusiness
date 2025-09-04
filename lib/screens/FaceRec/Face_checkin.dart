@@ -109,27 +109,27 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       final inputImage = InputImage.fromFilePath(file.path);
       final faces = await _faceDetector.processImage(inputImage);
 
-      if (_isIOS) {
-        debugPrint('iOS specific debug:');
-        final image = img.decodeImage(await File(file.path).readAsBytes());
-        debugPrint('Decoded image size: ${image?.width}x${image?.height}');
-      }
+      // if (_isIOS) {
+      //   debugPrint('iOS specific debug:');
+      //   final image = img.decodeImage(await File(file.path).readAsBytes());
+      //   debugPrint('Decoded image size: ${image?.width}x${image?.height}');
+      // }
 
       _detectedFaces = faces;
       if (mounted) setState(() {});
       if (faces.isEmpty) {
-        String errorMsg = "No face detected in selfie";
-        if (_isIOS) {
-          errorMsg += " (iOS may need image rotation correction)";
+        // String errorMsg = "No face detected in selfie";
+        // if (_isIOS) {
+        //   errorMsg += " (iOS may need image rotation correction)";
           // Try with rotated image for iOS
           await _tryWithRotatedImage(file.path);
           return;
-        }
+        
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMsg), backgroundColor: Colors.orange),
-        );
-        return;
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text(errorMsg), backgroundColor: Colors.orange),
+        // );
+        // return;
       }
 
       final face = faces.first;
@@ -178,9 +178,6 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         return;
       }
 
-      //final normStored = _normalize(storedEmbedding);
-      //final distance = _euclideanDistance(normCurrent, normStored);
-
       final similarity = _cosineSimilarity(normCurrent, storedEmbedding);
         print("✅ Cosine Similarity: $similarity");
 
@@ -199,25 +196,6 @@ if (similarity > 0.6) {
   );
   Navigator.pop(context, false);
 }
-      /*if (distance < 0.3) {
-        //_showMessage('✅ Face matched!');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("✅ Face matched!"),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pop(context, true); // ✅ Return success
-      } else {
-        //_showMessage('❌ Face does not match! Check-in failed');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("❌ Face does not match! Check-in failed"),
-            backgroundColor: mainColor,
-          ),
-        );
-        Navigator.pop(context, false); // ❌ Return failure
-      }*/
     } catch (e) {
       _showMessage('Error: $e');
     } finally {
@@ -225,158 +203,279 @@ if (similarity > 0.6) {
     }
   }
 
-  Future<void> _tryWithRotatedImage(String imagePath) async {
-    try {
-      debugPrint("Attempting with rotated image for iOS...");
-      final bytes = await File(imagePath).readAsBytes();
-      img.Image? image = img.decodeImage(bytes);
+//   Future<void> _tryWithRotatedImage(String imagePath) async {
+//     try {
+//       debugPrint("Attempting with rotated image for iOS...");
+//       final bytes = await File(imagePath).readAsBytes();
+//       img.Image? image = img.decodeImage(bytes);
 
-      if (image == null) {
-        debugPrint("Failed to decode image");
-        return;
-      }
+//       if (image == null) {
+//         debugPrint("Failed to decode image");
+//         return;
+//       }
 
-      // Rotate 90 degrees clockwise for iOS front camera
-      final rotated = img.copyRotate(image, angle: 90);
+//       // Rotate 90 degrees clockwise for iOS front camera
+//       final rotated = img.copyRotate(image, angle: 90);
 
-      // Save rotated image temporarily for debugging
-      final rotatedPath = '${imagePath}_rotated.jpg';
+//       // Save rotated image temporarily for debugging
+//       final rotatedPath = '${imagePath}_rotated.jpg';
+//       await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated));
+//       debugPrint("Saved rotated image to: $rotatedPath");
+
+//       // Try face detection again with rotated image
+//       final inputImage = InputImage.fromFilePath(rotatedPath);
+//       final faces = await _faceDetector.processImage(inputImage);
+
+//       if (faces.isNotEmpty) {
+//         debugPrint("Face detected after rotation!");
+
+//         final face = faces.first;
+
+//         // Process the rotated image
+//         final x = face.boundingBox.left.toInt().clamp(0, rotated.width - 1);
+//         final y = face.boundingBox.top.toInt().clamp(0, rotated.height - 1);
+//         final w = face.boundingBox.width.toInt().clamp(0, rotated.width - x);
+//         final h = face.boundingBox.height.toInt().clamp(0, rotated.height - y);
+
+//         final cropped = img.copyCrop(rotated, x: x, y: y, width: w, height: h);
+//         final resized = img.copyResizeCropSquare(cropped, size: 160);
+
+
+//         // Generate embedding
+//         const inputSize = 160;
+//         var input = List.generate(
+//           1,
+//           (_) => List.generate(
+//             inputSize,
+//             (y) => List.generate(inputSize, (x) {
+//               final pixel = resized.getPixel(x, y);
+//               return [pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
+//             }),
+//           ),
+//         );
+
+//         var output = List.generate(1, (_) => List.filled(128, 0.0));
+//         _interpreter.run(input, output);
+
+//         List<double> currentEmbedding = List<double>.from(output[0]);
+//         final normCurrent = _normalize(currentEmbedding);
+
+//         final storedEmbedding = await _loadStoredEmbedding();
+//         if (storedEmbedding == null) {
+//           if (!mounted) return;
+//           //_showMessage("No registered face found. Please register first.");
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             SnackBar(
+//               content: Text("No registered face found. Please register first."),
+//               backgroundColor: mainColor,
+//             ),
+//           );
+//           return;
+//         }
+
+//         //final normStored = _normalize(storedEmbedding);
+//         //final distance = _euclideanDistance(normCurrent, normStored);
+
+//         final similarity = _cosineSimilarity(normCurrent, storedEmbedding);
+//         print("✅ Cosine Similarity: $similarity");
+
+//         //print("✅ Normalized Euclidean Distance: $distance");
+//         print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
+//         print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
+
+//         if (similarity > 0.40) {
+//           if (!mounted) return;
+//   ScaffoldMessenger.of(context).showSnackBar(
+//     SnackBar(content: Text("✅ Face matched!"), backgroundColor: Colors.green),
+//   );
+//   Navigator.pop(context, true);
+// } else {
+//   if (!mounted) return;
+//   ScaffoldMessenger.of(context).showSnackBar(
+//     SnackBar(content: Text("❌ Face does not match! Check-in failed"), backgroundColor: mainColor),
+//   );
+//   Navigator.pop(context, false);
+// }
+
+//         /*if (distance < 0.3) {
+//           //_showMessage('✅ Face matched!');
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             SnackBar(
+//               content: Text("✅ Face matched!"),
+//               backgroundColor: Colors.green,
+//             ),
+//           );
+//           Navigator.pop(context, true); // ✅ Return success
+//         } else {
+//           //_showMessage('❌ Face does not match! Check-in failed');
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             SnackBar(
+//               content: Text("❌ Face does not match! Check-in failed"),
+//               backgroundColor: mainColor,
+//             ),
+//           );
+//           Navigator.pop(context, false); // ❌ Return failure
+//         }*/
+//       }
+
+//       // Save the embedding
+//       //await _saveEmbedding(embedding);
+
+//       /*if (mounted) {
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             SnackBar(
+//               content: Text("✅ Face registered successfully (iOS rotated)!"),
+//               backgroundColor: Colors.green,
+//             ),
+//           );
+//         }*/
+//       /*} else {
+//         debugPrint("Still no face detected after rotation");
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text("iOS: No face detected even after rotation"),
+//             backgroundColor: Colors.orange,
+//           ),
+//         );
+//       }*/
+
+//       // Clean up temporary file
+//       //await File(rotatedPath).delete();
+//     } catch (e, stack) {
+//       debugPrint("Error in rotated image processing: $e");
+//       debugPrint("Stack trace: $stack");
+//       if (mounted) setState(() => _isProcessing = false);
+//       {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text("Error processing rotated image: ${e.toString()}"),
+//             backgroundColor: Colors.red,
+//             duration: Duration(seconds: 5),
+//           ),
+//         );
+//       }
+//     }
+//   }  
+
+Future<void> _tryWithRotatedImage(String imagePath) async {
+  try {
+    debugPrint("Attempting with rotated image(s) for iOS...");
+
+    final bytes = await File(imagePath).readAsBytes();
+    img.Image? image = img.decodeImage(bytes);
+
+    if (image == null) {
+      debugPrint("Failed to decode image");
+      return;
+    }
+
+    // Try +90, -90, and 180 degrees
+    for (final angle in [90, -90, 180]) {
+      debugPrint("Trying rotation angle: $angle");
+
+      final rotated = img.copyRotate(image, angle: angle);
+
+      final rotatedPath = '${imagePath}_rotated_$angle.jpg';
       await File(rotatedPath).writeAsBytes(img.encodeJpg(rotated));
       debugPrint("Saved rotated image to: $rotatedPath");
 
-      // Try face detection again with rotated image
       final inputImage = InputImage.fromFilePath(rotatedPath);
       final faces = await _faceDetector.processImage(inputImage);
 
-      if (faces.isNotEmpty) {
-        debugPrint("Face detected after rotation!");
+      if (faces.isEmpty) {
+        debugPrint("No face detected at $angle°, trying next...");
+        continue; // try the next rotation
+      }
 
-        final face = faces.first;
+      debugPrint("✅ Face detected after $angle° rotation!");
+      final face = faces.first;
 
-        // Process the rotated image
-        final x = face.boundingBox.left.toInt().clamp(0, rotated.width - 1);
-        final y = face.boundingBox.top.toInt().clamp(0, rotated.height - 1);
-        final w = face.boundingBox.width.toInt().clamp(0, rotated.width - x);
-        final h = face.boundingBox.height.toInt().clamp(0, rotated.height - y);
+      final x = face.boundingBox.left.toInt().clamp(0, rotated.width - 1);
+      final y = face.boundingBox.top.toInt().clamp(0, rotated.height - 1);
+      final w = face.boundingBox.width.toInt().clamp(0, rotated.width - x);
+      final h = face.boundingBox.height.toInt().clamp(0, rotated.height - y);
 
-        final cropped = img.copyCrop(rotated, x: x, y: y, width: w, height: h);
-        final resized = img.copyResizeCropSquare(cropped, size: 160);
+      final cropped = img.copyCrop(rotated, x: x, y: y, width: w, height: h);
+      final resized = img.copyResizeCropSquare(cropped, size: 160);
 
-        // Generate embedding
-        const inputSize = 160;
-        var input = List.generate(
-          1,
-          (_) => List.generate(
-            inputSize,
-            (y) => List.generate(inputSize, (x) {
-              final pixel = resized.getPixel(x, y);
-              return [pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
-            }),
+      // Prepare input
+      const inputSize = 160;
+      var input = List.generate(
+        1,
+        (_) => List.generate(
+          inputSize,
+          (y) => List.generate(inputSize, (x) {
+            final pixel = resized.getPixel(x, y);
+            return [pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
+          }),
+        ),
+      );
+
+      // Run model
+      var output = List.generate(1, (_) => List.filled(128, 0.0));
+      _interpreter.run(input, output);
+
+      List<double> currentEmbedding = List<double>.from(output[0]);
+      final normCurrent = _normalize(currentEmbedding);
+
+      final storedEmbedding = await _loadStoredEmbedding();
+      if (storedEmbedding == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("No registered face found. Please register first."),
+            backgroundColor: mainColor,
           ),
         );
+        return;
+      }
 
-        var output = List.generate(1, (_) => List.filled(128, 0.0));
-        _interpreter.run(input, output);
+      final similarity = _cosineSimilarity(normCurrent, storedEmbedding);
+      print("✅ Cosine Similarity: $similarity");
 
-        List<double> currentEmbedding = List<double>.from(output[0]);
-        final normCurrent = _normalize(currentEmbedding);
+      if (similarity > 0.50) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("✅ Face matched!"), backgroundColor: Colors.green),
+        );
+        Navigator.pop(context, true);
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("❌ Face does not match! Check-in failed"),
+            backgroundColor: mainColor,
+          ),
+        );
+        Navigator.pop(context, false);
+      }
 
-        final storedEmbedding = await _loadStoredEmbedding();
-        if (storedEmbedding == null) {
-          if (!mounted) return;
-          //_showMessage("No registered face found. Please register first.");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("No registered face found. Please register first."),
-              backgroundColor: mainColor,
-            ),
-          );
-          return;
-        }
+      return; // ✅ stop once processed
+    }
 
-        //final normStored = _normalize(storedEmbedding);
-        //final distance = _euclideanDistance(normCurrent, normStored);
+    // If none of the rotations worked
+    debugPrint("No face detected after all rotations.");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("No face detected after rotation attempts"),
+        backgroundColor: Colors.orange,
+      ),
+    );
+  } catch (e, stack) {
+    debugPrint("Error in rotated image processing: $e");
+    debugPrint("Stack trace: $stack");
+    if (mounted) setState(() => _isProcessing = false);
 
-        final similarity = _cosineSimilarity(normCurrent, storedEmbedding);
-        print("✅ Cosine Similarity: $similarity");
-
-        //print("✅ Normalized Euclidean Distance: $distance");
-        print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
-        print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
-
-        if (similarity > 0.60) {
-          if (!mounted) return;
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("✅ Face matched! $similarity"), backgroundColor: Colors.green),
-  );
-  Navigator.pop(context, true);
-} else {
-  if (!mounted) return;
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("❌ Face does not match! Check-in failed: $similarity"), backgroundColor: mainColor),
-  );
-  Navigator.pop(context, false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Error processing rotated image: ${e.toString()}"),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 5),
+      ),
+    );
+  }
 }
 
-        /*if (distance < 0.3) {
-          //_showMessage('✅ Face matched!');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("✅ Face matched!"),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pop(context, true); // ✅ Return success
-        } else {
-          //_showMessage('❌ Face does not match! Check-in failed');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("❌ Face does not match! Check-in failed"),
-              backgroundColor: mainColor,
-            ),
-          );
-          Navigator.pop(context, false); // ❌ Return failure
-        }*/
-      }
-
-      // Save the embedding
-      //await _saveEmbedding(embedding);
-
-      /*if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("✅ Face registered successfully (iOS rotated)!"),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }*/
-      /*} else {
-        debugPrint("Still no face detected after rotation");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("iOS: No face detected even after rotation"),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }*/
-
-      // Clean up temporary file
-      //await File(rotatedPath).delete();
-    } catch (e, stack) {
-      debugPrint("Error in rotated image processing: $e");
-      debugPrint("Stack trace: $stack");
-      if (mounted) setState(() => _isProcessing = false);
-      {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error processing rotated image: ${e.toString()}"),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 5),
-          ),
-        );
-      }
-    }
-  }  
 
   Future<List<double>?> _loadStoredEmbedding() async {
     final prefs = await SharedPreferences.getInstance();
