@@ -243,14 +243,14 @@ Widget build(BuildContext context) {
                     return Center(
                       child: Text(
                         'Network error: Please check your internet connection (Wi-Fi or mobile data) and try again.',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: mainColor),
                       ),
                     );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
                       child: Text(
                         'No attendance data available.',
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: mainColor),
                       ),
                     );
                   } else {

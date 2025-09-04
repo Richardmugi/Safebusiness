@@ -171,7 +171,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
         //_showMessage("No registered face found. Please register first.");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("No registered face found. Please register first."),
+            content: Text("No registered face found. Please register face in profile."),
             backgroundColor: Colors.orange,
           ),
         );
@@ -188,7 +188,7 @@ class _FaceCheckInPageState extends State<FaceCheckInPage> {
       print("Stored Embedding (first 5): ${storedEmbedding.take(5)}");
       print("Current Embedding (first 5): ${currentEmbedding.take(5)}");
 
-if (similarity > 0.85) {
+if (similarity > 0.6) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text("✅ Face matched!"), backgroundColor: Colors.green),
   );

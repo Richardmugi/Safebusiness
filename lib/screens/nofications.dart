@@ -115,7 +115,7 @@ Widget build(BuildContext context) {
                     child: Text(
                       "No notifications yet",
                       style: GoogleFonts.poppins(
-                        color: Colors.white,
+                        color: mainColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
                       ),
