@@ -83,10 +83,10 @@ class QuickActionsPage extends StatelessWidget {
       image: DecorationImage(
         image: AssetImage(imagePath), // 👈 Use the passed image path
         fit: BoxFit.cover,
-        colorFilter: ColorFilter.mode(
-          Colors.white.withOpacity(0.85), // Optional: soft overlay
-          BlendMode.lighten,
-        ),
+        // colorFilter: ColorFilter.mode(
+        //   Colors.white.withOpacity(0.85), // Optional: soft overlay
+        //   BlendMode.lighten,
+        // ),
       ),
       borderRadius: BorderRadius.circular(10),
     ),

@@ -156,6 +156,7 @@ Widget build(BuildContext context) {
                       );
                     },
                   ),
+                  SizedBox(height: 16),
                   _buildActionButton(
                     icon: Icons.logout,
                     label: 'Register Face',
@@ -167,6 +168,7 @@ Widget build(BuildContext context) {
                       );
                     },
                   ),
+                  SizedBox(height: 16),
                   /*_buildActionButton(
                     icon: Icons.logout,
                     label: 'Checkin',
@@ -186,6 +188,7 @@ Widget build(BuildContext context) {
                       MaterialPageRoute(builder: (context) => const ChangePin()),
                     ),
                   ),
+                  SizedBox(height: 16),
                   _buildActionButton(
                     icon: Icons.lock_outline,
                     label: 'generate Employee QR Code',
@@ -194,6 +197,7 @@ Widget build(BuildContext context) {
                       MaterialPageRoute(builder: (context) => const EmailQrScreen()),
                     ),
                   ),
+                  SizedBox(height: 16),
                   _buildActionButton(
                     icon: Icons.logout,
                     label: 'Logout',

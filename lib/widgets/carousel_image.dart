@@ -1,4 +1,8 @@
 final Map<String, List<String>> categoryImages = {
+  "Nard Concepts" : [
+    "assets/images/camera.jpg",
+    "assets/images/solar.webp",
+  ],
   "Payments" : [
     "assets/images/west.jpg",
     "assets/images/hcash1.jpg",

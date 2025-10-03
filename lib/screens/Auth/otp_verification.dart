@@ -56,7 +56,7 @@ class _OtpVerificationState extends State<OtpVerification> {
     // Email Message
     final message =
         Message()
-          ..from = Address(username, 'Safebusiness') // Sender info
+          ..from = Address(username, 'CheckinPro') // Sender info
           ..recipients.add(email) // Recipient email
           ..subject = 'Your One-Time Passcode (OTP)'
           ..text = 'Your verification code is $generatedOtp.Use this code within 3 minutes to proceed. Do not share this code with anyone.';

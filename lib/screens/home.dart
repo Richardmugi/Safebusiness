@@ -56,6 +56,7 @@ class _HomeState extends State<Home> {
   ];
 
   final categoryData = [
+    {'title': 'Nard Concepts', 'imagePath': 'assets/images/logo.png'},
     {'title': 'Payments', 'imagePath': 'assets/images/westminister.jpg'},
     {'title': 'Health', 'imagePath': 'assets/images/health.jpeg'},
     {'title': 'Travels', 'imagePath': 'assets/images/travel.jpeg'},

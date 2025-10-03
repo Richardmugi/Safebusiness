@@ -112,16 +112,19 @@ Future<void> _loadUserDetails() async {
                     )),
               ),*/
               verticalSpacing(15),
-              TextFormField(
-  controller: _emailController, // ✅ Reactive
-  readOnly: true,
-  decoration: InputDecoration(
-    labelText: "Email",
-    border: OutlineInputBorder(),
-    filled: true,
-    fillColor: filledColor,
+              Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 16.0), // <-- Add spacing from edges
+  child: TextFormField(
+    controller: _emailController,
+    readOnly: true,
+    decoration: InputDecoration(
+      labelText: "Email",
+      border: OutlineInputBorder(),
+      filled: true,
+      fillColor: filledColor,
+    ),
+    style: TextStyle(color: Colors.grey[700]),
   ),
-  style: TextStyle(color: Colors.grey[700]),
 ),
 
               verticalSpacing(25),

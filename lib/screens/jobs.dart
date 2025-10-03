@@ -160,7 +160,7 @@ Widget build(BuildContext context) {
                           "No jobs available",
                           style: TextStyle(
                             fontSize: 16,
-                            color: Colors.white,
+                            color: mainColor,
                           ),
                         ),
                       ),
